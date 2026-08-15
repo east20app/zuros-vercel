@@ -1,0 +1,43 @@
+﻿# Dependencies
+node_modules/
+site/node_modules/
+
+# Compiled output and caches
+dist/
+site/.next/
+site/.next-dev/
+site/next-build/
+site/next-build-visual/
+site/next-build-visual-staging/
+site/*.tsbuildinfo
+*.tsbuildinfo
+*.log
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+cookies.txt
+csrf.txt
+response.txt
+token.txt
+config.json
+
+# Local debugging and releases
+tmp_*
+releases/
+*.zip
+audit-functions.txt
+audit-identifiers.txt
+discord-ui-map.txt
+site-discord-parity-audit.txt
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+.vercel
+
+

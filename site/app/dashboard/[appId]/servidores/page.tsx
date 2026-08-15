@@ -1,0 +1,49 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Icon } from "@/components/Icon";
+import { BotConfigHeader } from "@/components/BotConfigHeader";
+import { Card, PageHeader } from "@/components/ui";
+import { getBotIdentity, listBotGuilds } from "@/lib/actions/apps.actions";
+import { ActionError } from "@/lib/actions/context";
+import { requireUser } from "@/lib/require-admin";
+
+export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Servidores · ZUROS APP" };
+
+export default async function BotServersPage({ params }: { params: { appId: string } }) {
+    await requireUser();
+    let bot;
+    let guilds;
+    try {
+        [bot, guilds] = await Promise.all([getBotIdentity(params.appId), listBotGuilds(params.appId)]);
+    } catch (error) {
+        if (error instanceof ActionError) notFound();
+        throw error;
+    }
+
+    return (
+        <main className="mx-auto min-w-0 max-w-6xl px-5 py-8 sm:px-8">
+            <BotConfigHeader appId={params.appId} />
+            <PageHeader title="Servidores" subtitle={`${bot.name} está presente em ${guilds.length} servidor(es).`} />
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {guilds.map((guild) => (
+                    <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#5865f2]/40">
+                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#5865f2]/15 text-[#949cf7]">
+                            <Icon name="apps" />
+                        </span>
+                        <span className="min-w-0">
+                            <b className="block truncate text-sm text-white">{guild.name}</b>
+                            <code className="mt-1 block truncate text-xs text-zinc-500">{guild.id}</code>
+                        </span>
+                    </Card>
+                ))}
+            </div>
+            {guilds.length === 0 ? (
+                <Card className="mt-6 border-dashed py-12 text-center">
+                    <p className="text-sm font-medium text-zinc-300">Nenhum servidor encontrado</p>
+                    <p className="mt-1 text-xs text-zinc-500">Adicione o bot a um servidor e atualize esta página.</p>
+                </Card>
+            ) : null}
+        </main>
+    );
+}

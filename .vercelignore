@@ -1,0 +1,17 @@
+*.zip
+.env
+.env.*
+!.env.example
+node_modules/
+site/node_modules/
+site/.next/
+site/next-build-visual/
+*.tsbuildinfo
+audit-functions.txt
+audit-identifiers.txt
+discord-ui-map.txt
+site-discord-parity-audit.txt
+camposcloud-deploy.zip
+releases/
+site/next-build-visual-staging/**
+site/next-build-visual/**

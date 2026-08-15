@@ -1,0 +1,32 @@
+export const emojis = {
+    "config": "⚙️",
+    "statistics": "📊",
+    "channels": "💬",
+    "machine": "🖥️",
+    "cart": "🛒",
+    "back": "↩️",
+    "trash": "🗑️",
+    "bank": "🏦",
+    "art": "🎨",
+    "add": "➕",
+    "cupom": "🎟️",
+    "remove": "➖",
+    "tools": "🔧",
+    "user": "👤",
+    // Nota: a chave original tinha um typo ("foldder"). Mantida por
+    // compatibilidade com quem já usa `emojis.foldder` no resto do código,
+    // e adicionada a chave correta "folder" apontando pro mesmo emoji.
+    "foldder": "📁",
+    "folder": "📁",
+    "settings": "⚙️",
+    "yes": "✅",
+    "cancel": "❌",
+    "key": "🔑",
+    "boost": "🚀",
+    "gift": "🎁",
+    "copy": "📋",
+    "qrcode": "📱",
+    "reload": "🔄",
+    "square": "⏹️",
+    "play": "▶️"
+}

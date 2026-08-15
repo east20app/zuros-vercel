@@ -1,0 +1,181 @@
+// Defaults reais do DROX (database_template.json). Quando o bot ainda não
+// criou um documento, o painel usa estes valores para nunca exibir "{}" vazio.
+export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
+    // --- Loja ---
+    loja_config: {},
+    loja_products: {},
+    loja_buys: { purchases: {} },
+    loja_customers: { customers: {}, decorations: { roles: [] }, settings: { auto_role: true, base_role: null } },
+    loja_data: { carts: {} },
+    payment_configs: {
+        pix_manual: { enabled: false, pix_key: "", pix_key_type: "" },
+        mercado_pago: { enabled: false, access_token: "" },
+        efibank: { enabled: false, client_id: "", client_secret: "", pix_key: "", cert_file: "" },
+        pushinpay: { enabled: false, token_pushinpay: "" },
+        misticpay: { enabled: false, client_id: "", client_secret: "" },
+        sync_wallet: { enabled: false, api_key: "", cover_fee: false },
+    },
+    pagamentos: {},
+    payment_tracking: { items: {} },
+    loja_preferences: {
+        cart_duration_minutes: 30,
+        transcript_enabled: false,
+        transcript_channel_id: null,
+        office_hours: { enabled: false, start_time: "", end_time: "", off_days: [], message: "" },
+        stock_requests: { enabled: false, channel_id: null, role_id: null },
+        terms: { enabled: false, text: "" },
+    },
+    loja_mass_coupons: { coupons: {} },
+    loja_roles_temp: {},
+    loja_stock_notifications: { notifications: {} },
+    loja_doubt_button: { enabled: false, button_label: "Dúvidas", button_emoji: "❓", channel_id: null, message: "Olá! Se você tem dúvidas sobre nossos produtos, entre em contato conosco!" },
+    loja_maintenance: { enabled: false, message: "Olá, {user} a loja está em manutenção, tente novamente mais tarde.", allow_admins: true },
+    loja_personalization: {
+        purchase_event: { message: null, color: null, image: null, show_user: true, show_quantity: true, show_price: true },
+        feedback_incentive: { message: null, button_text: "Deixar Avaliação" },
+    },
+    loja_qr_customization: { enabled: true, color: "#000000", background_color: "#FFFFFF", logo_url: null, logo_size: 0.3, corner_style: "square", dot_style: "square" },
+    products_preferences: { show_description: true, show_sales_count: false, button_text: "Comprar", button_emoji: "🛒" },
+
+    // --- Proteção geral ---
+    protection_config: {},
+    antifake_config: { enabled: false, min_days: 7, block_bots: false },
+    antifake_authorized: { users: [] },
+    interaction_monitor_config: { enabled: true },
+    protection_protecaogeral_banimentos: {
+        banimento: { limite: 2, intervalo: 10, ativado: false },
+        banimentos_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+    protection_protecaogeral_canais: {
+        criacao: { limite: 3, intervalo: 10, ativado: false },
+        edicao: { limite: 5, intervalo: 15, ativado: false },
+        exclusao: { limite: 2, intervalo: 5, ativado: false },
+        canais_avancado: { punicao: "none", cargos_imunes: [], categorias_imunes: [], canal_logs: null },
+    },
+    protection_protecaogeral_cargos: {
+        criacao: { limite: 3, intervalo: 10, ativado: false },
+        edicao: { limite: 5, intervalo: 15, ativado: false },
+        exclusao: { limite: 2, intervalo: 5, ativado: false },
+        cargos_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+    protection_protecaogeral_comandosext: {
+        comandosext: { limite: 5, intervalo: 15, ativado: false },
+        comandosext_avancado: { punicao: "none", bots_permitidos: [], canal_logs: null },
+    },
+    protection_protecaogeral_expulsoes: {
+        expulsoes: { limite: 3, intervalo: 10, ativado: false },
+        expulsoes_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+    protection_protecaogeral_webhooks: {
+        webhooks: { limite: 2, intervalo: 5, ativado: false },
+        webhooks_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+
+    // --- Privatizações ---
+    protection_privatizacoes_apps: {
+        privatizacao_apps: { ativado: false },
+        privatizacao_apps_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+    protection_privatizacoes_cargos: {
+        privatizacao_cargos: { ativado: false },
+        privatizacao_cargos_avancado: { punicao: "none", cargos_privados: [], cargos_imunes: [], canal_logs: null },
+    },
+    protection_privatizacoes_mencoes: {
+        privatizacao_mencoes: { ativado: false },
+        privatizacao_mencoes_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+    protection_privatizacoes_perms: {
+        privatizacao_permissoes: { ativado: false },
+        privatizacao_permissoes_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+    protection_privatizacoes_persistencia: {
+        persistencia_canais: { ativado: false },
+        persistencia_canais_avancado: { punicao: "none", cargos_imunes: [], categorias_imunes: [], canal_logs: null },
+    },
+    protection_privatizacoes_urls: {
+        privatizacao_urls: { ativado: false },
+        privatizacao_urls_avancado: { punicao: "none", cargos_imunes: [], canal_logs: null },
+    },
+
+    // --- Tickets ---
+    tickets_config: { panels: {} },
+
+    // --- Giveaways ---
+    giveaways: {},
+
+    // --- Automações ---
+    automations: {},
+    automations_ai_chat: { ativado: false, chats: {}, cargo_imune_id: null },
+    automations_ai_moderator: { ativado: false, cargo_imune_id: null, prompt: null, rejection_message: "Sua mensagem foi removida por violar as TOS do Discord." },
+    automations_boas_vindas: {
+        ativado: false,
+        mensagem: "Bem-vindo {user} ao {nameserver}! Agora somos {servercount}.",
+        tempo_segundos: 0,
+        modo_envio: "v2",
+        rota_envio: "canal",
+        usar_componentes_v2: true,
+        v1_imagem_url: null,
+        v2_imagem_url: null,
+        v2_cor_container: null,
+        embed_titulo: null,
+        embed_banner_url: null,
+        embed_thumb_url: null,
+        embed_cor: null,
+    },
+    automations_clean: { ativado: false, canais: {}, logs_ativados: false },
+    automations_cont_members: { ativado: false, contadores: [], estilo: 0 },
+    automations_cont_members_call: { ativado: false, contadores: [], estilo: 0 },
+    automations_cont_vendas: {},
+    automations_feedbacks: { ativado: false },
+    automations_invite_tracker: { ativado: false, channel_id: null, welcome_message: "Seja bem-vindo(a) {member}! Você foi convidado(a) por {inviter} que agora possui {invites} convites válidos.", leave_message: "Que pena, {member} nos deixou. Ele(a) foi convidado(a) por {inviter} que agora possui {invites} convites válidos." },
+    automations_lock_unlock: { ativado: false, canais: {}, logs_ativados: false },
+    automations_msg_auto: { ativado: false, mensagens: {} },
+    automations_nuke: { ativado: false, canais: {}, logs_ativados: false },
+    automations_reactions: { status: false, reactions: [] },
+    automations_repost: { ativado: false, intervalo_horas: 24, proxima_repostagem: null, logs_ativados: false },
+    automations_response_auto: { status: false, responses: [] },
+    automations_suggestions: {
+        status: false,
+        channel: null,
+        sugestoes: {},
+        immune_role_id: null,
+        create_threads: true,
+        thread_message: "{user}, este tópico foi criado para discutir a sua sugestão.",
+        auto_moderation: { enabled: false, mode: "porcentagem", approval_threshold: 60, rejection_threshold: 40, approval_delay_hours: 24 },
+    },
+    automations_topics: { ativado: false, topicos: [], immune_role_id: null },
+
+    // --- Customização ---
+    custom_colors: { primary: "#ffffff", secondary: "#6c757d", success: "#28a745", danger: "#dc3545", warning: "#ffc107" },
+    custom_status: { type: "online", names: ["Powered by Drox"] },
+    custom_info: {},
+    custom_mode: { mode: "components" },
+
+    // --- Configurações do /painel ---
+    cargos: { cargo_admin: null, cargo_suporte: null, cargo_cliente: null, cargo_verificado: null, cargo_auto_role: null },
+    canais: {
+        canal_de_evento_de_compras: null, canal_de_boas_vindas: null, canal_de_logs_do_sistema: null,
+        canal_de_logs_de_entradas: null, canal_de_logs_de_saidas: null, canal_de_logs_de_mensagens: null,
+        canal_de_logs_de_pedidos: null,
+    },
+    blacklist: { ids: [] },
+
+    // --- Notificações ---
+    notifications_config: {},
+    enviar_dm_editor: {},
+    messages_anunciar: {
+        configured: false,
+        is_v2_component: false,
+        message: {
+            content: null,
+            container: null,
+            embed: { title: null, description: null, color: null, footer: null, banner: null, thumbnail: null },
+            externalImage: null,
+            buttons: [],
+        },
+    },
+};
+
+export function droxDefaultFor(docId: string): Record<string, unknown> {
+    return DROX_DOCUMENT_DEFAULTS[docId] ?? {};
+}

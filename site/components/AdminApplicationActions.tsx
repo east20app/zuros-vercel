@@ -1,0 +1,15 @@
+"use client";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { controlStoreApplication, updateStoreApplication } from "@/lib/actions/admin.actions";
+import { getErrorMessage } from "@/lib/errors";
+import { useToast } from "./Toast";
+import { Button, Field, inputClass, Modal } from "./ui";
+
+export function AdminApplicationActions({ appId, name, ownerId, botId }: { appId: string; name: string; ownerId: string; botId: string }) {
+    const [open, setOpen] = useState(false); const [pending, startTransition] = useTransition(); const router = useRouter(); const { push } = useToast();
+    const [newName, setNewName] = useState(name); const [newOwner, setNewOwner] = useState(ownerId); const [days, setDays] = useState("30"); const [lifetime, setLifetime] = useState(false);
+    const run = (fn: () => Promise<unknown>, message: string) => startTransition(async () => { try { await fn(); push(message); router.refresh(); } catch (error) { push(getErrorMessage(error, "Operação não concluída."), "error"); } });
+    const invite = `https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(botId)}&permissions=8&scope=bot%20applications.commands`;
+    return <div className="flex flex-wrap justify-end gap-1.5"><Button size="sm" variant="success" disabled={pending} onClick={() => run(() => controlStoreApplication(appId, "start"), "Aplicação iniciada.")}>Iniciar</Button><Button size="sm" variant="secondary" disabled={pending} onClick={() => run(() => controlStoreApplication(appId, "restart"), "Aplicação reiniciada.")}>Reiniciar</Button><Button size="sm" variant="danger" disabled={pending} onClick={() => run(() => controlStoreApplication(appId, "stop"), "Aplicação parada.")}>Parar</Button><Button size="sm" variant="outline" onClick={() => setOpen(true)}>Editar</Button><a className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 hover:text-white" href={invite} target="_blank" rel="noreferrer">Adicionar ao servidor</a><Modal open={open} onClose={() => setOpen(false)} title="Administrar aplicação"><form className="space-y-4" onSubmit={(event) => { event.preventDefault(); run(() => updateStoreApplication(appId, { name: newName, ownerId: newOwner, days: Number(days), lifetime }), "Aplicação atualizada."); setOpen(false); }}><Field label="Nome"><input className={inputClass} value={newName} onChange={(event) => setNewName(event.target.value)} /></Field><Field label="ID do proprietário"><input className={inputClass} value={newOwner} onChange={(event) => setNewOwner(event.target.value)} /></Field><Field label="Nova validade em dias"><input type="number" min="1" className={inputClass} value={days} disabled={lifetime} onChange={(event) => setDays(event.target.value)} /></Field><label className="flex items-center gap-2 text-sm text-zinc-300"><input type="checkbox" checked={lifetime} onChange={(event) => setLifetime(event.target.checked)} />Acesso vitalício</label><Button type="submit" disabled={pending}>Salvar</Button></form></Modal></div>;
+}

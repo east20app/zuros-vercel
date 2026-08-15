@@ -1,0 +1,3 @@
+import { Empty } from "@/components/ui";
+import { Icon } from "@/components/Icon";
+export default function NotificationsPage() { return <main className="mx-auto max-w-6xl px-5 py-10"><div className="flex items-center gap-2.5"><span className="h-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" /><h1 className="text-3xl font-semibold tracking-tight text-white">Notificações</h1></div><p className="mt-2 text-sm text-zinc-500">Alertas e atualizações da sua conta.</p><div className="mt-8"><Empty icon={<Icon name="bell" />} title="Central de notificações" text="Em breve os alertas da sua conta aparecerão aqui." /></div></main>; }

@@ -1,0 +1,25 @@
+# Obrigatórias: aplicação e autenticação
+APP_URL=https://seu-projeto.vercel.app
+NEXTAUTH_URL=https://seu-projeto.vercel.app
+NEXTAUTH_SECRET=gere-um-segredo-forte-com-32-ou-mais-caracteres
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+OWNER_ID=
+
+# Obrigatórias: persistência
+MONGO_DB_URL=mongodb+srv://usuario:senha@cluster/banco
+DROX_BOTS_MONGO_URI=mongodb+srv://usuario:senha@cluster/drox_bots
+
+# Pagamentos EFI (obrigatórias somente se o gateway EFI for usado)
+EFI_WEBHOOK_SECRET=
+EFI_WEBHOOK_URL=https://seu-projeto.vercel.app/api/webhooks/efi
+
+# PromissePay (obrigatórias somente se o gateway PromissePay for usado)
+PROMISSEPAY_WEBHOOK_SECRET=
+PROMISSEPAY_WEBHOOK_URL=https://seu-projeto.vercel.app/api/webhooks/promissepay
+
+# Opcional: somente para executar o worker Discord legado fora da Vercel
+# BOT_TOKEN=
+
+# Não cadastrar manualmente: VERCEL, PORT, NODE_ENV e NEXT_PHASE são definidas
+# pela plataforma. NEXT_DIST_DIR e BUILD_NODE_OPTIONS também não são necessários.
