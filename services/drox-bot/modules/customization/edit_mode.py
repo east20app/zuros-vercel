@@ -26,7 +26,7 @@ class EditMode:
                     "Você pode alterar para Componentes V1 ou Componentes V2."
                 ),
                 disnake.ui.Separator(spacing=disnake.SeparatorSpacing.small),
-                disnake.ui.TextDisplay(f"**Modo de exibição atual:** {"`Componentes V1`" if mode == "embed" else "`Componentes V2`"}"),
+                disnake.ui.TextDisplay(f"**Modo de exibição atual:** {'`Componentes V1`' if mode == 'embed' else '`Componentes V2`'}"),
                 disnake.ui.ActionRow(
                     disnake.ui.StringSelect(
                         placeholder="Selecione o modo de exibição",

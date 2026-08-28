@@ -108,7 +108,7 @@ class ConfigurarCupom(commands.Cog):
             f"-# Criado em: {utils.format_timestamp(coupon.get('created_at'))}\n"
             f"-# Última edição: {utils.format_timestamp(coupon.get('updated_at'))}\n"
             f"-# Expira em: `{utils.format_timestamp(coupon['expires_at']) if coupon.get('expires_at') else 'Ilimitado'}`\n"
-            f"-# Usos: `{coupon.get('uses_count', 0)}`{f"/`{coupon.get('max_uses')}`" if coupon.get('max_uses') is not None else ''}\n"
+            f"-# Usos: `{coupon.get('uses_count', 0)}`{'/`' + str(coupon.get('max_uses')) + '`' if coupon.get('max_uses') is not None else ''}\n"
             f"-# Mín. carrinho: `{utils.format_price_brl(coupon.get('min_cart')) if coupon.get('min_cart') is not None else 'Nenhum'}` | Máx. carrinho: `{utils.format_price_brl(coupon.get('max_cart')) if coupon.get('max_cart') is not None else 'Nenhum'}`\n"
         )
 

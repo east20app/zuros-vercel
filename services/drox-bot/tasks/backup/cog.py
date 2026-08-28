@@ -191,10 +191,10 @@ class BackupCog(commands.Cog, name="Backup"):
                     disnake.ui.Separator(),
                     disnake.ui.TextDisplay(
                         f"\n**Estrutura:**\n"
-                        f"{emoji.textc} Canais: {f'`{str(backup['canais'])}`'.ljust(4)}      {emoji.dir} Categorias: {f'`{str(backup['categorias'])}`'.ljust(4)}\n"
-                        f"{emoji.role} Cargos: {f'`{str(backup['cargos'])}`'.ljust(4)}     {emoji.reaction} Emojis: {f'`{str(backup['emojis'])}`'.ljust(4)}\n"
-                        f"{emoji.flag} Stickers: {f'`{str(backup['stickers'])}`'.ljust(4)}   {emoji.message if hasattr(emoji, 'message') else '💬'} Mensagens: {f'`{str(backup['mensagens'])}`'.ljust(4)}\n"
-                        f"{emoji.members} Membros: {f'`{str(backup.get('membros', 0))}`'.ljust(4)}"
+                        f"{emoji.textc} Canais: `{backup['canais']}`      {emoji.dir} Categorias: `{backup['categorias']}`\n"
+                        f"{emoji.role} Cargos: `{backup['cargos']}`     {emoji.reaction} Emojis: `{backup['emojis']}`\n"
+                        f"{emoji.flag} Stickers: `{backup['stickers']}`   {emoji.message if hasattr(emoji, 'message') else '💬'} Mensagens: `{backup['mensagens']}`\n"
+                        f"{emoji.members} Membros: `{backup.get('membros', 0)}`"
                     ),
                     disnake.ui.Separator(),
                     disnake.ui.ActionRow(

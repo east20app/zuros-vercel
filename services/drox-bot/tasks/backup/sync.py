@@ -81,7 +81,7 @@ class Sincronizacao:
                             disnake.ui.Separator(),
                             disnake.ui.TextDisplay(
                                 f"{emoji.calendar} **Data:** <t:{agora}:f> (<t:{agora}:R>)\n"
-                                f"{f'{emoji.reload} **Backup Automático:** `Sim`\n' if auto else ''}"
+                                + (f"{emoji.reload} **Backup Automático:** `Sim`\n" if auto else "")
                             ),
                             **container_kwargs,
                         )
