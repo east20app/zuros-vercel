@@ -161,7 +161,7 @@ class DroxGenConfig(commands.Cog):
                 f"-# Painel de controle completo para o Drox Gen."
                 f"{emoji.on} **Status:** Ativo\n"
                 f"{emoji.member} **Usuário Integrado:** `{integrated_user}`\n"
-                f"{f'{emoji.folder} **Projeto Selecionado:** `{status_data.get("project_key")}`' if status_data.get("project_key") else ''}"
+                + (f"{emoji.folder} **Projeto Selecionado:** `{status_data.get('project_key')}`" if status_data.get("project_key") else "")
             ),
         )
 
