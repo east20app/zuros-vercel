@@ -12,6 +12,9 @@ audit-identifiers.txt
 discord-ui-map.txt
 site-discord-parity-audit.txt
 camposcloud-deploy.zip
-releases/
+/releases/
+/services/
 site/next-build-visual-staging/**
 site/next-build-visual/**
+.codex-analysis/
+.codex-recovery/

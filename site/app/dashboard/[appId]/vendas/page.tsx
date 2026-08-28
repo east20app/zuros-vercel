@@ -9,21 +9,22 @@ import { formatMoney } from "@/lib/status";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { appId: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<Metadata> {
+    const resolvedParams = await params;
     try {
-        const ctx = await getVendasContext(params.appId);
+        const ctx = await getVendasContext(resolvedParams.appId);
         return { title: `Vendas · ${ctx.botName} · ZUROS APP`, description: `Dashboard de vendas do bot ${ctx.botName}.` };
     } catch {
         return { title: "Vendas · ZUROS APP" };
     }
 }
 
-export default async function VendasPage({ params }: { params: { appId: string } }) {
+export default async function VendasPage({ params }: { params: Promise<{ appId: string }> }) { const resolvedParams = await params;
     await requireUser();
 
     let ctx;
     try {
-        ctx = await getVendasContext(params.appId);
+        ctx = await getVendasContext(resolvedParams.appId);
     } catch (error) {
         if (error instanceof ActionError) {
             notFound();
@@ -31,13 +32,13 @@ export default async function VendasPage({ params }: { params: { appId: string }
         throw error;
     }
 
-    const overview = await getSalesOverview(params.appId, "7d");
+    const overview = await getSalesOverview(resolvedParams.appId, "7d");
 
     return (
         <main className="mx-auto max-w-6xl px-5 py-8">
             <div className="mb-6">
                 <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                     <h1 className="text-2xl font-bold tracking-tight text-white">Vendas</h1>
                 </div>
                 <p className="mt-1.5 text-sm text-zinc-500">Bot {ctx.botName} · {ctx.productName}</p>
@@ -57,12 +58,12 @@ export default async function VendasPage({ params }: { params: { appId: string }
                 </Card>
             </div>
 
-            <SalesDashboard appId={params.appId} productName={ctx.productName} initial={overview} />
+            <SalesDashboard appId={resolvedParams.appId} productName={ctx.productName} initial={overview} />
 
             {overview.recent.length > 0 && (
                 <Card className="mt-4 flex flex-col gap-3">
                     <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <span className="h-4 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                        <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                         Últimas vendas
                     </h3>
                     <div className="overflow-x-auto rounded-xl border border-white/[.05]">
@@ -80,7 +81,7 @@ export default async function VendasPage({ params }: { params: { appId: string }
                                     <tr key={`${sale.type}-${sale.id}`} className="border-b border-zinc-900 text-zinc-300 transition last:border-0 hover:bg-zinc-900/40">
                                         <td className="py-3 pl-4 pr-4 whitespace-nowrap">{new Date(sale.createdAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
                                         <td className="py-3 pr-4">
-                                            <span className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${sale.type === "renew" ? "border-[#5865f2]/40 bg-[#5865f2]/10 text-[#7983f5]" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"}`}>
+                                            <span className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${sale.type === "renew" ? "border-[#7c3aed]/40 bg-[#7c3aed]/10 text-[#a78bfa]" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"}`}>
                                                 {sale.type === "renew" ? "Renovação" : "Compra"}
                                             </span>
                                         </td>

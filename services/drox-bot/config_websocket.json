@@ -1,0 +1,17 @@
+{
+    "websocket_cloud": {
+        "server_url": "https://cloud.zurosapplications.com.br",
+        "reconnect_interval": 5,
+        "auto_start": true
+    },
+    "websocket_manager": {
+        "server_url": "http://localhost:8080",
+        "reconnect_interval": 5,
+        "auto_start": true
+    },
+    "websocket_boost": {
+        "server_url": "http://localhost:8081",
+        "reconnect_interval": 5,
+        "auto_start": true
+    }
+}

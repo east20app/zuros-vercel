@@ -11,25 +11,27 @@ export interface PaymentCredentials {
     efi?: { client_id?: string; client_secret?: string; pix_key?: string; cert?: string };
     manual?: { pix_key?: string; key_type?: string };
     promisse?: { api_key?: string };
+    sharpify?: { client_id?: string; client_secret?: string };
 }
 
 /**
- * Formulário único de gateway de pagamento (EFI / Manual / PromissePay),
- * compartilhado pelo painel global (SettingsForms.PaymentForm) e pela
- * configuração da loja (StorePaymentForm). A única diferença entre os dois
- * pontos é a action que persiste os dados.
+ * Formulário de gateway reutilizável. A lista de gateways permitidos é definida
+ * por cada área; PromissePay é disponibilizado exclusivamente no admin.
  */
 export function PaymentGatewayForm({
     settings,
     onSave,
+    allowedGateways = ["efi", "manual", "promisse"],
 }: {
     settings: SettingsView;
     onSave: (gateway: PaymentGateway, credentials: PaymentCredentials) => Promise<void>;
+    allowedGateways?: PaymentGateway[];
 }) {
     const router = useRouter();
     const { push } = useToast();
     const [busy, setBusy] = useState(false);
-    const [gateway, setGateway] = useState<PaymentGateway>(settings.paymentGateway || "manual");
+    const initialGateway = settings.paymentGateway && allowedGateways.includes(settings.paymentGateway) ? settings.paymentGateway : allowedGateways[0] || "manual";
+    const [gateway, setGateway] = useState<PaymentGateway>(initialGateway);
 
     const [efiClientId, setEfiClientId] = useState("");
     const [efiClientSecret, setEfiClientSecret] = useState("");
@@ -38,14 +40,18 @@ export function PaymentGatewayForm({
     const [manualPixKey, setManualPixKey] = useState("");
     const [manualKeyType, setManualKeyType] = useState("email");
     const [promisseApiKey, setPromisseApiKey] = useState("");
+    const [sharpifyClientId, setSharpifyClientId] = useState("");
+    const [sharpifyClientSecret, setSharpifyClientSecret] = useState("");
 
     async function handleSave() {
         setBusy(true);
         try {
+            if (!allowedGateways.includes(gateway)) throw new Error("Gateway indisponível nesta área.");
             await onSave(gateway, {
                 efi: { client_id: efiClientId, client_secret: efiClientSecret, pix_key: efiPixKey, cert: efiCert },
                 manual: { pix_key: manualPixKey, key_type: manualKeyType },
                 promisse: { api_key: promisseApiKey },
+                sharpify: { client_id: sharpifyClientId, client_secret: sharpifyClientSecret },
             });
             push("Configuração de pagamento salva.");
             router.refresh();
@@ -66,9 +72,10 @@ export function PaymentGatewayForm({
         >
             <Field label="Gateway de pagamento">
                 <select className={inputClass} value={gateway} onChange={(e) => setGateway(e.target.value as PaymentGateway)}>
-                    <option value="efi">EFI</option>
-                    <option value="manual">Manual (chave PIX)</option>
-                    <option value="promisse">PromissePay</option>
+{allowedGateways.includes("efi") && <option value="efi">EFI</option>}
+                    {allowedGateways.includes("manual") && <option value="manual">Manual (chave PIX)</option>}
+                    {allowedGateways.includes("promisse") && <option value="promisse">PromissePay</option>}
+                    {allowedGateways.includes("sharpify") && <option value="sharpify">Sharpify (PIX)</option>}
                 </select>
             </Field>
 
@@ -113,12 +120,27 @@ export function PaymentGatewayForm({
                 </>
             )}
 
-            {gateway === "promisse" && (
-                <Field label="API Key PromissePay">
-                    <SecretInput value={promisseApiKey} onChange={setPromisseApiKey} />
-                </Field>
+            {gateway === "promisse" && allowedGateways.includes("promisse") && (
+                <div className="space-y-3 rounded-xl border border-violet-500/15 bg-violet-500/[.045] p-4">
+                    <Field label="API Key PromissePay" hint="Chave secreta com os escopos payments.create e payments.read. Ela fica protegida e nunca é enviada ao navegador depois de salva.">
+                        <SecretInput value={promisseApiKey} onChange={setPromisseApiKey} placeholder="sk_live_..." />
+                    </Field>
+                    <p className="text-xs leading-5 text-zinc-500">As cobranças usam valores em centavos e são confirmadas pelo webhook ou pela consulta segura da transação.</p>
+                    <div className="flex flex-wrap gap-2 text-[11px]"><span className="rounded-full border border-white/[.07] bg-black/20 px-2.5 py-1 text-zinc-400">payments.create</span><span className="rounded-full border border-white/[.07] bg-black/20 px-2.5 py-1 text-zinc-400">payments.read</span></div>
+                </div>
             )}
 
+            {gateway === "sharpify" && allowedGateways.includes("sharpify") && (
+                <div className="space-y-3 rounded-xl border border-violet-500/15 bg-violet-500/[.045] p-4">
+                    <Field label="Client ID Sharpify" hint="Credencial privada com CREATE_PAYMENT_LINK e GET_PAYMENT_LINK.">
+                        <SecretInput value={sharpifyClientId} onChange={setSharpifyClientId} placeholder="SHARPIFY_CLIENT_ID_..." />
+                    </Field>
+                    <Field label="Client Secret Sharpify" hint="O segredo é usado somente no servidor e não volta para o navegador.">
+                        <SecretInput value={sharpifyClientSecret} onChange={setSharpifyClientSecret} placeholder="SHARPIFY_CLIENT_SECRET_..." />
+                    </Field>
+                    <p className="text-xs leading-5 text-zinc-500">As cobranças da plataforma serão geradas exclusivamente por PIX no runtime seguro da Sharpify.</p>
+                </div>
+            )}
             <div className="flex justify-end">
                 <Button type="submit" disabled={busy}>
                     {busy ? <Spinner /> : null}

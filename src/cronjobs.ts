@@ -2,6 +2,7 @@ import client from "./bot-client";
 import databases from "./databases";
 import efiWrapper from "./functions/efi_wrapper";
 import promisseWrapper from "./functions/promisse_wrapper";
+import sharpifyWrapper from "./functions/sharpify_wrapper";
 import sdkWrapper from "./functions/camposcloud-sdk";
 
 import { asyncLoopingExec } from "./functions";
@@ -11,11 +12,10 @@ import { notifyChannelLog, notifyUser } from "./functions/notify-wrapper";
 import { IStores } from "./databases/schemas/stores";
 import { getCartMessageRenew } from "./commands/apps";
 import { InteractionResponse } from "discord.js";
-import AdmZip from "adm-zip";
-import ignore from "ignore";
-import { buildApplicationPackageConfig } from "./integration/apps";
 import { buildHostedBotPackageFromBuffer } from "./functions/hosted-bot";
-import { readReleaseBuffer } from "./functions/release-storage";
+import { processProductApplicationUpdates } from "./integration/application-updates";
+import { confirmCartPayment } from "./integration/purchases";
+import { releaseCouponReservation } from "./integration/coupon-reservations";
 
 let validPresences = [] as string[];
 let currentActivity = 0;
@@ -23,7 +23,6 @@ let currentActivity = 0;
 export const renewCartsMessage = new Map<string, InteractionResponse>();
 
 const GRACE_PERIOD_DAYS = 4;
-const RATE_UPDATE_APPLICATION_SECONDS = 3;
 
 asyncLoopingExec(6000, async () => {
     if (!client?.user) {
@@ -55,220 +54,48 @@ asyncLoopingExec(6000, async () => {
  * Ele verifica a cada 5 segundos se há carrinhos abertos com o status "waiting-payment".
  * Se encontrar algum, ele consulta o status do pagamento via efiWrapper e atualiza o carrinho.
  */
-asyncLoopingExec(5000, async () => {
-    const buyCarts = await databases.cartsBuy.find({ status: "opened", step: "waiting-payment", automaticPayment: true }).populate("storeId").populate("coupon");
-
-    for (const cart of buyCarts) {
-        try {
-            const storeConfig = cart.storeId as unknown as IStores;
-            if (!storeConfig) {
-                console.error(`\`⚠️\`・Carrinho com ID ${cart._id} não possui configuração de loja válida.`);
-                continue;
-            }
-
-            const storeOwnerConfig = await databases.userSettings.findOne({ userId_campos: storeConfig.ownerId_campos });
-            if (!storeOwnerConfig) {
-                console.error(`\`⚠️\`・Configuração de loja do dono do carrinho com ID ${cart._id} não encontrada.`);
-                continue;
-            }
-
-            let paymentApproved = false;
-
-            if (storeOwnerConfig.payment_gateway === "efi") {
-                const efiInstance = await efiWrapper.getInstance(storeOwnerConfig.userId_discord);
-                if (!efiInstance || !efiInstance.isValid) {
-                    console.error(`\`⚠️\`・Não foi possível conectar-se ao gateway EFI para o carrinho com ID ${cart._id}.`);
-                    continue;
-                }
-
-                const payment_status = await efiInstance.instance.pixDetailCharge({ txid: cart.paymentId! }).catch(() => null);
-                if (payment_status?.status === "CONCLUIDA") {
-                    paymentApproved = true;
-                }
-            } else if (storeOwnerConfig.payment_gateway === "promisse") {
-                const promisseApiKey = storeOwnerConfig.promissepay_credentials?.api_key;
-                if (!promisseApiKey || !cart.paymentId) {
-                    continue;
-                }
-
-                const transaction = await promisseWrapper.getTransactionStatus(promisseApiKey, cart.paymentId);
-                if (transaction?.status === "PAID") {
-                    paymentApproved = true;
-                }
-            }
-
-            if (paymentApproved) {
-                // BUG CORRIGIDO: aqui sempre era creditado `cart.price` (preço cheio,
-                // pré-desconto). Se o carrinho tivesse um cupom aplicado, a loja era
-                // creditada com um valor MAIOR do que o cliente efetivamente pagou —
-                // a plataforma estava "bancando" o desconto do cupom do próprio
-                // bolso da loja. Agora calculamos o mesmo valor com desconto que é
-                // usado em go-payment (buy.event.ts) pra gerar a cobrança.
-                const coupon = cart.coupon as unknown as { discount?: number } | null;
-                const coupomDiscount = coupon?.discount || 0;
-                const amountToCredit = cart.price - (cart.price * (coupomDiscount / 100));
-
-                // Credita o saldo ANTES de marcar o carrinho como confirmado: se `changeBalance`
-                // falhar, o carrinho continua em "waiting-payment" e será tentado novamente no
-                // próximo tick, em vez de perder o crédito silenciosamente.
-                await changeBalance({ action: "add", amount: amountToCredit, origin: "sales", description: `Carrinho pago por ${cart.userId}`, storeId: (storeConfig._id).toString() });
-                await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { step: "payment-confirmed" } });
-
-                const customer_role = storeConfig.logsAndRoles?.customerRole;
-                if (customer_role){
-                    const member = await client.guilds.cache.get(cart.guildId)?.members.fetch(cart.userId).catch(() => null);
-                    member?.roles.add(customer_role).catch(() => null);
-                }
-
-                const messageData = await getCartMessage(cart.channelId);
-                const channel = client.channels.cache.get(cart.channelId);
-
-                if (!channel || !messageData || !channel.isThread()) continue;
-                await channel.bulkDelete(30).catch(() => null);
-                await channel.send(messageData).catch(() => null);
-            }
-        } catch (error) {
-            console.error(`⚠️ Erro ao processar o pagamento do carrinho ${cart._id}:`, error);
-        }
-    };
-
-    /**
-     * Esse trecho é responsável por verificar os carrinhos de renovação.
-     * Após a conclusão do pagamento, ele atualiza a aplicação e notifica o usuário.
-     * 
-     * Ele verifica a cada 5 segundos se há carrinhos de renovação abertos com o status "waiting-payment".
-     * Se encontrar algum, ele consulta o status do pagamento via efiWrapper e atualiza o carrinho e a aplicação.
-     */
-    const renewCarts = await databases.cartsRenew.find({ status: "opened", step: "waiting-payment", delivered: false }).populate("storeId");
-
-    for (const cart of renewCarts) {
-        try {
-            const storeConfig = await databases.stores.findOne({ _id: cart.storeId });
-            if (!storeConfig) {
-                console.error(`\`⚠️\`・Carrinho de renovação com ID ${cart._id} não possui configuração de loja válida.`);
-                continue;
-            }
-
-            const storeOwnerConfig = await databases.userSettings.findOne({ userId_campos: storeConfig.ownerId_campos });
-            if (!storeOwnerConfig) {
-                console.error(`\`⚠️\`・Configuração de loja do dono do carrinho de renovação com ID ${cart._id} não encontrada.`);
-                continue;
-            }
-
-            let paymentApproved = false;
-
-            if (storeOwnerConfig.payment_gateway === "efi") {
-                const efiInstance = await efiWrapper.getInstance(storeOwnerConfig.userId_discord);
-                if (!efiInstance || !efiInstance.isValid) {
-                    console.error(`\`⚠️\`・Não foi possível conectar-se ao gateway EFI para o carrinho de renovação com ID ${cart._id}.`);
-                    continue;
-                }
-
-                const payment_status = await efiInstance.instance.pixDetailCharge({ txid: cart.paymentId! }).catch(() => null);
-                if (payment_status?.status === "CONCLUIDA") {
-                    paymentApproved = true;
-                }
-            } else if (storeOwnerConfig.payment_gateway === "promisse") {
-                const promisseApiKey = storeOwnerConfig.promissepay_credentials?.api_key;
-                if (!promisseApiKey || !cart.paymentId) {
-                    continue;
-                }
-
-                const transaction = await promisseWrapper.getTransactionStatus(promisseApiKey, cart.paymentId);
-                if (transaction?.status === "PAID") {
-                    paymentApproved = true;
-                }
-            }
-
-            if (paymentApproved) {
-                // Mesmo raciocínio do bloco de compra: credita antes de confirmar, pra não
-                // perder o crédito caso algo abaixo falhe.
-                await changeBalance({ action: "add", amount: cart.price, origin: "sales", description: `Renovação paga por ${cart.userId}`, storeId: (storeConfig._id).toString() });
-
-                const application = await databases.applications.findOne({ _id: cart.applicationId });
-                if (!application) {
-                    console.error(`\`⚠️\`・Aplicação para o carrinho de renovação com ID ${cart._id} não encontrada.`);
-                    // O saldo já foi creditado - marcamos como confirmado mesmo sem poder
-                    // entregar, pra não creditar de novo numa próxima tentativa.
-                    await databases.cartsRenew.updateOne({ _id: cart._id }, { $set: { step: "payment-confirmed" } }).catch(() => {});
-                    continue;
-                }
-
-                /**
-                 * Vamos salvar o carrinho como entregue e fechado.
-                 */
-                cart.delivered = true;
-                cart.status = "closed";
-                cart.step = "payment-confirmed";
-                await cart.save();
-
-                // Vamos atualizar a mensagem do carrinho para dar um feedback de pagamento aprovado.
-                const message = renewCartsMessage.get(cart._id.toString());
-                if (message){
-                    const updatedMessageData = await getCartMessageRenew(cart._id.toString());
-                    if (updatedMessageData){
-                        await message.edit(updatedMessageData).catch((error) => console.warn("⚠️ Erro ao editar a mensagem do carrinho de renovação:", error));
+/** Reconciliação de pagamentos: o webhook é o caminho principal; este job é somente fallback. */
+asyncLoopingExec(15000, async () => {
+    const now = new Date();
+    const targets = [
+        { type: "buy" as const, model: databases.cartsBuy },
+        { type: "renew" as const, model: databases.cartsRenew },
+    ];
+    for (const target of targets) {
+        const carts = await (target.model as any).find({ status: "opened", step: "waiting-payment", paymentId: { $exists: true, $ne: "" }, $or: [{ nextPaymentCheckAt: { $exists: false } }, { nextPaymentCheckAt: { $lte: now } }] }).sort({ nextPaymentCheckAt: 1 }).limit(50);
+        for (const cart of carts) {
+            const attempts = Math.max(0, Number(cart.paymentCheckAttempts || 0));
+            try {
+                const result = await confirmCartPayment({ paymentId: String(cart.paymentId), type: target.type, source: "polling" });
+                if (result.status === "confirmed" || result.status === "already_confirmed") {
+                    if (target.type === "buy") {
+                        const messageData = await getCartMessage(String(cart.channelId));
+                        const channel = client.channels.cache.get(String(cart.channelId));
+                        if (channel?.isThread() && messageData) await channel.send(messageData).catch(() => null);
+                    } else {
+                        const message = renewCartsMessage.get(String(cart._id));
+                        const updated = message ? await getCartMessageRenew(String(cart._id)) : null;
+                        if (message && updated) await message.edit(updated).catch(() => null);
+                        renewCartsMessage.delete(String(cart._id));
                     }
+                    continue;
                 }
-
-                // BUG CORRIGIDO (memory leak): `renewCartsMessage` é um Map de módulo
-                // que só recebia entradas e nunca era limpo. Em produção, com o bot
-                // rodando por semanas/meses, isso cresce pra sempre. O carrinho já
-                // está fechado aqui, então a mensagem não precisa mais ficar em cache.
-                renewCartsMessage.delete(cart._id.toString());
-
-                // Se for vitalícia, vamos atualizar a aplicação para vitalícia.
-                if (cart.lifetime){
-
-                    application.lifetime = true;
-                    await application.save();
-
-                    const notifyContent = [
-                        `# Sua aplicação foi renovada com sucesso! 🎉`,
-                        `Olá <@${cart.userId}>, sua aplicação **${application.name}** foi renovada com sucesso!\n`,
-                        `-# Agora ela é vitalícia e não expirará mais!`,
-                        `> Agradecemos por continuar utilizando nossos serviços!`,
-                    ];
-
-                    notifyUser({ userId: cart.userId, message: notifyContent.join("\n") }).catch(() => null);
-                }else{
-                    // Se não for vitalícia, vamos adicionar os dias comprados na aplicação.
-                    if (!cart.days){
-                        console.error(`\`⚠️\`・Dias inválidos para renovação na aplicação ${application._id}.`);
-                        continue;
-                    }
-
-                    application.expiresAt = new Date((application.expiresAt || new Date()).getTime() + cart.days * 24 * 60 * 60 * 1000);
-                    application.status = "active";
-                    await application.save();
-
-                    const notifyContent = [
-                        `# Sua aplicação foi renovada com sucesso! 🎉`,
-                        `Olá <@${cart.userId}>, sua aplicação **${application.name}** foi renovada com sucesso!\n`,
-                        `-# Expira em: <t:${Math.floor((application.expiresAt.getTime()) / 1000)}:R>`,
-                        `> Agradecemos por continuar utilizando nossos serviços!`,
-                    ];
-
-                    notifyUser({ userId: cart.userId, message: notifyContent.join("\n") }).catch(() => null);
-                }
+                const delayMs = Math.min(300000, 15000 * 2 ** Math.min(attempts, 4));
+                await (target.model as any).updateOne({ _id: cart._id, step: "waiting-payment" }, { $set: { lastPaymentCheckAt: now, nextPaymentCheckAt: new Date(Date.now() + delayMs) }, $inc: { paymentCheckAttempts: 1 } });
+            } catch (error) {
+                console.error(`[PAYMENT_RECONCILIATION] cart=${cart._id} type=${target.type}`, error instanceof Error ? error.message : "unknown");
             }
-        } catch (error) {
-            console.error(`⚠️ Erro ao processar o pagamento do carrinho de renovação ${cart._id}:`, error);
         }
-    };
+    }
 });
 
-
-/**
- * Esse cronjob é responsável por verificar se os carrinhos expiraram.
- * Após expirar, eles são fechados na DB e o thread é deletado.
- */
-asyncLoopingExec(5000, async () => {
+/** Expira carrinhos ainda não confirmados e devolve reservas de cupom. */asyncLoopingExec(5000, async () => {
     const buyCarts = await databases.cartsBuy.find({ status: "opened", step: { $ne: "payment-confirmed" }, expiresAt: { $lte: new Date() } });
 
     for (const cart of buyCarts) {
         try {
-            await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { status: "expired" } });
+            await releaseCouponReservation({ cartType: "buy", cartId: String(cart._id) });
+            await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { status: "expired", deliveryState: "expired" } });
             const channel = await client.channels.fetch(cart.channelId).catch(() => null);
 
             if (channel && channel.isThread()) {
@@ -292,7 +119,8 @@ asyncLoopingExec(5000, async () => {
 
     for (const cart of renewCarts) {
         try {
-            await databases.cartsRenew.updateOne({ _id: cart._id }, { $set: { status: "expired" } });
+            await releaseCouponReservation({ cartType: "renew", cartId: String(cart._id) });
+            await databases.cartsRenew.updateOne({ _id: cart._id }, { $set: { status: "expired", deliveryState: "expired" } });
 
             const message = renewCartsMessage.get(cart._id.toString());
             if (message){
@@ -413,160 +241,12 @@ asyncLoopingExec(3000, async () => {
     }
 })
 
-/**
- * Esse cronjob é responsável por atualizar os BOTs para a release atual.
- */
+/** Atualiza os bots pela mesma rotina usada no painel web. */
 asyncLoopingExec(5000, async () => {
-    const stores = await databases.stores.find({});
-
-    // Executa lojas em paralelo
-    await Promise.all(stores.map(async (store) => {
-        try {
-            const productsOnStore = await databases.products.find({ storeId: store._id, needToUpdateApplications: true });
-
-            const storeOwnerConfig = await databases.userSettings.findOne({ userId_campos: store.ownerId_campos });
-            if (!storeOwnerConfig) {
-                // console.error(`⚠️ Configuração de loja do dono da loja ${store._id} não encontrada.`);
-                return;
-            }
-
-            const sdk = await sdkWrapper.getInstance(storeOwnerConfig.userId_discord).catch(() => null);
-            if (!sdk || !sdk.isValid) {
-                // console.error(`⚠️ Não foi possível conectar-se ao SDK para a loja ${store._id}.`);
-                return;
-            }
-
-            // Aqui executa produtos em série
-            for (const product of productsOnStore) {
-                try {
-                    if (!product.currentReleaseVersion){
-                        console.error(`⚠️ Release atual do produto ${product._id} não encontrada.`);
-                        await databases.products.updateOne({ _id: product._id }, { $set: { needToUpdateApplications: false } });
-                        continue;
-                    }
-
-                    const applications = await databases.applications.find({
-                        productId: product._id,
-                        errorOnUpdate: false,
-                        version: { $ne: product.currentReleaseVersion }
-                    });
-
-                    if (!applications.length){
-                        await databases.products.updateOne({ _id: product._id }, { $set: { needToUpdateApplications: false } });
-                        // FIX: isto era `return`, que encerrava o processamento de TODOS os
-                        // produtos restantes desta loja assim que um único produto não tinha
-                        // aplicações pendentes. Deve apenas pular para o próximo produto.
-                        continue;
-                    }
-
-                    const productId = String(product._id);
-                    const version = String(product.currentReleaseVersion);
-                    const legacyPath = `releases/${productId}/${version}.zip`;
-                    const storedRelease = await readReleaseBuffer(productId, version, legacyPath).catch(() => null);
-                    if (!storedRelease) {
-                        console.error(`⚠️ Release ${product.currentReleaseVersion} do produto ${product._id} não encontrada.`);
-                        // Não encerra a fila em uma indisponibilidade temporária. Se a flag
-                        // fosse limpa aqui, as aplicações permaneceriam pendentes para sempre.
-                        continue;
-                    }
-
-                    const zipFile = new AdmZip(storedRelease);
-                    const zipEntries = zipFile.getEntries();
-                    const ig = ignore().add(product.protectedFiles || []);
-
-                    zipEntries.forEach((entry) => {
-                        if (ig.ignores(entry.entryName)) {
-                            console.log(`🛡️ Arquivo protegido, não será extraído: ${entry.entryName}`);
-                            zipFile.deleteFile(entry.entryName);
-                        }
-                    });
-
-                    // BUG CORRIGIDO (perf): `zipFile.toBuffer()` estava sendo chamado
-                    // dentro do loop de aplicações — ele serializa o zip inteiro do
-                    // zero a cada chamada, mesmo que o conteúdo seja idêntico pra
-                    // todas as apps deste produto. Serializa uma vez só.
-                    const releaseBuffer = zipFile.toBuffer();
-
-                    // Aqui também já é sequencial
-                    for (const app of applications) {
-                        let success = false;
-                        let attempts = app.updateAttempts || 0;
-
-                        while (!success && attempts <= 3) {
-                            const initialTime = Date.now();
-
-                            try {
-                                if (!app.appId) throw new Error("Aplicação sem appId.");
-
-                                const appCampos = await sdk.instance.getApplication({ appId: app.appId }).catch(() => null);
-                                if (!appCampos) throw new Error("Aplicação não encontrada no CamposCloud.");
-
-                                if (appCampos.data.currentResourceMetrics.online) {
-                                    await appCampos.stop().catch(() => null);
-                                }
-
-                                const zipBuffer = buildHostedBotPackageFromBuffer(
-                                    releaseBuffer,
-                                    buildApplicationPackageConfig({
-                                        token: app.token,
-                                        ownerId: app.ownerId,
-                                        applicationId: String(app._id),
-                                        botId: app.botId,
-                                        version: product.currentReleaseVersion,
-                                        serverId: app.serverId,
-                                    })
-                                );
-                                await appCampos.uploadFile({ file: zipBuffer, path: "/" });
-                                await appCampos.start().catch(() => null);
-
-                                await databases.applications.updateOne(
-                                    { _id: app._id }, 
-                                    { $set: { version: product.currentReleaseVersion } }
-                                );
-
-                                console.log(`✅ Aplicação ${app._id} atualizada para a versão ${product.currentReleaseVersion}.`);
-                                success = true;
-                            } catch (error: any) {
-                                attempts++;
-
-                                if (attempts > 3) {
-                                    console.error(`⚠️ Erro ao atualizar a aplicação ${app._id} após 3 tentativas, aplicação marcada como erro ao atualizar.`, error);
-
-                                    await databases.applications.updateOne(
-                                        { _id: app._id }, 
-                                        { 
-                                            $set: { errorOnUpdate: true, errorOnUpdateMessage: error?.message || "Erro desconhecido" },
-                                        }
-                                    );
-                                }else{
-                                    console.log(`⚠️ Tentativa ${attempts} de 3 para atualizar a aplicação ${app._id}.`);
-
-                                    await databases.applications.updateOne(
-                                        { _id: app._id }, 
-                                        { $set: { updateAttempts: attempts } }
-                                    );
-                                }
-
-                            } finally {
-
-                                const elapsedTime = Date.now() - initialTime;
-                                const remainingTime = (RATE_UPDATE_APPLICATION_SECONDS * 1000) - elapsedTime;
-
-                                if (remainingTime > 0) {
-                                    console.log(`Aguardando ${Math.ceil(remainingTime / 1000)} segundos...`);
-                                    await new Promise(resolve => setTimeout(resolve, remainingTime));
-                                }else{
-                                    console.log(`Continuando sem aguardar, tempo de atualização já excedido. Tempo gasto: ${Math.ceil(elapsedTime / 1000)} segundos.`);
-                                }
-                            }
-                        }
-                    }
-                } catch (productError) {
-                    console.error(`⚠️ Erro ao processar atualizações do produto ${product._id}:`, productError);
-                }
-            }
-        } catch (storeError) {
-            console.error(`⚠️ Erro ao processar atualizações da loja ${store._id}:`, storeError);
-        }
-    }));
+    const products = await databases.products.find({ needToUpdateApplications: true }, { _id: 1 });
+    for (const product of products) {
+        await processProductApplicationUpdates(String(product._id)).catch((error) => {
+            console.error(`⚠️ Erro ao processar atualizações do produto ${product._id}:`, error);
+        });
+    }
 });

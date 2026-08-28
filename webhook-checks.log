@@ -1,0 +1,7 @@
+Webhook security review — 2026-08-28
+EFI: /api/webhooks/efi and /api/webhooks/efi/pix; URL HMAC, bounded JSON, provider verification.
+PromissePay: /api/webhooks/promissepay; callback token, bounded JSON, provider verification, polling fallback.
+Sharpify: /api/webhooks/sharpify; per-integration identifier, constant-time signature comparison, bounded JSON, provider verification.
+All handlers return sanitized request IDs and do not log credentials or raw secrets.
+Operational requirement: configure PromissePay callback in the provider dashboard.
+Migration requirement: existing Sharpify admins save credentials once to create webhook_id.

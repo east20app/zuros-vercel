@@ -24,6 +24,11 @@ export function ProductFormModal({
     const { push } = useToast();
     const [busy, setBusy] = useState(false);
     const [name, setName] = useState(product?.name || "");
+    const [productType, setProductType] = useState<"bot" | "auth" | "complete">(product?.productType || "bot");
+    const [authPlan, setAuthPlan] = useState<"basic" | "cloud" | "pro">(product?.authSettings?.plan || "basic");
+    const [authServers, setAuthServers] = useState(String(product?.authSettings?.servers || 1));
+    const [authUsers, setAuthUsers] = useState(String(product?.authSettings?.verifiedUsers || 1000));
+    const [authFeatures, setAuthFeatures] = useState(product?.authSettings?.features.join("\n") || "");
     const [runtime, setRuntime] = useState(product?.runtimeEnvironment || "nodejs");
     const [runCommand, setRunCommand] = useState(product?.runCommand || "");
     const [weekly, setWeekly] = useState(product?.prices?.weekly ? String(product.prices.weekly) : "");
@@ -52,7 +57,8 @@ export function ProductFormModal({
                 lifetime: num(lifetime),
             };
             const messageSettings = { description, banner, video, buttonName };
-            const extras = { protectedFiles: protectedFiles.split(/\r?\n/).map((item) => item.trim()).filter(Boolean), redeemSettings: { active: redeemActive, days: num(redeemDays), webhook: redeemWebhook.trim() || undefined } };
+            const authSettings = { plan: authPlan, servers: Number(authServers) || 1, verifiedUsers: Number(authUsers) || 1000, features: authFeatures.split(/\r?\n/).map((item) => item.trim()).filter(Boolean) };
+            const extras = { productType, authSettings, protectedFiles: protectedFiles.split(/\r?\n/).map((item) => item.trim()).filter(Boolean), redeemSettings: { active: redeemActive, days: num(redeemDays), webhook: redeemWebhook.trim() || undefined } };
             if (product) {
                 await updateProduct(product.id, { name, runtimeEnvironment: runtime, runCommand, memoryMB: Number(memoryMB) || 256, prices, messageSettings, ...extras });
                 push("Produto atualizado.");
@@ -81,7 +87,11 @@ export function ProductFormModal({
                 <Field label="Nome">
                     <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
                 </Field>
-                <Field label="Runtime">
+                <Field label="Tipo do produto">
+                    <select className={inputClass} value={productType} onChange={(e) => setProductType(e.target.value as "bot" | "auth" | "complete")}><option value="bot">Bot Discord</option><option value="auth">ZUROS Auth</option><option value="complete">Bot + ZUROS Auth</option></select>
+                </Field>
+                {productType !== "bot" && <div className="grid gap-3 rounded-xl border border-violet-500/20 bg-violet-500/5 p-4 sm:grid-cols-3"><Field label="Plano Auth"><select className={inputClass} value={authPlan} onChange={(e) => setAuthPlan(e.target.value as "basic" | "cloud" | "pro")}><option value="basic">Auth</option><option value="cloud">Bot + Auth</option><option value="pro">Completo</option></select></Field><Field label="Servidores"><input className={inputClass} type="number" min="1" value={authServers} onChange={(e) => setAuthServers(e.target.value)} /></Field><Field label="Usuários verificados"><input className={inputClass} type="number" min="1" value={authUsers} onChange={(e) => setAuthUsers(e.target.value)} /></Field><Field label="Recursos Auth" hint="Um por linha"><textarea className={`${inputClass} min-h-24`} value={authFeatures} onChange={(e) => setAuthFeatures(e.target.value)} /></Field></div>}
+                {productType !== "auth" && <>                <Field label="Runtime">
                     <select className={inputClass} value={runtime} onChange={(e) => setRuntime(e.target.value)}>
                         {VALID_RUNTIMES.map((r) => (
                             <option key={r} value={r}>
@@ -96,6 +106,7 @@ export function ProductFormModal({
                 <Field label="Memória (MB)">
                     <input className={inputClass} type="number" min={64} step={64} value={memoryMB} onChange={(e) => setMemoryMB(e.target.value)} />
                 </Field>
+                </>}
                 <div className="grid grid-cols-2 gap-3">
                     <Field label="Semanal (R$)">
                         <input className={inputClass} type="number" step="0.01" min={0} value={weekly} onChange={(e) => setWeekly(e.target.value)} />

@@ -1,5 +1,7 @@
 "use server";
 
+import { reserveCouponForCart } from "@root/src/integration/coupon-reservations";
+
 import crypto from "crypto";
 import QRCode from "qrcode";
 import { QrCodePix } from "qrcode-pix";
@@ -10,6 +12,7 @@ import sdkWrapper from "@root/src/functions/camposcloud-sdk";
 import { getCachedInstanceStatus, invalidateInstanceStatus } from "@root/src/functions/status-cache";
 import efiWrapper from "@root/src/functions/efi_wrapper";
 import promisseWrapper from "@root/src/functions/promisse_wrapper";
+import sharpifyWrapper from "@root/src/functions/sharpify_wrapper";
 import { checkRateLimit } from "@root/src/functions/rate-limit";
 import {
     startApplication, stopApplication, restartApplication, changeApplicationName,
@@ -46,6 +49,8 @@ export interface UserInvoiceDTO {
     amount: number;
     status: string;
     paymentId: string | null;
+    paid: boolean;
+    createdAt: string | null;
 }
 
 export interface AccountExtractDTO {
@@ -113,17 +118,17 @@ export async function listMyInvoices(): Promise<UserInvoiceDTO[]> {
 
     const purchaseRows = buys as unknown as Array<{
         _id: unknown; productId?: { name?: string }; days?: number; lifetime?: boolean;
-        price?: number; finalPrice?: number; status: string; paymentId?: string;
+        price?: number; finalPrice?: number; status: string; step?: string; paymentId?: string; createdAt?: Date;
     }>;
     const renewalRows = renewals as unknown as Array<{
         _id: unknown; applicationId?: { name?: string; productId?: { name?: string } };
         days?: number; lifetime?: boolean; price?: number; finalPrice?: number;
-        status: string; paymentId?: string;
+        status: string; step?: string; paymentId?: string; createdAt?: Date;
     }>;
 
     return [
-        ...purchaseRows.map((cart) => ({ id: String(cart._id), type: "purchase" as const, item: cart.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null })),
-        ...renewalRows.map((cart) => ({ id: String(cart._id), type: "renewal" as const, item: cart.applicationId?.name || cart.applicationId?.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null })),
+        ...purchaseRows.map((cart) => ({ id: String(cart._id), type: "purchase" as const, item: cart.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null, paid: cart.step === "payment-confirmed", createdAt: toISO(cart.createdAt) })),
+        ...renewalRows.map((cart) => ({ id: String(cart._id), type: "renewal" as const, item: cart.applicationId?.name || cart.applicationId?.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null, paid: cart.step === "payment-confirmed", createdAt: toISO(cart.createdAt) })),
     ];
 }
 type CartRenewAppPopulated = CartRenewDoc & { applicationId: AppDoc };
@@ -137,7 +142,7 @@ function toISO(date: unknown): string | null {
 
 async function getApplicationPopulated(appId: string): Promise<AppPopulated> {
     const identifier = /^[a-f\d]{24}$/i.test(appId)
-        ? { $or: [{ _id: appId }, { botId: appId }] }
+        ? { $or: [{ _id: appId }, { botId: appId }, { appId }] }
         : { botId: appId };
     const application = (await databases.applications
         .findOne(identifier)
@@ -201,30 +206,25 @@ export async function getBotIdentity(appId: string): Promise<{ id: string; name:
 
 export async function listMyApps(): Promise<AppSummary[]> {
     const discordId = await requireSessionUser();
-    const apps = (await databases.applications
-        .find({ ownerId: discordId })
-        .populate("productId")
-        .populate("storeId")) as unknown as AppPopulated[];
-
-    return apps.map((app) => {
-        const product = app.productId;
-        const store = app.storeId;
-        return {
-            id: String(app._id),
-            botId: app.botId || "",
-            name: app.name,
-            status: app.status,
-            lifetime: !!app.lifetime,
-            expiresAt: toISO(app.expiresAt),
-            version: String(app.version),
-            errorOnUpdate: !!app.errorOnUpdate,
-            productName: product?.name || "Sem produto",
-            storeId: String(app.storeId),
-            storeName: store?.name || "Loja removida",
-        };
-    });
+    const [apps, authLicenses] = await Promise.all([
+        databases.applications.find({ ownerId: discordId }).populate("productId").populate("storeId"),
+        databases.authLicenses.find({ ownerId: discordId, status: { $in: ["active", "pending", "error"] } }).populate("productId").populate("storeId"),
+    ]) as unknown as [AppPopulated[], Array<{ _id: unknown; applicationId?: unknown; externalLicenseId?: string; dashboardUrl?: string; plan: string; status: string; lifetime: boolean; expiresAt?: Date; productId?: ProductDoc; storeId?: StoreDoc }>];
+    const botApps: AppSummary[] = apps.map((app) => ({ id: String(app._id), botId: app.botId || "", name: app.name, status: app.status, lifetime: !!app.lifetime, expiresAt: toISO(app.expiresAt), version: String(app.version), errorOnUpdate: !!app.errorOnUpdate, productName: app.productId?.name || "Sem produto", storeId: String(app.storeId?._id || app.storeId), storeName: app.storeId?.name || "Loja removida", kind: app.productId?.productType === "complete" ? "complete" : "bot" }));
+    const linked = new Set(authLicenses.filter((license) => license.applicationId).map((license) => String(license.applicationId)));
+    for (const app of botApps) if (linked.has(app.id)) app.kind = "complete";
+    const authApps: AppSummary[] = authLicenses.filter((license) => !license.applicationId).map((license) => ({ id: String(license._id), name: license.productId?.name || "ZUROS Auth", status: license.status === "active" ? "active" : "grace_period", lifetime: !!license.lifetime, expiresAt: toISO(license.expiresAt), version: license.plan, errorOnUpdate: license.status === "error", productName: license.productId?.name || "ZUROS Auth", storeId: String(license.storeId?._id || license.storeId || ""), storeName: license.storeId?.name || "ZUROS", kind: "auth", dashboardUrl: license.dashboardUrl || "https://auth.zuros.site/app" }));
+    return [...botApps, ...authApps];
 }
 
+export interface MyAuthLicenseView { id: string; name: string; plan: string; status: string; lifetime: boolean; expiresAt: string | null; servers: number; verifiedUsers: number; features: string[]; externalLicenseId: string | null; configured: boolean; }
+export async function getMyAuthLicense(licenseId: string): Promise<MyAuthLicenseView> {
+    const discordId = await requireSessionUser();
+    const license = await databases.authLicenses.findOne({ _id: licenseId, ownerId: discordId }).populate("productId");
+    if (!license) throw new ActionError("Licença ZUROS Auth não encontrada.");
+    const product = license.productId as unknown as ProductDoc;
+    return { id: String(license._id), name: product?.name || "ZUROS Auth", plan: license.plan, status: license.status, lifetime: !!license.lifetime, expiresAt: toISO(license.expiresAt), servers: license.limits?.servers || 1, verifiedUsers: license.limits?.verifiedUsers || 1000, features: [...(license.features || [])], externalLicenseId: license.externalLicenseId || null, configured: !!license.setupCompletedAt && !!license.authId };
+}
 export async function getAppDetail(appId: string): Promise<AppDetail> {
     const discordId = await requireSessionUser();
     const application = await getApplicationPopulated(appId);
@@ -256,7 +256,6 @@ export async function getAppDetail(appId: string): Promise<AppDetail> {
         storeId: String(store?._id || application.storeId),
         name: application.name,
         botId: application.botId,
-        token: application.token,
         status: application.status,
         lifetime: !!application.lifetime,
         expiresAt: toISO(application.expiresAt),
@@ -590,7 +589,6 @@ export async function changeAppMainServer(appId: string, serverId: string): Prom
     });
 
     await redeployWithNewToken(camposApp, String(product._id), String(version), buildHostedBotConfig({
-        token: application.token,
         botId: application.botId,
         version: String(version),
         ownerId: application.ownerId,
@@ -655,18 +653,12 @@ export async function startRenew(appId: string, plan: "weekly" | "biweekly" | "m
 }
 
 export async function applyRenewCoupon(cartId: string, code: string): Promise<{ discount: number }> {
-    const discordId = await requireSessionUser(); const normalized = code.trim();
-    if (!normalized) throw new ActionError("Digite o código do cupom.");
-    const cart = await databases.cartsRenew.findOne({ _id: cartId, userId: discordId, status: "opened", step: "select-coupons" }).populate("applicationId");
-    if (!cart) throw new ActionError("Este carrinho não aceita mais cupons.");
+    const discordId = await requireSessionUser();
+    const cart = await databases.cartsRenew.findOne({ _id: cartId, userId: discordId }, { applicationId: 1 }).populate("applicationId").lean();
+    if (!cart) throw new ActionError("Carrinho não encontrado.");
     const application = cart.applicationId as unknown as IApplications;
-    const coupon = await databases.coupons.findOne({ code: normalized, storeId: cart.storeId });
-    if (!coupon || coupon.remainingUses <= 0 || coupon.expiresAt < new Date()) throw new ActionError("Cupom inválido ou expirado.");
-    if (coupon.roles?.length) throw new ActionError("Este cupom é exclusivo para cargos do servidor.");
-    if (coupon.products?.length && !coupon.products.includes("all") && !coupon.products.includes(String(application.productId))) throw new ActionError("Este cupom não é válido para este produto.");
-    const claimed = await databases.coupons.findOneAndUpdate({ _id: coupon._id, remainingUses: { $gt: 0 } }, { $inc: { remainingUses: -1 } });
-    if (!claimed) throw new ActionError("Este cupom não possui mais usos disponíveis.");
-    cart.coupon = coupon._id as never; await cart.save(); return { discount: coupon.discount };
+    const result = await reserveCouponForCart({ cartType: "renew", cartId, userId: discordId, code, productId: String(application.productId) });
+    return { discount: result.discount };
 }
 
 export async function generateRenewPayment(cartId: string): Promise<{
@@ -689,7 +681,7 @@ export async function generateRenewPayment(cartId: string): Promise<{
 
     const ownerSettings = await databases.userSettings.findOne(
         { userId_campos: store.ownerId_campos },
-        { userId_discord: 1, efi_credentials: 1, payment_gateway: 1, manual_payment_credentials: 1, promissepay_credentials: 1 }
+        { userId_discord: 1, efi_credentials: 1, payment_gateway: 1, manual_payment_credentials: 1, promissepay_credentials: 1, sharpify_credentials: 1 }
     );
     if (!ownerSettings) throw new ActionError("Dono da loja não configurado.");
 
@@ -768,6 +760,14 @@ export async function generateRenewPayment(cartId: string): Promise<{
         qrcodeDataUrl = `data:image/png;base64,${transaction.qrCodeBase64}`;
         copyPaste = transaction.copyPaste;
         paymentId = transaction.id;
+    } else if (ownerSettings.payment_gateway === "sharpify") {
+        const credentials = ownerSettings.sharpify_credentials;
+        if (!credentials?.client_id || !credentials.client_secret) throw new ActionError("O administrador não configurou a Sharpify.");
+        const transaction = await sharpifyWrapper.createTransaction({ client_id: credentials.client_id, client_secret: credentials.client_secret }, finalPrice, String(cart._id));
+        if (!transaction) throw new ActionError("Não foi possível gerar o pagamento via Sharpify.");
+        copyPaste = transaction.copyPaste;
+        qrcodeDataUrl = await QRCode.toDataURL(copyPaste, { errorCorrectionLevel: "M" });
+        paymentId = transaction.id;
     } else {
         throw new ActionError("O dono da loja não configurou o gateway de pagamento.");
     }
@@ -793,7 +793,7 @@ export async function pollRenewCart(cartId: string): Promise<CartRenewView> {
     return {
         id: String(cart._id),
         userId: cart.userId,
-        appId: String(cart.applicationId),
+        appId: String(application?._id ?? cart.applicationId),
         appName: application?.name || "Aplicação",
         storeId: String(cart.storeId),
         price: cart.price || 0,

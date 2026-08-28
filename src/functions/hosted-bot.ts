@@ -11,6 +11,7 @@ export interface HostedBotConfig {
     syncEmojis?: boolean;
     saveConfig?: boolean;
     startOnBackup?: boolean;
+    preserveExistingConfig?: boolean;
     bot?: {
         token: string;
         owner?: string;
@@ -147,9 +148,11 @@ export function buildHostedBotPackageFromBuffer(
         `PERMS=${config.bot?.perms ?? ""}`,
     ].join("\n");
 
-    zipFile.addFile("config.json", Buffer.from(JSON.stringify(botConfig, null, 4)));
-    zipFile.addFile(".env", Buffer.from(envContent));
-    zipFile.addFile("token.txt", Buffer.from(botToken));
+    if (!config.preserveExistingConfig) {
+        zipFile.addFile("config.json", Buffer.from(JSON.stringify(botConfig, null, 4)));
+        zipFile.addFile(".env", Buffer.from(envContent));
+        zipFile.addFile("token.txt", Buffer.from(botToken));
+    }
 
     const output = zipFile.toBuffer();
     const originalSize = releaseBuffer.byteLength;

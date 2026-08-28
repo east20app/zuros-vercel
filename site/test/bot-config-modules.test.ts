@@ -38,11 +38,13 @@ test("loja maps every real DROX shop document", () => {
         massCoupons: "loja_mass_coupons",
         temporaryRoles: "loja_roles_temp",
         stockNotifications: "loja_stock_notifications",
+        stockRequests: "loja_stock_requests",
         doubtButton: "loja_doubt_button",
         maintenance: "loja_maintenance",
         personalization: "loja_personalization",
         qrCustomization: "loja_qr_customization",
         productPreferences: "products_preferences",
+        balanceConfig: "loja_saldo_config",
     });
 });
 test("automacoes maps every real DROX automation document", () => {
@@ -74,4 +76,10 @@ test("customizacao maps every real DROX customization document", () => {
         info: "custom_info",
         mode: "custom_mode",
     });
+});
+
+test("allows every runtime document used by the current DROX build", () => {
+    for (const id of ["antifake_logs", "automations_feedbacks_log", "bot_connection", "convites", "loja_stock_requests", "products", "tickets_calls", "tickets_data"]) {
+        assert.equal(isAllowedBotDocument(id), true, id);
+    }
 });

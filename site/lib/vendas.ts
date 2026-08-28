@@ -17,7 +17,7 @@ export const STATUS_TONES: Record<string, string> = {
     opened: "border-amber-500/20 bg-amber-500/10 text-amber-300",
     closed: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
     cancelled: "border-red-500/20 bg-red-500/10 text-red-300",
-    processing: "border-[#5865f2]/40 bg-[#5865f2]/10 text-[#7983f5]",
+    processing: "border-[#7c3aed]/40 bg-[#7c3aed]/10 text-[#a78bfa]",
     expired: "border-zinc-500/30 bg-zinc-500/10 text-zinc-400",
 };
 

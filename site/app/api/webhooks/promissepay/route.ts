@@ -1,21 +1,20 @@
 import { NextResponse } from "next/server";
 import { confirmCartPayment } from "@root/src/integration/purchases";
-import { findPaymentId, verifyWebhookSignature } from "@/lib/webhooks";
+import { findPaymentId } from "@/lib/webhooks";
+import { readLimitedJson, safeEqual, webhookErrorStatus } from "@/lib/webhook-request";
 
 export const runtime = "nodejs";
 export async function POST(request: Request) {
-    const raw = await request.text();
-    if (!verifyWebhookSignature(raw, request.headers.get("x-webhook-signature") || request.headers.get("x-signature"), process.env.PROMISSEPAY_WEBHOOK_SECRET)) {
-        return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
+    const requestId = crypto.randomUUID();
+    if (!safeEqual(new URL(request.url).searchParams.get("token"), process.env.PROMISSEPAY_WEBHOOK_SECRET)) return NextResponse.json({ error: "unauthorized", requestId }, { status: 401 });
+    try {
+        const { payload } = await readLimitedJson(request);
+        const paymentId = findPaymentId(payload);
+        if (!paymentId) return NextResponse.json({ error: "invalid_payload", requestId }, { status: 400 });
+        const result = await confirmCartPayment({ paymentId, provider: "promisse", source: "webhook" });
+        return NextResponse.json({ accepted: true, status: result.status, requestId });
+    } catch (error) {
+        const response = webhookErrorStatus(error);
+        return NextResponse.json({ error: response.code, requestId }, { status: response.status });
     }
-    let payload: unknown;
-    try { payload = JSON.parse(raw); }
-    catch { return NextResponse.json({ error: "JSON inválido." }, { status: 400 }); }
-    const root = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
-    const nested = root.data && typeof root.data === "object" ? root.data as Record<string, unknown> : {};
-    const status = String(root.status || nested.status || "").toUpperCase();
-    if (status && !["PAID", "APPROVED", "COMPLETED"].includes(status)) return NextResponse.json({ accepted: true });
-    const paymentId = findPaymentId(payload);
-    if (!paymentId) return NextResponse.json({ error: "Pagamento não identificado." }, { status: 400 });
-    return NextResponse.json(await confirmCartPayment({ paymentId }));
 }

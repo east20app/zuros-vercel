@@ -7,6 +7,20 @@ export interface ICartsRenew {
     price: number;
     coupon: ObjectId;
     finalPrice: number;
+    grossPriceCents?: number;
+    discountCents?: number;
+    finalPriceCents?: number;
+    couponCodeSnapshot?: string;
+    couponDiscountSnapshot?: number;
+    couponReservationState?: 'reserved' | 'consumed' | 'released';
+    confirmedAt?: Date;
+    confirmedBy?: string;
+    paymentSource?: 'webhook' | 'polling' | 'manual';
+    paymentProvider?: 'efi' | 'promisse' | 'sharpify' | 'manual';
+    paymentCheckAttempts?: number;
+    nextPaymentCheckAt?: Date;
+    lastPaymentCheckAt?: Date;
+    deliveryState?: 'opened' | 'payment_pending' | 'payment_confirmed' | 'provisioning' | 'partial_delivery' | 'delivered' | 'retryable_error' | 'cancelled' | 'expired';
     status: "opened" | "closed" | "cancelled" | "processing" | "expired";
     storeId: ObjectId;
     paymentId?: string;
@@ -27,6 +41,20 @@ const cartsSchema = new Schema<ICartsRenew>({
     price: { type: Number, required: false },
     delivered: { type: Boolean, default: false },
     finalPrice: { type: Number, required: false },
+    grossPriceCents: { type: Number, required: false, min: 0 },
+    discountCents: { type: Number, required: false, min: 0 },
+    finalPriceCents: { type: Number, required: false, min: 0 },
+    couponCodeSnapshot: { type: String, required: false },
+    couponDiscountSnapshot: { type: Number, required: false, min: 0, max: 100 },
+    couponReservationState: { type: String, enum: ['reserved', 'consumed', 'released'], required: false },
+    confirmedAt: { type: Date, required: false },
+    confirmedBy: { type: String, required: false },
+    paymentSource: { type: String, enum: ['webhook', 'polling', 'manual'], required: false },
+    paymentProvider: { type: String, enum: ['efi', 'promisse', 'sharpify', 'manual'], required: false },
+    paymentCheckAttempts: { type: Number, default: 0, min: 0 },
+    nextPaymentCheckAt: { type: Date, required: false },
+    lastPaymentCheckAt: { type: Date, required: false },
+    deliveryState: { type: String, enum: ['opened', 'payment_pending', 'payment_confirmed', 'provisioning', 'partial_delivery', 'delivered', 'retryable_error', 'cancelled', 'expired'], default: 'opened' },
     coupon: { type: Types.ObjectId, ref: "coupons", required: false },
     step: { type: String, enum: ["select-days", "waiting-payment", "payment-confirmed", "select-coupons"], default: "select-days" },
     pix_qrcode: { type: String, required: false },

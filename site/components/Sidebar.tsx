@@ -9,6 +9,8 @@ import { BOT_MODULE_META } from "@/lib/bot-config-meta";
 import { BotsNav } from "./BotsNav";
 import { BotStatusIndicator } from "./BotStatusIndicator";
 import { Icon } from "./Icon";
+import { BrandLogo } from "./BrandLogo";
+import { SidebarApplicationControls } from "./SidebarApplicationControls";
 
 export interface SidebarUser {
     name?: string | null;
@@ -17,7 +19,7 @@ export interface SidebarUser {
 }
 
 type SidebarIconName = "dashboard" | "invoice" | "settings" | "user" | "affiliate" | "bell" | "admin";
-type SidebarLink = { icon: SidebarIconName | "left"; label: string; href: string; badge?: "soon" | number; exact?: boolean; section?: string };
+type SidebarLink = { icon: SidebarIconName | "left" | "tutorial"; label: string; href: string; badge?: "soon" | number; exact?: boolean; section?: string };
 
 const exactRoutes = new Set(["/dashboard", "/dashboard/account", "/admin"]);
 
@@ -30,6 +32,8 @@ const PANEL_RAIL_ITEMS = [
     { module: "vendas", label: "Ver Rendimento" },
     { module: "customizacao", label: "Personalização" },
     { module: "automacoes", label: "Automações" },
+    { module: "cloud", label: "DROX Cloud" },
+    { module: "mensagens", label: "Mensagens" },
     { module: "protecao", label: "Proteção do Servidor" },
     { module: "giveaways", label: "Sorteios" },
     { module: "configuracoes", label: "Configurações" },
@@ -131,9 +135,9 @@ function SidebarIcon({
 
 function UserAvatar({ user }: { user?: SidebarUser }) {
     return user?.image ? (
-        <Image unoptimized src={user.image} width={36} height={36} alt="" className="h-9 w-9 rounded-full" />
+        <Image unoptimized priority referrerPolicy="no-referrer" src={user.image} width={36} height={36} alt={`Avatar de ${user.name || "usuário"}`} className="h-9 w-9 shrink-0 rounded-full object-cover" />
     ) : (
-        <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#5865f2] to-magenta-500 text-sm font-bold text-white">
+        <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-600 to-purple-400 text-sm font-bold text-white">
             {(user?.name || "Z")[0]}
         </span>
     );
@@ -141,24 +145,17 @@ function UserAvatar({ user }: { user?: SidebarUser }) {
 
 function Logo({ compact = false }: { compact?: boolean }) {
     return (
-        <Link href="/dashboard" className={`flex ${compact ? "h-11 w-11 justify-center" : "h-12 items-center gap-3 px-2"}`}>
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-[#5865f2] to-[#eb459e] text-sm font-black text-white shadow-[0_6px_20px_-8px_rgba(88,101,242,.9)]">
-                Z
-            </span>
-            {!compact && (
-                <span>
-                    <b className="block font-display text-sm font-semibold text-white">ZUROS APP</b>
-                    <small className="text-xs text-zinc-600">Applications</small>
-                </span>
-            )}
+        <Link href="/dashboard" aria-label="ZUROS" className={`flex ${compact ? "h-11 w-11 items-center justify-center overflow-hidden" : "h-12 items-center px-2"}`}>
+            {compact ? <BrandLogo compact className="h-9 w-9 rounded-lg" /> : <BrandLogo className="h-9 w-36" />}
         </Link>
     );
 }
 
 /** Fixed top bar shown above the main content; offsets to clear whichever rail is docked on desktop. */
-function TopHeader({ leftOffsetClass, pendingCount }: { leftOffsetClass: string; pendingCount: number }) {
+function TopHeader({ leftOffsetClass, pendingCount, title }: { leftOffsetClass: string; pendingCount: number; title: string }) {
     return (
-        <header className={`fixed inset-x-0 top-0 z-30 h-16 border-b border-zinc-900 bg-background-dark/95 backdrop-blur ${leftOffsetClass}`}>
+        <header className={`zuros-mobile-header fixed inset-x-0 top-0 z-30 h-16 border-b border-white/[.06] bg-black/70 backdrop-blur-xl ${leftOffsetClass}`}>
+            <div className="flex h-full items-center pl-28 pr-5 sm:pr-7 lg:pl-7"><span className="text-xs font-semibold uppercase tracking-[.18em] text-zinc-400">{title}</span></div>
             {pendingCount > 0 && (
                 <Link
                     href="/dashboard/invoices"
@@ -182,9 +179,10 @@ function MobileMenuButton({ onOpen }: { onOpen: () => void }) {
             type="button"
             onClick={onOpen}
             aria-label="Abrir menu"
-            className="fixed left-4 top-3 z-50 grid h-10 w-10 place-items-center rounded-xl border border-zinc-800 bg-background-dark text-white lg:hidden"
+            className="zuros-mobile-menu-button fixed left-4 top-3 z-50 inline-flex h-10 items-center gap-2 rounded-xl border border-white/[.08] bg-white/[.045] px-3 text-xs font-medium text-white shadow-lg shadow-black/20 backdrop-blur-xl lg:hidden"
         >
-            <Icon name="menu" className="h-5 w-5" />
+            <Icon name="menu" className="h-4 w-4" />
+            <span>Menu</span>
         </button>
     );
 }
@@ -193,9 +191,15 @@ function MobileMenuButton({ onOpen }: { onOpen: () => void }) {
 function MobileDrawer({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
-        <div className="fixed inset-0 z-[60] lg:hidden">
-            <button aria-label="Fechar menu" className="absolute inset-0 bg-background-dark/80" onClick={onClose} />
-            <div className="relative h-full w-[min(85vw,280px)] border-r border-zinc-800">{children}</div>
+        <div className="zuros-mobile-drawer fixed inset-0 z-[60] lg:hidden">
+            <button aria-label="Fechar menu" className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative flex h-full w-full flex-col border-r border-white/[.08] bg-black/95 shadow-2xl">
+                <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/[.06] px-5">
+                    <h2 className="text-xl font-bold text-white">Menu</h2>
+                    <button type="button" onClick={onClose} aria-label="Fechar menu" className="grid h-10 w-10 place-items-center rounded-xl text-3xl font-light text-zinc-400 hover:bg-white/[.05] hover:text-white">×</button>
+                </header>
+                <div className="min-h-0 flex-1">{children}</div>
+            </div>
         </div>
     );
 }
@@ -226,7 +230,7 @@ function ConfigRail({ storeId, pathname, user }: { storeId: string; pathname: st
                             title={`${item.label} — ${meta.description}`}
                             aria-label={item.label}
                             className={`grid h-10 w-10 place-items-center rounded-xl text-sm transition ${
-                                active ? "border border-magenta-500/30 bg-zinc-900 text-magenta-400" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"
+                                active ? "border border-violet-500/30 bg-violet-500/10 text-violet-300" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"
                             }`}
                         >
                             <Icon name={meta.icon} className="h-4 w-4" />
@@ -306,6 +310,8 @@ export function Sidebar({
     defaultAdminStoreId,
     collapsed = false,
     onToggleCollapsed,
+    mobileMenuOpen,
+    onSetMobileMenuOpen,
 }: {
     user: SidebarUser;
     balance: number;
@@ -314,15 +320,20 @@ export function Sidebar({
     defaultAdminStoreId?: string;
     collapsed?: boolean;
     onToggleCollapsed?: () => void;
+    mobileMenuOpen?: boolean;
+    onSetMobileMenuOpen?: (open: boolean) => void;
 }) {
     const pathname = usePathname();
-    const [open, setOpen] = useState(false);
-    const admin = pathname.startsWith("/admin");
+    const [internalOpen, setInternalOpen] = useState(false);
+    const open = mobileMenuOpen ?? internalOpen;
+    const setOpen = onSetMobileMenuOpen ?? setInternalOpen;
+    const admin = pathname.startsWith("/admin") || pathname.startsWith("/sharpify");
     const account = pathname.startsWith("/dashboard/account");
     const currentAdminStoreId = pathname.match(/^\/admin\/(?!settings(?:\/|$))([^/]+)(?:\/|$)/)?.[1];
     const adminStoreId = currentAdminStoreId || defaultAdminStoreId;
+    const authLicenseId = pathname.match(/^\/dashboard\/auth\/([^/]+)(?:\/|$)/)?.[1];
     const configStoreId = pathname.match(/^\/dashboard\/([^/]+)\/config(?:\/|$)/)?.[1];
-    const selectedBotId = pathname.match(/^\/dashboard\/(?!account(?:\/|$)|invoices(?:\/|$)|store(?:\/|$))([^/]+)(?:\/|$)/)?.[1];
+    const selectedBotId = pathname.match(/^\/dashboard\/(?!account(?:\/|$)|invoices(?:\/|$)|store(?:\/|$)|auth(?:\/|$))([^/]+)(?:\/|$)/)?.[1];
 
     const links: SidebarLink[] = admin
         ? adminStoreId
@@ -337,11 +348,13 @@ export function Sidebar({
                   { icon: "bell", label: "Pagamentos", href: `/admin/${adminStoreId}/payments` },
                   { icon: "invoice", label: "Extrato", href: `/admin/${adminStoreId}/extracts` },
                   { icon: "affiliate", label: "Enviar release", href: `/admin/${adminStoreId}/releases` },
+                  { icon: "settings", label: "Sharpify", href: "/sharpify" },
                   { icon: "settings", label: "Configurações", href: "/admin/settings" },
               ]
             : [
                   { icon: "admin", label: "Todas as lojas", href: "/admin", exact: true },
                   { icon: "user", label: "Usuários do site", href: "/admin/users" },
+                  { icon: "settings", label: "Sharpify", href: "/sharpify" },
                   { icon: "settings", label: "Configurações", href: "/admin/settings" },
               ]
         : account
@@ -349,14 +362,31 @@ export function Sidebar({
               { icon: "user", label: "Perfil", href: "/dashboard/account" },
               { icon: "invoice", label: "Faturas", href: "/dashboard/invoices" },
               { icon: "affiliate", label: "Afiliados", href: "/dashboard/account/affiliates", badge: "soon" },
-              { icon: "bell", label: "Notificações", href: "/dashboard/account/notifications", badge: "soon" },
+              { icon: "bell", label: "Notificações e app", href: "/dashboard/account/notifications" },
               { icon: "invoice", label: "Extrato", href: "/dashboard/account/extracts" },
+          ]
+        : authLicenseId
+        ? [
+              { icon: "left", label: "Minhas aplicações", href: "/dashboard", exact: true, section: "ZUROS Auth" },
+              { icon: "dashboard", label: "Overview", href: `/dashboard/auth/${authLicenseId}#overview`, section: "Auth" },
+              { icon: "admin", label: "Servidores", href: `/dashboard/auth/${authLicenseId}#servers` },
+              { icon: "bell", label: "Mensagem", href: `/dashboard/auth/${authLicenseId}#message` },
+              { icon: "user", label: "Verificados", href: `/dashboard/auth/${authLicenseId}#verified` },
+              { icon: "settings", label: "Recovery", href: `/dashboard/auth/${authLicenseId}#recovery` },
+              { icon: "affiliate", label: "Gifts", href: `/dashboard/auth/${authLicenseId}#gifts` },
+              { icon: "settings", label: "Configurações", href: `/dashboard/auth/${authLicenseId}#settings`, section: "Gerenciamento" },
+              { icon: "user", label: "Equipe", href: `/dashboard/auth/${authLicenseId}#team` },
+              { icon: "settings", label: "Credenciais", href: `/dashboard/auth/${authLicenseId}#credentials` },
+              { icon: "admin", label: "Key de integração", href: `/dashboard/auth/${authLicenseId}#integration` },
+              { icon: "invoice", label: "Logs", href: `/dashboard/auth/${authLicenseId}#logs`, section: "Monitoramento" },
+              { icon: "invoice", label: "Tasks", href: `/dashboard/auth/${authLicenseId}#tasks` },
           ]
         : selectedBotId
         ? [
-              { icon: "left", label: "Voltar ao Dashboard", href: "/dashboard", exact: true, section: "Aplicações" },
-              { icon: "dashboard", label: "Visão geral", href: `/dashboard/${selectedBotId}`, exact: true, section: "Geral" },
-              { icon: "admin", label: "Servidores", href: `/dashboard/${selectedBotId}/servidores`, exact: true },
+              { icon: "left", label: "Meus Bots", href: "/dashboard", exact: true, section: "Meus Bots" },
+              { icon: "settings", label: "Abrir controles completos", href: `/dashboard/${selectedBotId}?tab=controles`, exact: true },
+              { icon: "dashboard", label: "Visão Geral", href: `/dashboard/${selectedBotId}`, exact: true, section: "Principal" },
+              { icon: "admin", label: "Servidores", href: `/dashboard/${selectedBotId}/servidores`, exact: true, section: "Gerenciamento" },
               { icon: "invoice", label: "Pedidos", href: `/dashboard/${selectedBotId}/vendas/pedidos`, exact: true },
               { icon: "user", label: "Clientes", href: `/dashboard/${selectedBotId}/vendas/clientes`, exact: true },
               { icon: "invoice", label: "Carrinhos abertos", href: `/dashboard/${selectedBotId}/vendas/carrinhos-abertos`, exact: true },
@@ -367,6 +397,8 @@ export function Sidebar({
               { icon: "invoice", label: "Gerenciar tickets", href: `/dashboard/${selectedBotId}/config/tickets`, exact: true, section: "Bot" },
               { icon: "user", label: "Personalização", href: `/dashboard/${selectedBotId}/config/customizacao`, exact: true },
               { icon: "settings", label: "Automações", href: `/dashboard/${selectedBotId}/config/automacoes`, exact: true },
+              { icon: "admin", label: "DROX Cloud", href: `/dashboard/${selectedBotId}/config/cloud`, exact: true },
+              { icon: "bell", label: "Mensagens", href: `/dashboard/${selectedBotId}/config/mensagens`, exact: true },
               { icon: "admin", label: "Proteção do servidor", href: `/dashboard/${selectedBotId}/config/protecao`, exact: true },
               { icon: "affiliate", label: "Sorteios", href: `/dashboard/${selectedBotId}/config/giveaways`, exact: true },
               { icon: "settings", label: "Configurações", href: `/dashboard/${selectedBotId}/config/configuracoes`, exact: true },
@@ -377,8 +409,10 @@ export function Sidebar({
               { icon: "settings", label: "Configurações", href: "/dashboard/account" },
           ];
 
+    const headerTitle = admin ? "Administração" : account ? "Minha conta" : authLicenseId ? "ZUROS Auth" : selectedBotId ? "Gerenciar bot" : "Minhas aplicações";
+
     const FullPanel = (
-        <aside className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background-dark px-3 py-4">
+        <aside className="zuros-sidebar-panel relative flex h-full min-h-0 flex-col overflow-hidden px-3 py-4">
             <button
                 type="button"
                 onClick={onToggleCollapsed}
@@ -389,23 +423,25 @@ export function Sidebar({
                 <SidebarIcon name="left" />
             </button>
 
-            <Logo />
+            <div className="hidden lg:block"><Logo /></div>
 
-            <div className={`mt-5 grid rounded-xl border border-zinc-800 bg-background p-1 ${canAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-zinc-800 text-white shadow-inner" : "text-zinc-500 hover:text-white"}`}>
+
+            <div className={`mt-5 hidden rounded-xl border border-zinc-800 bg-background p-1 lg:grid ${canAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
+                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-violet-600 text-white shadow-[0_8px_20px_-10px_rgba(124,58,237,.8)]" : "text-zinc-500 hover:text-white"}`}>
                     Apps
                 </Link>
                 {canAdmin && (
-                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-white"}`}>
+                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-violet-600 text-white" : "text-zinc-500 hover:text-white"}`}>
                         Admin
                     </Link>
                 )}
-                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-white"}`}>
+                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-violet-600 text-white" : "text-zinc-500 hover:text-white"}`}>
                     Conta
                 </Link>
             </div>
 
             <div className="sidebar-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+            {selectedBotId ? <SidebarApplicationControls appId={selectedBotId} /> : null}
             <p className="mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">
                 {admin ? "Administração" : account ? "Conta" : "Navegação"}
             </p>
@@ -418,7 +454,7 @@ export function Sidebar({
                         onClick={() => setOpen(false)}
                         href={link.href}
                         className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
-                            (link.exact ? pathname === link.href : routeIsActive(pathname, link.href)) ? "border-zinc-800 bg-zinc-900/80 text-white shadow-inner" : "border-transparent text-zinc-400 hover:bg-zinc-900/50 hover:text-white"
+                            (link.exact ? pathname === link.href : routeIsActive(pathname, link.href)) ? "border-violet-500/25 bg-violet-500/10 text-violet-100 shadow-inner" : "border-transparent text-zinc-400 hover:bg-zinc-900/50 hover:text-white"
                         }`}
                     >
                         <span className="grid h-5 w-5 shrink-0 place-items-center text-zinc-400">
@@ -441,15 +477,18 @@ export function Sidebar({
                 </div>
             )}
 
-            {!selectedBotId && (
+            {!admin && !account && (
                 <div className="mt-5 border-t border-zinc-900 pt-4">
                     <p className="mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">Ajuda</p>
+                    <Link href={authLicenseId ? `/dashboard/auth/${authLicenseId}` : selectedBotId ? `/dashboard/${selectedBotId}?tour=1` : "/dashboard?tour=1"} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                        <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0" />Conheça o painel ZUROS
+                    </Link>
                     <Link href="/#beneficios" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
                         <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0" />Tutoriais
                     </Link>
-                    <a href="/#suporte" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                    <Link href="/#suporte" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
                         <SidebarIcon name="help" className="h-4 w-4 shrink-0" />Suporte
-                    </a>
+                    </Link>
                 </div>
             )}
             </div>
@@ -477,9 +516,9 @@ export function Sidebar({
         if (!configStoreId) {
             return (
                 <>
-                    <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} />
+                    <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} title={headerTitle} />
                     <MobileMenuButton onOpen={() => setOpen(true)} />
-                    <div className="fixed inset-y-0 left-0 z-40 hidden w-20 border-r border-zinc-900 lg:block">
+                    <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl border border-white/[.07] bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
                         <CompactRail pathname={pathname} user={user} onExpand={onToggleCollapsed} />
                     </div>
                     <MobileDrawer open={open} onClose={() => setOpen(false)}>
@@ -490,9 +529,9 @@ export function Sidebar({
         }
         return (
             <>
-                <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} />
+                <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} title={headerTitle} />
                 <MobileMenuButton onOpen={() => setOpen(true)} />
-                <div className="fixed inset-y-0 left-0 z-40 hidden w-20 border-r border-zinc-900 lg:block">
+                <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl border border-white/[.07] bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
                     <button
                         type="button"
                         onClick={onToggleCollapsed}
@@ -513,9 +552,9 @@ export function Sidebar({
 
     return (
         <>
-            <TopHeader leftOffsetClass="lg:left-64" pendingCount={pendingCount} />
+            <TopHeader leftOffsetClass="lg:left-64" pendingCount={pendingCount} title={headerTitle} />
             <MobileMenuButton onOpen={() => setOpen(true)} />
-            <div className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-zinc-900 lg:block">{FullPanel}</div>
+            <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-60 overflow-hidden rounded-2xl border border-white/[.07] bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">{FullPanel}</div>
             <MobileDrawer open={open} onClose={() => setOpen(false)}>
                 {FullPanel}
             </MobileDrawer>

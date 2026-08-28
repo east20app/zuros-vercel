@@ -29,8 +29,10 @@ export interface ProductCatalogDTO {
     id: string;
     storeId: string;
     name: string;
+    productType: "bot" | "auth" | "complete";
     description: string | null;
     bannerUrl: string | null;
+    available: boolean;
     prices: PurchasePriceDTO[];
 }
 
@@ -39,6 +41,7 @@ export interface PurchaseCartDTO {
     storeId: string;
     productId: string;
     productName: string;
+    productType: "bot" | "auth" | "complete";
     plan: PurchasePlan;
     days: number | null;
     lifetime: boolean;

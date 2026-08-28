@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 120
+target-version = ['py311']
+extend-exclude = '''/(database|backups|node_modules)/'''
+
+[tool.ruff]
+line-length = 120
+target-version = 'py311'
+exclude = ['database', 'backups', 'node_modules']
+
+[tool.ruff.lint]
+select = ['E', 'F', 'I', 'S']
+ignore = ['S101']

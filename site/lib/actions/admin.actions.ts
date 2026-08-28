@@ -4,12 +4,14 @@ import databases from "@root/src/databases";
 import sdkWrapper from "@root/src/functions/camposcloud-sdk";
 import efiWrapper from "@root/src/functions/efi_wrapper";
 import promisseWrapper from "@root/src/functions/promisse_wrapper";
+import sharpifyWrapper from "@root/src/functions/sharpify_wrapper";
 import { changeBalance } from "@root/src/functions/extracts";
 import { getUserHasPermissionOnStore, PermissionsStore } from "@root/src/functions/acl";
 import { getProductReleases as getProductReleasesDTO } from "@root/src/integration/releases";
 import { productMessageSchema, type ProductMessageDTO } from "@root/src/integration/dtos";
 import CamposCloudSDK from "@camposcloud/sdk";
 import axios from "axios";
+import crypto from "node:crypto";
 import type { Types, UpdateQuery } from "mongoose";
 import type { IApplications } from "@root/src/databases/schemas/applications";
 import type { ICartsBuy } from "@root/src/databases/schemas/carts-buy";
@@ -19,6 +21,7 @@ import type { IExtracts } from "@root/src/databases/schemas/extracts";
 import type { IProducts } from "@root/src/databases/schemas/products";
 import type { ISettings } from "@root/src/databases/schemas/user-settings";
 import { releaseExists } from "@root/src/functions/hosted-bot";
+import { processProductApplicationUpdates } from "@root/src/integration/application-updates";
 
 import type {
     AppSummary,
@@ -278,8 +281,11 @@ export async function createStore(name: string): Promise<{ id: string }> {
     const normalized = name.trim();
     if (!normalized || normalized.length > 60) throw new ActionError("Informe um nome de loja com até 60 caracteres.");
     const settings = await databases.userSettings.findOne({ userId_discord: discordId }, { userId_campos: 1 });
-    const ownerId = settings?.userId_campos || `discord:${discordId}`;
-    const store = await databases.stores.create({ name: normalized, ownerId_campos: ownerId, permissions: [] });
+    const ownerId = settings?.userId_campos || "discord:" + discordId;
+    if (await databases.stores.exists({ _id: PRIMARY_ADMIN_STORE_ID })) {
+        throw new ActionError("A loja principal já existe.");
+    }
+    const store = await databases.stores.create({ _id: PRIMARY_ADMIN_STORE_ID, name: normalized, ownerId_campos: ownerId, permissions: [] });
     return { id: String(store._id) };
 }
 
@@ -397,7 +403,7 @@ export async function getStoreProducts(storeId: string): Promise<ProductView[]> 
     for (const product of products) {
         const [applicationsCount, pendingUpdate, errorUpdate] = await Promise.all([
             databases.applications.countDocuments({ productId: product._id }),
-            databases.applications.countDocuments({ productId: product._id, version: { $ne: product.currentReleaseVersion } }),
+            databases.applications.countDocuments({ productId: product._id, $or: [{ version: { $ne: product.currentReleaseVersion } }, { forceUpdate: true }] }),
             databases.applications.countDocuments({ productId: product._id, errorOnUpdate: true }),
         ]);
 
@@ -414,6 +420,8 @@ export async function getStoreProducts(storeId: string): Promise<ProductView[]> 
             storeId,
             storeName: store?.name || "",
             name: product.name,
+            productType: product.productType || "bot",
+            authSettings: { plan: product.authSettings?.plan || "basic", servers: product.authSettings?.servers || 1, verifiedUsers: product.authSettings?.verifiedUsers || 1000, features: [...(product.authSettings?.features || [])] },
             runtimeEnvironment: product.runtimeEnvironment,
             runCommand: product.runCommand,
             needToUpdateApplications: !!product.needToUpdateApplications,
@@ -469,10 +477,11 @@ export async function setCurrentProductRelease(productId: string, version: strin
     product.currentReleaseVersion = release.version;
     product.needToUpdateApplications = true;
     await product.save();
-    await databases.applications.updateMany(
+    const queued = await databases.applications.updateMany(
         { productId: product._id },
-        { $set: { updateAttempts: 0, errorOnUpdate: false }, $unset: { errorOnUpdateMessage: "" } },
+        { $set: { updateAttempts: 0, errorOnUpdate: false }, $unset: { errorOnUpdateMessage: "", updateLeaseUntil: "" } },
     );
+    if (queued.matchedCount > 0) await processProductApplicationUpdates(String(product._id));
     return { ok: true };
 }
 
@@ -484,8 +493,29 @@ export async function retryProductUpdates(productId: string): Promise<{ count: n
     return { count: result.modifiedCount };
 }
 
+export async function forceUpdateAllProductApplications(productId: string): Promise<{ count: number; updated: number; failed: number; pending: number }> {
+    const discordId = await requireSessionUser();
+    const product = await databases.products.findById(productId);
+    if (!product) throw new ActionError("Produto não encontrado.");
+    await requireStoreAccess(discordId, String(product.storeId));
+    if (!product.currentReleaseVersion) throw new ActionError("Defina uma release atual antes de atualizar os bots.");
+    if (!await releaseExists(String(product._id), product.currentReleaseVersion).catch(() => false)) {
+        throw new ActionError("O arquivo da release atual não está disponível.");
+    }
+    const result = await databases.applications.updateMany(
+        { productId: product._id },
+        { $set: { forceUpdate: true, updateAttempts: 0, errorOnUpdate: false }, $unset: { errorOnUpdateMessage: "" } },
+    );
+    product.needToUpdateApplications = result.matchedCount > 0;
+    await product.save();
+    if (!result.matchedCount) return { count: 0, updated: 0, failed: 0, pending: 0 };
+    const processed = await processProductApplicationUpdates(String(product._id));
+    return { count: result.matchedCount, updated: processed.updated, failed: processed.failed, pending: processed.pending };
+}
 export interface ProductInput {
     name: string;
+    productType?: "bot" | "auth" | "complete";
+    authSettings?: { plan: "basic" | "cloud" | "pro"; servers?: number; verifiedUsers?: number; features?: string[] };
     runtimeEnvironment: string;
     runCommand: string;
     needToUpdateApplications?: boolean;
@@ -501,14 +531,17 @@ export async function createProduct(storeId: string, input: ProductInput): Promi
     await requireStoreAccess(discordId, storeId);
 
     if (!input.name || !input.name.trim()) throw new ActionError("Nome do produto é obrigatório.");
-    if (!VALID_RUNTIMES.includes(input.runtimeEnvironment)) throw new ActionError("Runtime inválido.");
-    if (!input.runCommand || !input.runCommand.trim()) throw new ActionError("Comando de execução é obrigatório.");
+    const productType = input.productType || "bot";
+    if (productType !== "auth" && !VALID_RUNTIMES.includes(input.runtimeEnvironment)) throw new ActionError("Runtime inválido.");
+    if (productType !== "auth" && (!input.runCommand || !input.runCommand.trim())) throw new ActionError("Comando de execução é obrigatório.");
 
     const product = await databases.products.create({
         storeId,
         name: input.name.trim(),
+        productType,
+        authSettings: productType !== "bot" ? input.authSettings : undefined,
         runtimeEnvironment: input.runtimeEnvironment,
-        runCommand: input.runCommand.trim(),
+        runCommand: productType === "auth" ? "saas" : input.runCommand.trim(),
         needToUpdateApplications: !!input.needToUpdateApplications,
         memoryMB: input.memoryMB || 256,
         prices: input.prices || {},
@@ -530,8 +563,10 @@ export async function updateProduct(productId: string, input: Partial<ProductInp
         if (!input.name.trim()) throw new ActionError("Nome do produto não pode ser vazio.");
         product.name = input.name.trim();
     }
+    if (input.productType !== undefined) product.productType = input.productType;
+    if (input.authSettings !== undefined) product.authSettings = input.authSettings;
     if (input.runtimeEnvironment !== undefined) {
-        if (!VALID_RUNTIMES.includes(input.runtimeEnvironment)) throw new ActionError("Runtime inválido.");
+        if ((input.productType || product.productType) !== "auth" && !VALID_RUNTIMES.includes(input.runtimeEnvironment)) throw new ActionError("Runtime inválido.");
         product.runtimeEnvironment = input.runtimeEnvironment as IProducts["runtimeEnvironment"];
     }
     if (input.runCommand !== undefined) {
@@ -793,7 +828,7 @@ export async function approvePayment(args: { type: "renew" | "buy"; id: string; 
     const discordId = await requireSessionUser();
 
     if (args.type === "renew") {
-        const cart = await databases.cartsRenew.findById(args.id).populate("storeId");
+        const cart = await databases.cartsRenew.findById(args.id);
         if (!cart) throw new ActionError("Carrinho não encontrado.");
         await requireStoreAccess(discordId, String(cart.storeId));
 
@@ -830,7 +865,7 @@ export async function approvePayment(args: { type: "renew" | "buy"; id: string; 
         return { ok: true };
     }
 
-    const cart = await databases.cartsBuy.findById(args.id).populate("storeId");
+    const cart = await databases.cartsBuy.findById(args.id);
     if (!cart) throw new ActionError("Carrinho não encontrado.");
     await requireStoreAccess(discordId, String(cart.storeId));
 
@@ -932,6 +967,13 @@ export async function getSettingsView(): Promise<SettingsView> {
         promisseValid = !!promisseInstance?.isValid;
     }
 
+    let sharpifyValid = false;
+    if (settings?.sharpify_credentials?.client_id && settings.sharpify_credentials?.client_secret) {
+        sharpifyValid = await sharpifyWrapper.checkIsValidConfig({
+            client_id: settings.sharpify_credentials.client_id,
+            client_secret: settings.sharpify_credentials.client_secret,
+        }).catch(() => false);
+    }
     return {
         userLinked: !!settings && !!(settings.userId_campos && token),
         tokenCamposMasked: token ? `${token.slice(0, 6)}...${token.slice(-4)}` : null,
@@ -942,12 +984,14 @@ export async function getSettingsView(): Promise<SettingsView> {
         manualConfigured: !!(settings?.manual_payment_credentials?.pix_key),
         promisseConfigured: !!settings?.promissepay_credentials?.api_key,
         promisseValid,
+        sharpifyConfigured: !!(settings?.sharpify_credentials?.client_id && settings.sharpify_credentials?.client_secret),
+        sharpifyValid,
         stores,
     };
 }
 
 export async function saveCamposToken(newToken?: string): Promise<{ ok: true; masked?: string }> {
-    const discordId = await requireSessionUser();
+    const discordId = await requireBotOwner();
 
     if (newToken && newToken.trim()) {
         const sdk = new CamposCloudSDK({ apiToken: newToken.trim() });
@@ -992,11 +1036,12 @@ export async function savePaymentConfig(
         efi?: { client_id?: string; client_secret?: string; pix_key?: string; cert?: string };
         manual?: { pix_key?: string; key_type?: string };
         promisse?: { api_key?: string };
+        sharpify?: { client_id?: string; client_secret?: string };
     }
 ): Promise<{ ok: true }> {
-    const discordId = await requireSessionUser();
+    const discordId = await requireBotOwner();
 
-    if (!["efi", "manual", "promisse"].includes(gateway)) {
+    if (!["efi", "manual", "promisse", "sharpify"].includes(gateway)) {
         throw new ActionError("Gateway de pagamento inválido.");
     }
 
@@ -1005,6 +1050,7 @@ export async function savePaymentConfig(
         efi_credentials?: { client_id: string; client_secret: string; pix_key: string; cert: string };
         manual_payment_credentials?: { pix_key: string; key_type: string };
         promissepay_credentials?: { api_key: string };
+        sharpify_credentials?: { client_id: string; client_secret: string; webhook_id: string };
     } = { payment_gateway: gateway };
 
     if (gateway === "efi") {
@@ -1035,10 +1081,23 @@ export async function savePaymentConfig(
         if (!credentials.promisse?.api_key) {
             throw new ActionError("Preencha a API Key do PromissePay.");
         }
-        update.promissepay_credentials = { api_key: credentials.promisse.api_key.trim() };
+        const apiKey = credentials.promisse.api_key.trim();
+        const valid = await promisseWrapper.checkIsValidConfig(apiKey);
+        if (!valid) {
+            throw new ActionError("A PromissePay recusou a chave. Confirme a API Key, a lista de IPs permitidos e os escopos payments.create e payments.read.");
+        }
+        update.promissepay_credentials = { api_key: apiKey };
         promisseWrapper.clearInstance(discordId);
     }
 
+    if (gateway === "sharpify") {
+        const clientId = credentials.sharpify?.client_id?.trim() || "";
+        const clientSecret = credentials.sharpify?.client_secret?.trim() || "";
+        if (!clientId || !clientSecret) throw new ActionError("Preencha o Client ID e o Client Secret da Sharpify.");
+        const valid = await sharpifyWrapper.checkIsValidConfig({ client_id: clientId, client_secret: clientSecret });
+        if (!valid) throw new ActionError("A Sharpify recusou as credenciais. Confirme as permissões CREATE_PAYMENT_LINK e GET_PAYMENT_LINK.");
+        update.sharpify_credentials = { client_id: clientId, client_secret: clientSecret, webhook_id: crypto.createHash("sha256").update(clientId).digest("hex") };
+    }
     await databases.userSettings.updateOne({ userId_discord: discordId }, { $set: update } as UpdateQuery<ISettings>, { upsert: true });
 
     return { ok: true };

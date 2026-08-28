@@ -1,0 +1,50 @@
+[32m[CONSOLE]: Conexão estabelecida 😸 ✓[0m
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: disnake in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 1)) (2.12.1)
+Requirement already satisfied: py-discord-html-transcripts in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 2)) (2.3.1)
+Requirement already satisfied: pymongo in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 3)) (4.17.0)
+Requirement already satisfied: dnspython in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 4)) (2.8.0)
+Requirement already satisfied: requests in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 5)) (2.34.2)
+Requirement already satisfied: pytz in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 6)) (2026.3.post1)
+Requirement already satisfied: aiohttp in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 7)) (3.14.3)
+Requirement already satisfied: websockets>=12.0 in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 8)) (17.0.1)
+Requirement already satisfied: PyJWT>=2.8.0 in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 9)) (2.13.0)
+Requirement already satisfied: matplotlib in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 10)) (3.11.1)
+Requirement already satisfied: psutil in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 11)) (7.2.2)
+Requirement already satisfied: PyNaCl in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 12)) (1.6.2)
+Requirement already satisfied: Pillow in ./.local/lib/python3.12/site-packages (from -r requirements.txt (line 13)) (12.3.0)
+Requirement already satisfied: typing-extensions>=4.1 in ./.local/lib/python3.12/site-packages (from disnake->-r requirements.txt (line 1)) (4.16.0)
+Requirement already satisfied: yarl>=1.0 in ./.local/lib/python3.12/site-packages (from disnake->-r requirements.txt (line 1)) (1.24.5)
+Requirement already satisfied: grapheme in ./.local/lib/python3.12/site-packages (from py-discord-html-transcripts->-r requirements.txt (line 2)) (0.6.0)
+Requirement already satisfied: emoji in ./.local/lib/python3.12/site-packages (from py-discord-html-transcripts->-r requirements.txt (line 2)) (2.15.0)
+Requirement already satisfied: charset_normalizer<4,>=2 in ./.local/lib/python3.12/site-packages (from requests->-r requirements.txt (line 5)) (3.5.1)
+Requirement already satisfied: idna<4,>=2.5 in ./.local/lib/python3.12/site-packages (from requests->-r requirements.txt (line 5)) (3.18)
+Requirement already satisfied: urllib3<3,>=1.26 in ./.local/lib/python3.12/site-packages (from requests->-r requirements.txt (line 5)) (2.7.0)
+Requirement already satisfied: certifi>=2023.5.7 in ./.local/lib/python3.12/site-packages (from requests->-r requirements.txt (line 5)) (2026.7.22)
+Requirement already satisfied: aiohappyeyeballs>=2.5.0 in ./.local/lib/python3.12/site-packages (from aiohttp->-r requirements.txt (line 7)) (2.7.1)
+Requirement already satisfied: aiosignal>=1.4.0 in ./.local/lib/python3.12/site-packages (from aiohttp->-r requirements.txt (line 7)) (1.4.0)
+Requirement already satisfied: attrs>=17.3.0 in ./.local/lib/python3.12/site-packages (from aiohttp->-r requirements.txt (line 7)) (26.1.0)
+Requirement already satisfied: frozenlist>=1.1.1 in ./.local/lib/python3.12/site-packages (from aiohttp->-r requirements.txt (line 7)) (1.8.0)
+Requirement already satisfied: multidict<7.0,>=4.5 in ./.local/lib/python3.12/site-packages (from aiohttp->-r requirements.txt (line 7)) (6.7.1)
+Requirement already satisfied: propcache>=0.2.0 in ./.local/lib/python3.12/site-packages (from aiohttp->-r requirements.txt (line 7)) (0.5.2)
+Requirement already satisfied: contourpy>=1.0.1 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (0.12.1)
+Requirement already satisfied: fonttools>=4.28.2 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (1.5.0)
+Requirement already satisfied: numpy>=1.25 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (2.5.2)
+Requirement already satisfied: packaging>=20.0 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (26.3)
+Requirement already satisfied: pyparsing>=3 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in ./.local/lib/python3.12/site-packages (from matplotlib->-r requirements.txt (line 10)) (2.9.0.post0)
+Requirement already satisfied: cffi>=2.0.0 in ./.local/lib/python3.12/site-packages (from PyNaCl->-r requirements.txt (line 12)) (2.1.1)
+Requirement already satisfied: pycparser in ./.local/lib/python3.12/site-packages (from cffi>=2.0.0->PyNaCl->-r requirements.txt (line 12)) (3.0)
+Requirement already satisfied: six>=1.5 in ./.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib->-r requirements.txt (line 10)) (1.17.0)
+
+[notice] A new release of pip is available: 24.2 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+/app/.local/lib/python3.12/site-packages/jwt/api_jwt.py:147: InsecureKeyLengthWarning: The HMAC key is 15 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+return self._jws.encode(
+Traceback (most recent call last):
+File "/app/modules/loja/cart/checkout.py", line 3266, in _handle_payment_approved
+f"## {emoji.info} Entrega"
+^^^^^^^^^^
+AttributeError: type object 'emoji' has no attribute 'info'

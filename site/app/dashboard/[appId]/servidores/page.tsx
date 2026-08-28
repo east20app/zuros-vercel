@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { BotConfigHeader } from "@/components/BotConfigHeader";
 import { Card, PageHeader } from "@/components/ui";
+import { ServerManager } from "@/components/ServerManager";
 import { getBotIdentity, listBotGuilds } from "@/lib/actions/apps.actions";
 import { ActionError } from "@/lib/actions/context";
 import { requireUser } from "@/lib/require-admin";
@@ -10,12 +11,12 @@ import { requireUser } from "@/lib/require-admin";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Servidores · ZUROS APP" };
 
-export default async function BotServersPage({ params }: { params: { appId: string } }) {
+export default async function BotServersPage({ params }: { params: Promise<{ appId: string }> }) { const resolvedParams = await params;
     await requireUser();
     let bot;
     let guilds;
     try {
-        [bot, guilds] = await Promise.all([getBotIdentity(params.appId), listBotGuilds(params.appId)]);
+        [bot, guilds] = await Promise.all([getBotIdentity(resolvedParams.appId), listBotGuilds(resolvedParams.appId)]);
     } catch (error) {
         if (error instanceof ActionError) notFound();
         throw error;
@@ -23,12 +24,13 @@ export default async function BotServersPage({ params }: { params: { appId: stri
 
     return (
         <main className="mx-auto min-w-0 max-w-6xl px-5 py-8 sm:px-8">
-            <BotConfigHeader appId={params.appId} />
+            <BotConfigHeader appId={resolvedParams.appId} />
             <PageHeader title="Servidores" subtitle={`${bot.name} está presente em ${guilds.length} servidor(es).`} />
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <ServerManager appId={resolvedParams.appId} botId={bot.botId} guilds={guilds} />
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {guilds.map((guild) => (
-                    <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#5865f2]/40">
-                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#5865f2]/15 text-[#949cf7]">
+                    <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#7c3aed]/40">
+                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#7c3aed]/15 text-[#949cf7]">
                             <Icon name="apps" />
                         </span>
                         <span className="min-w-0">

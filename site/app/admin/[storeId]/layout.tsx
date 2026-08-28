@@ -8,17 +8,18 @@ export default async function StoreLayout({
     params,
 }: {
     children: React.ReactNode;
-    params: { storeId: string };
+    params: Promise<{ storeId: string }>;
 }) {
+    const resolvedParams = await params;
     await requireUser();
 
     const stores = await listAdminStores();
-    const store = stores.find((s) => s.id === params.storeId);
+    const store = stores.find((s) => s.id === resolvedParams.storeId);
     if (!store) notFound();
 
     return (
         <div className="flex flex-col gap-6">
-            <AdminNav stores={stores} storeId={params.storeId} />
+            <AdminNav stores={stores} storeId={resolvedParams.storeId} />
             {children}
         </div>
     );

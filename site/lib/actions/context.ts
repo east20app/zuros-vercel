@@ -1,10 +1,23 @@
 import databases from "@root/src/databases";
+import connectDatabase from "@root/src/databases/connection";
 import sdkWrapper from "@root/src/functions/camposcloud-sdk";
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
 export class ActionError extends Error {}
 export const PRIMARY_ADMIN_STORE_ID = "6a6f9c98ffb784b910182a6f";
+
+async function ensureDatabaseConnection(): Promise<void> {
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            await connectDatabase();
+            return;
+        } catch {
+            if (attempt === 1) throw new ActionError("Banco de dados temporariamente indisponível. Tente novamente em alguns segundos.");
+            await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+    }
+}
 
 export async function getSessionUser(): Promise<{ discordId: string } | null> {
     const { authOptions } = await import("@/lib/auth");
@@ -26,10 +39,12 @@ export async function requireSessionUser(): Promise<string> {
     if (!user) {
         throw new ActionError("Não autenticado.");
     }
+    await ensureDatabaseConnection();
     return user.discordId;
 }
 
 export async function getStoresForUser(discordId: string) {
+    await ensureDatabaseConnection();
     if (process.env.OWNER_ID && discordId === process.env.OWNER_ID) {
         return databases.stores.find({ _id: PRIMARY_ADMIN_STORE_ID });
     }
@@ -45,6 +60,7 @@ export async function getStoresForUser(discordId: string) {
 }
 
 export async function canAccessAdmin(discordId: string): Promise<boolean> {
+    await ensureDatabaseConnection();
     if (process.env.OWNER_ID && discordId === process.env.OWNER_ID) return true;
     const settings = await databases.userSettings.findOne({ userId_discord: discordId }, { userId_campos: 1 });
     const store = await databases.stores.findOne({
@@ -59,6 +75,7 @@ export async function canAccessAdmin(discordId: string): Promise<boolean> {
 }
 
 export async function getOwnerDiscordId(storeId: string): Promise<string | null> {
+    await ensureDatabaseConnection();
     if (storeId !== PRIMARY_ADMIN_STORE_ID) return null;
     const store = await databases.stores.findById(storeId, { ownerId_campos: 1 });
     if (!store?.ownerId_campos) return null;

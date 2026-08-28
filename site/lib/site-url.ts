@@ -1,11 +1,15 @@
+const DEFAULT_PUBLIC_URL = "https://app.zuros.site";
 const configuredUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL;
 const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
 
-if (process.env.NODE_ENV === "production" && !configuredUrl && !vercelUrl) {
-    throw new Error("Defina NEXTAUTH_URL, NEXT_PUBLIC_SITE_URL ou VERCEL_URL para gerar URLs públicas em produção.");
-}
-
-export const siteUrl = new URL(configuredUrl || (vercelUrl ? `https://${vercelUrl}` : "http://localhost:3000"));
+// Metadata routes are evaluated while Next.js collects page data.
+// Local builds and some previews do not expose Vercel URL variables yet;
+// usar o domínio canônico impede que /robots.txt derrube todo o deploy.
+export const siteUrl = new URL(
+    configuredUrl
+    || (vercelUrl ? `https://${vercelUrl}` : undefined)
+    || (process.env.NODE_ENV === "production" ? DEFAULT_PUBLIC_URL : "http://localhost:3000"),
+);
 
 export function publicMetadata(title: string, description: string, pathname: string) {
     return {

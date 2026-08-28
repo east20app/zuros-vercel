@@ -19,7 +19,7 @@ export function BalanceForm({ storeId }: { storeId: string }) {
         setBusy(true);
         try {
             await changeStoreBalance(storeId, { action, amount: Number(amount), description });
-            push(action === "add" ? "Saldo adicionado." : "Saldo removido.");
+            push(action === "add" ? "Saldo adilionado." : "Saldo removido.");
             setAmount("");
             setDescription("");
             router.refresh();
@@ -38,7 +38,7 @@ export function BalanceForm({ storeId }: { storeId: string }) {
                 handleSubmit();
             }}
         >
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex">
                 <button
                     type="button"
                     onClick={() => setAction("add")}

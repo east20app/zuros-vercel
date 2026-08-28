@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/require-admin";
 import { getStoresForUser } from "@/lib/actions/context";
 import { SignOutButton } from "./SignOutButton";
 import Image from "next/image";
+import { BrandLogo } from "./BrandLogo";
 
 export async function Navbar() {
     const user = await getSessionUser();
@@ -11,8 +12,8 @@ export async function Navbar() {
     return (
         <header className="sticky top-0 z-40 border-b border-zinc-900/80 bg-black/80 backdrop-blur-xl">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-12">
-                <Link href={user ? "/dashboard" : "/"} className="group flex items-center gap-2 text-sm font-bold tracking-tight">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/20 to-transparent text-emerald-400 shadow-[0_0_20px_-6px_rgba(16,185,129,.6)] transition group-hover:shadow-[0_0_26px_-4px_rgba(16,185,129,.8)]">Z</span> ZUROS <span className="text-zinc-500">APP</span>
+                <Link href={user ? "/dashboard" : "/"} aria-label="ZUROS" className="inline-flex">
+                    <BrandLogo priority className="h-9 w-36" />
                 </Link>
 
                 <div className="flex items-center gap-2">
@@ -40,7 +41,7 @@ export async function Navbar() {
                                         width={20}
                                         height={20}
                                         unoptimized
-                                        className="h-5 w-5 rounded-full ring-1 ring-emerald-500/30"
+                                        className="h-5 w-5 rounded-full ring-1 ring-violet-500/40"
                                         referrerPolicy="no-referrer"
                                     />
                                 )}

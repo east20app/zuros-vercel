@@ -39,3 +39,29 @@ O processo principal prepara Next.js e conecta o Discord em paralelo. As falhas 
 ## Produção
 
 Use `npm start`. O limite de heap padrão é 384 MB, definido nos scripts da raiz. Antes de reduzir ou dividir esse limite, meça o heap do processo sob carga real: um Worker Thread possui event loop isolado, mas também adiciona outro isolate V8 e uma nova conexão MongoDB, o que pode aumentar o consumo total em ambientes pequenos.
+
+## Arquitetura operacional atual
+
+- site: painel Next.js na Vercel, páginas, Server Actions, checkout e webhooks.
+- src: domínio compartilhado, bot de administração, pagamentos, releases e hospedagem.
+- services/drox-bot: runtime persistente do bot do cliente.
+- bridge-bot-integration: cliente Python para a API de integração.
+- MongoDB: estado durável, idempotência, ledger, eventos e filas.
+- CamposCloud: hospedagem persistente dos bots; o nome não é exibido nas páginas públicas.
+
+A Vercel executa o painel e callbacks HTTP. O bot Discord, reconciliação contínua e tarefas longas precisam de hospedagem persistente.
+
+## Qualidade
+
+Comandos obrigatórios antes de publicar:
+
+1. npm run check:secrets
+2. npm run typecheck
+3. npm run lint
+4. npm --prefix site test
+5. npm --prefix site run build:next
+6. python -m compileall -q services bridge-bot-integration
+7. python -m ruff check bridge-bot-integration services/drox-bot/tests/test_zuros_client.py services/drox-bot/tests/test_perms.py
+8. python -m black --check bridge-bot-integration services/drox-bot/tests/test_zuros_client.py services/drox-bot/tests/test_perms.py
+
+Consulte RELATORIO_AUDITORIA_COMPLETA.md, route-matrix.md e visual-findings.md.

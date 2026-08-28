@@ -18,7 +18,12 @@ export interface ISettings {
     promissepay_credentials?: {
         api_key?: string;
     }
-    payment_gateway?: "efi" | "manual" | "promisse";
+    sharpify_credentials?: {
+        client_id?: string;
+        client_secret?: string;
+        webhook_id?: string;
+    }
+    payment_gateway?: "efi" | "manual" | "promisse" | "sharpify";
     settings?: Record<string, string>;
 }
 
@@ -39,7 +44,12 @@ const settingsSchema = new Schema<ISettings>({
     promissepay_credentials: {
         api_key: { type: String, default: "" },
     },
-    payment_gateway: { type: String, enum: ["efi", "manual", "promisse"], default: "manual" },
+    sharpify_credentials: {
+        client_id: { type: String, default: "" },
+        client_secret: { type: String, default: "" },
+        webhook_id: { type: String, default: "", index: true },
+    },
+    payment_gateway: { type: String, enum: ["efi", "manual", "promisse", "sharpify"], default: "manual" },
     settings: { type: Object, default: {} }
 });
 

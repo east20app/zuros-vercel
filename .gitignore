@@ -1,11 +1,14 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
 site/node_modules/
 
 # Compiled output and caches
+__pycache__/
+*.py[cod]
 dist/
 site/.next/
 site/.next-dev/
+site/.next-ci/
 site/next-build/
 site/next-build-visual/
 site/next-build-visual-staging/
@@ -25,7 +28,7 @@ config.json
 
 # Local debugging and releases
 tmp_*
-releases/
+/releases/
 *.zip
 audit-functions.txt
 audit-identifiers.txt
@@ -39,5 +42,33 @@ site-discord-parity-audit.txt
 Thumbs.db
 
 .vercel
+.codex-analysis/
+.codex-recovery/
+!quality-checks-clean.log
+!production-build.log
+!webhook-checks.log
 
-
+# Protected DROX runtime data
+services/drox-bot/.env
+services/drox-bot/config.json
+services/drox-bot/config_mongo.json
+services/drox-bot/notifications_config
+services/drox-bot/configs/config_emoji.json
+services/drox-bot/configs/config_extensions.json
+services/drox-bot/configs/config_mongo.json
+services/drox-bot/configs/config_plan.json
+services/drox-bot/configs/config_websocket.json
+services/drox-bot/database/backup_configs.json
+services/drox-bot/database/automations/
+services/drox-bot/database/backups/
+services/drox-bot/database/cloud/
+services/drox-bot/database/extensions/
+services/drox-bot/database/giveaways/
+services/drox-bot/database/loja/
+services/drox-bot/database/payments/
+services/drox-bot/database/protection/
+services/drox-bot/database/settings/
+services/drox-bot/database/tickets/
+services/drox-bot/database/zurosgen.json
+services/drox-bot/database/emojis/emojis.json
+services/drox-bot/database/emojis/emojis_data.json

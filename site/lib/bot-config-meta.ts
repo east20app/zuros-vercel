@@ -8,5 +8,7 @@ export const BOT_MODULE_META: Record<BotConfigModule, { icon: IconName; name: st
     giveaways: { icon: "coupon", name: "Sorteios", description: "Mensagens e regras de participação" },
     automacoes: { icon: "settings", name: "Automações", description: "Autorole, DM, repost e integrações" },
     customizacao: { icon: "bot", name: "Personalização", description: "Cor, atividade e perfil do bot" },
+    cloud: { icon: "apps", name: "DROX Cloud", description: "OAuth2, verificação, tarefas e presentes" },
+    mensagens: { icon: "bell", name: "Mensagens", description: "Anúncios, mensagens diretas e modelos" },
     configuracoes: { icon: "settings", name: "Configurações", description: "Cargos, canais, pagamentos, anti-fake e blacklist" },
 };

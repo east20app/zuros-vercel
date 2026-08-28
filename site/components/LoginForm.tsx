@@ -5,6 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Spinner } from "@/components/ui";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const ERROR_MESSAGES: Record<string, string> = {
     AccessDenied: "Acesso negado. Sua conta Discord não tem permissão para acessar o painel.",
@@ -35,13 +36,13 @@ export function LoginForm() {
     return <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12 text-white">
         <div className="zuros-backdrop" aria-hidden /><div className="zuros-grid" aria-hidden />
         <section className="zuros-card zuros-card-lit w-full max-w-md p-8 animate-fade-up sm:p-10">
-            <div className="flex justify-center"><Link href="/" className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl border border-emerald-500/25 bg-emerald-500/10 font-bold text-emerald-400 shadow-[0_0_24px_-8px_rgba(16,185,129,.7)]">Z</span><span><b className="block text-sm">ZUROS APP</b><small className="text-[10px] uppercase tracking-widest text-zinc-600">Applications</small></span></Link></div>
+            <div className="flex justify-center"><Link href="/" aria-label="ZUROS — início"><BrandLogo priority className="h-14 w-48" /></Link></div>
             <h1 className="mt-8 text-center text-2xl font-semibold tracking-tight">Entrar na plataforma</h1>
             <p className="mt-2 text-center text-sm leading-6 text-zinc-400">Entre somente com a <strong className="font-medium text-white">conta Discord proprietária da loja</strong>. É ela que conecta aplicações, licenças e faturas.</p>
             {error && <div role="alert" className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{ERROR_MESSAGES[error] || ERROR_MESSAGES.Default}</div>}
-            <div className="mt-6">{status === "loading" || starting ? <div className="flex h-12 items-center justify-center"><Spinner /></div> : <button onClick={handleSignIn} className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-gradient-to-b from-emerald-400 to-emerald-600 px-5 py-3.5 text-sm font-semibold text-black shadow-[0_12px_30px_-12px_rgba(16,185,129,.65)] transition hover:-translate-y-px hover:from-emerald-300 hover:to-emerald-500"><DiscordIcon />Entrar com Discord</button>}</div>
+            <div className="mt-6">{status === "loading" || starting ? <div className="flex h-12 items-center justify-center"><Spinner /></div> : <button onClick={handleSignIn} className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-violet-400/25 bg-gradient-to-b from-violet-500 to-purple-700 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_12px_30px_-12px_rgba(124,58,237,.65)] transition hover:-translate-y-px hover:from-violet-400 hover:to-purple-600"><DiscordIcon />Entrar com Discord</button>}</div>
             <p className="mt-4 text-center text-xs leading-5 text-zinc-600">Ao entrar, você concorda em utilizar a plataforma de forma legítima.</p>
-            <div className="mt-6 text-center"><a href="mailto:suporte@zuros.app?subject=Ajuda%20para%20entrar" className="text-sm text-emerald-400 transition hover:text-emerald-300">Precisa de ajuda para entrar?</a></div>
+            <div className="mt-6 text-center"><a href="mailto:suporte@zuros.app?subject=Ajuda%20para%20entrar" className="text-sm text-violet-400 transition hover:text-violet-300">Precisa de ajuda para entrar?</a></div>
             <div className="mt-6 border-t border-zinc-800/70 pt-6 text-center"><Link href="/" className="text-sm text-zinc-400 transition hover:text-white">← Voltar para o início</Link></div>
         </section>
     </main>;

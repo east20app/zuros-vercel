@@ -1,0 +1,9 @@
+node_modules
+site/node_modules
+.next
+site/.next
+site/next-build-*
+dist
+coverage
+*.log
+services/drox-bot/database/**

@@ -1,9 +1,10 @@
 export const BOT_CONFIG_MODULES = {
     loja: {
         config: "loja_config", products: "loja_products", preferences: "loja_preferences", massCoupons: "loja_mass_coupons",
-        temporaryRoles: "loja_roles_temp", stockNotifications: "loja_stock_notifications", doubtButton: "loja_doubt_button",
+        temporaryRoles: "loja_roles_temp", stockNotifications: "loja_stock_notifications", stockRequests: "loja_stock_requests", doubtButton: "loja_doubt_button",
         maintenance: "loja_maintenance", personalization: "loja_personalization", qrCustomization: "loja_qr_customization",
         productPreferences: "products_preferences",
+        balanceConfig: "loja_saldo_config",
     },
     protecao: {
         config: "protection_config", antifake: "antifake_config", authorized: "antifake_authorized",
@@ -26,6 +27,8 @@ export const BOT_CONFIG_MODULES = {
         suggestions: "automations_suggestions", topics: "automations_topics",
     },
     customizacao: { colors: "custom_colors", status: "custom_status", info: "custom_info", mode: "custom_mode" },
+    cloud: { config: "cloud_data", tasks: "cloud_tasks" },
+    mensagens: { announce: "messages_anunciar", templates: "messages_templates1", directMessage: "enviar_dm_editor" },
     configuracoes: {
         cargos: "cargos", canais: "canais", pagamentos: "payment_configs", pagamentosStatus: "pagamentos", antifake: "antifake_config",
         notificacoes: "notifications_config", blacklist: "blacklist",
@@ -36,6 +39,10 @@ export type BotConfigModule = keyof typeof BOT_CONFIG_MODULES;
 export const BOT_CONFIG_MODULE_NAMES = Object.keys(BOT_CONFIG_MODULES) as BotConfigModule[];
 export function isBotConfigModule(value: string): value is BotConfigModule { return value in BOT_CONFIG_MODULES; }
 const DROX_RUNTIME_DOCUMENTS = [
+    "antifake_logs",
+    "automations_feedbacks_log",
+    "bot_connection",
+    "convites",
     "loja_buys",
     "loja_customers",
     "loja_data",
@@ -45,6 +52,10 @@ const DROX_RUNTIME_DOCUMENTS = [
     "payment_configs",
     "payment_tracking",
     "nubank_pending_payments",
+    "loja_stock_requests",
+    "products",
+    "tickets_calls",
+    "tickets_data",
 ] as const;
 const allowedDocuments = new Set<string>([
     ...Object.values(BOT_CONFIG_MODULES).flatMap((documents) => Object.values(documents)),

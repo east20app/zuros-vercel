@@ -17,6 +17,9 @@ export interface IApplications {
     updateAttempts: number;
     errorOnUpdate: boolean;
     errorOnUpdateMessage?: string;
+    forceUpdate?: boolean;
+    updateLeaseUntil?: Date;
+    renewalOperationKeys?: string[];
 }
 
 const settingsSchema = new Schema<IApplications>({
@@ -35,6 +38,9 @@ const settingsSchema = new Schema<IApplications>({
     updateAttempts: { type: Number, required: true, default: 0 },
     errorOnUpdate: { type: Boolean, required: true, default: false },
     errorOnUpdateMessage: { type: String, required: false },
+    forceUpdate: { type: Boolean, required: true, default: false },
+    updateLeaseUntil: { type: Date, required: false },
+    renewalOperationKeys: { type: [String], default: [], select: false },
 });
 
 settingsSchema.index({ storeId: 1 });

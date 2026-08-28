@@ -36,6 +36,21 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     },
     loja_qr_customization: { enabled: true, color: "#000000", background_color: "#FFFFFF", logo_url: null, logo_size: 0.3, corner_style: "square", dot_style: "square" },
     products_preferences: { show_description: true, show_sales_count: false, button_text: "Comprar", button_emoji: "🛒" },
+    loja_stock_requests: { requests: {} },
+    loja_saldo_config: {
+        enabled: false,
+        bonus: { type: "disabled", value: 0 },
+        rules: { max_usage_percentage: 100, max_usage_amount: null, min_usage_amount: 0, allow_partial_payment: true },
+        deposit_panel: {
+            message_style: "embed",
+            embed: { title: "Depositar Saldo", description: "Clique no botão abaixo para fazer um depósito de saldo.", color: "#00CBA4", image_url: null, thumbnail_url: null },
+            content: { content: "Clique no botão abaixo para fazer um depósito de saldo.", image_url: null },
+            container: { content: "Clique no botão abaixo para fazer um depósito de saldo.", color: "#00CBA4", image_url: null, thumbnail_url: null },
+            button: { label: "Depositar", emoji: null, style: "green" },
+            channel_id: null, message_id: null, category_id: null,
+        },
+        deposit_settings: { min_deposit: 5, max_deposit: 1000, terms: null, notify_role_id: null },
+    },
 
     // --- Proteção geral ---
     protection_config: {},
@@ -151,18 +166,29 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     custom_info: {},
     custom_mode: { mode: "components" },
 
+    // --- Cloud / OAuth2 ---
+    cloud_data: { definitions: { require_oauth2: { enabled: false } }, log_channel_id: "", zuros_auth: { base_url: "https://zuros-auth.vercel.app", auth_id: "", bot_credential: "" }, message_verify: { message_style: "container", button: { label: "Verificar", emoji: "", style: "grey" }, container: { content: "Clique abaixo para concluir sua verificação.", color: "#7c3aed", image_url: "", thumbnail_url: "" }, embed: { title: "Verificação", description: "Clique abaixo para concluir sua verificação.", color: "#7c3aed", image_url: "", thumbnail_url: "" }, content: { content: "Clique abaixo para concluir sua verificação." } } },
+    cloud_tasks: { items: [] },
+
     // --- Configurações do /painel ---
     cargos: { cargo_admin: null, cargo_suporte: null, cargo_cliente: null, cargo_verificado: null, cargo_auto_role: null },
     canais: {
         canal_de_evento_de_compras: null, canal_de_boas_vindas: null, canal_de_logs_do_sistema: null,
         canal_de_logs_de_entradas: null, canal_de_logs_de_saidas: null, canal_de_logs_de_mensagens: null,
-        canal_de_logs_de_pedidos: null,
+        canal_de_logs_de_pedidos: null, canal_de_logs_de_trafego_em_call: null, canal_de_feedback: null,
+        canal_de_logs_de_tickets: null, canal_de_logs_de_comandos: null, canal_de_logs_de_anti_falso: null,
+        canal_de_logs_de_banimentos: null, canal_de_logs_de_expulsoes: null, canal_de_logs_de_castigos: null,
+        canal_de_logs_de_cargos_adicionados: null, canal_de_logs_de_cargos_removidos: null,
+        canal_de_logs_de_cargos_criados: null, canal_de_logs_de_cargos_excluidos: null, canal_de_logs_de_cargos_editados: null,
+        canal_de_logs_de_canais_criados: null, canal_de_logs_de_canais_excluidos: null, canal_de_logs_de_canais_editados: null,
+        canal_de_logs_de_permissoes_adicionadas: null, canal_de_logs_de_permissoes_removidas: null,
     },
     blacklist: { ids: [] },
 
     // --- Notificações ---
     notifications_config: {},
     enviar_dm_editor: {},
+    messages_templates1: { templates: [] },
     messages_anunciar: {
         configured: false,
         is_v2_component: false,

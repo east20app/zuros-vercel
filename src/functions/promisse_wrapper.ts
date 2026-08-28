@@ -49,8 +49,8 @@ class PromissePay_Wrapper {
 
     async checkIsValidConfig(apiKey: string): Promise<boolean> {
         try {
-            await axios.get(`${PROMISSE_API_URL}/balance`, {
-                headers: { Authorization: apiKey },
+            await axios.post(`${PROMISSE_API_URL}/balance`, {}, {
+                headers: { Authorization: apiKey, "Content-Type": "application/json" },
                 timeout: REQUEST_TIMEOUT_MS,
             });
             return true;

@@ -1,6 +1,8 @@
-import { connect, connection } from "mongoose";
+import { connect, connection, set } from "mongoose";
 import { isMainThread } from "worker_threads";
 import { env } from "../config/env";
+
+set("bufferTimeoutMS", 30_000);
 
 let connectionPromise: ReturnType<typeof connect> | undefined;
 
@@ -14,7 +16,9 @@ export default async () => {
             maxPoolSize: process.env.VERCEL ? 5 : isMainThread ? 10 : 5,
             minPoolSize: 0,
             maxIdleTimeMS: 60_000,
-            serverSelectionTimeoutMS: 15_000,
+            serverSelectionTimeoutMS: 12_000,
+            connectTimeoutMS: 10_000,
+            socketTimeoutMS: 30_000,
             appName: process.env.VERCEL ? "zuros-vercel" : isMainThread ? "zuros-web" : "zuros-manager-bot",
         });
         await connectionPromise;

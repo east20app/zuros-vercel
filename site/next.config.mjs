@@ -10,10 +10,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    outputFileTracingRoot: path.join(__dirname, '..'),
+    serverExternalPackages: ['mongoose', 'mongodb', '@camposcloud/sdk'],
     // O pipeline executa estas verificações antes do build. Evita que o Next
     // abra workers extras de lint/TypeScript, que são instáveis no Windows.
-    eslint: { ignoreDuringBuilds: true },
-    typescript: { ignoreBuildErrors: true },
     async rewrites() {
         return [{ source: "/favicon.ico", destination: "/icon.svg" }];
     },
@@ -72,7 +72,6 @@ const nextConfig = {
         cpus: 1,
         // Mantém o mongoose/driver fora do bundle webpack: bundlar minifica e
         // quebra os tipos de schema (ex.: "Invalid schema configuration").
-        serverComponentsExternalPackages: ["mongoose", "mongodb", "@camposcloud/sdk"],
     },
     webpack: (config, { isServer, dev }) => {
         // The panel runs inside the tsx-based bot process. Webpack's persistent
@@ -83,7 +82,7 @@ const nextConfig = {
 
         if (isServer) {
             // Garante que o mongoose não seja bundlado nem minificado (fallback
-            // caso o serverComponentsExternalPackages não seja respeitado).
+            // caso serverExternalPackages não seja respeitado).
             const externals = Array.isArray(config.externals) ? config.externals : [];
             externals.push({
                 mongoose: "commonjs mongoose",

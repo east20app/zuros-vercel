@@ -5,14 +5,14 @@ import { formatDate, formatMoney } from "@/lib/status";
 
 export const dynamic = "force-dynamic";
 
-export default async function StorePaymentsPage({ params }: { params: { storeId: string } }) {
-    const { renew, buy } = await listPendingPayments(params.storeId);
+export default async function StorePaymentsPage({ params }: { params: Promise<{ storeId: string }> }) { const resolvedParams = await params;
+    const { renew, buy } = await listPendingPayments(resolvedParams.storeId);
 
     return (
         <div className="flex flex-col gap-4">
             <div>
                 <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                     <h1 className="text-2xl font-bold tracking-tight text-white">Pagamentos pendentes</h1>
                 </div>
                 <p className="mt-1.5 text-sm text-zinc-500">

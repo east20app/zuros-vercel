@@ -1,5 +1,5 @@
 export type AppStatus = "active" | "grace_period";
-export type PaymentGateway = "efi" | "manual" | "promisse";
+export type PaymentGateway = "efi" | "manual" | "promisse" | "sharpify";
 export type CartStep = "select-days" | "select-coupons" | "waiting-payment" | "payment-confirmed";
 
 export interface AppSummary {
@@ -15,6 +15,8 @@ export interface AppSummary {
     storeName: string;
     ownerId?: string;
     botId?: string;
+    kind?: "bot" | "auth" | "complete";
+    dashboardUrl?: string;
 }
 
 export interface AppDetail {
@@ -22,7 +24,6 @@ export interface AppDetail {
     storeId: string;
     name: string;
     botId: string;
-    token: string;
     status: AppStatus;
     lifetime: boolean;
     expiresAt: string | null;
@@ -96,6 +97,8 @@ export interface ProductView {
     storeId: string;
     storeName: string;
     name: string;
+    productType: "bot" | "auth" | "complete";
+    authSettings: { plan: "basic" | "cloud" | "pro"; servers: number; verifiedUsers: number; features: string[] };
     runtimeEnvironment: string;
     runCommand: string;
     needToUpdateApplications: boolean;
@@ -166,5 +169,7 @@ export interface SettingsView {
     manualConfigured: boolean;
     promisseConfigured: boolean;
     promisseValid: boolean;
+    sharpifyConfigured: boolean;
+    sharpifyValid: boolean;
     stores: StoreView[];
 }

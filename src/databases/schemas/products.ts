@@ -4,7 +4,9 @@ export interface IProducts {
     _id: ObjectId;
     storeId: ObjectId;
     name: string;
-    runtimeEnvironment: "python" | "nodejs" | "java" | "go" | "rust" | "dotnet" | "deno"
+    productType: "bot" | "auth" | "complete";
+    authSettings?: { plan: "basic" | "cloud" | "pro"; servers?: number; verifiedUsers?: number; features?: string[] };
+    runtimeEnvironment: "python" | "nodejs" | "java" | "go" | "rust" | "dotnet" | "deno" | "saas"
     runCommand: string
     needToUpdateApplications: boolean;
     messageSettings?: {
@@ -36,6 +38,11 @@ export interface IProducts {
             version: string;
             date: Date;
             path: string;
+            status?: "uploading" | "published" | "failed";
+            sha256?: string;
+            fileCount?: number;
+            uncompressedSize?: number;
+            errorMessage?: string;
         }
     >
 }
@@ -43,8 +50,15 @@ export interface IProducts {
 const productsSchema = new Schema<IProducts>({
     storeId: { type: Schema.Types.ObjectId, ref: "stores", required: true },
     name: { type: String, required: true },
-    runtimeEnvironment: { type: String, enum: ["python", "nodejs", "java", "go", "rust", "dotnet", "deno"], required: true },
-    runCommand: { type: String, required: true }, // e.g., "node index.js", "python app.py"
+    productType: { type: String, enum: ["bot", "auth", "complete"], required: true, default: "bot", index: true },
+    authSettings: {
+        plan: { type: String, enum: ["basic", "cloud", "pro"], required: false },
+        servers: { type: Number, required: false, min: 1 },
+        verifiedUsers: { type: Number, required: false, min: 1 },
+        features: { type: [String], required: false, default: [] },
+    },
+    runtimeEnvironment: { type: String, enum: ["python", "nodejs", "java", "go", "rust", "dotnet", "deno", "saas"], required: false, default: "saas" },
+    runCommand: { type: String, required: false, default: "saas" },
     needToUpdateApplications: { type: Boolean, required: true, default: false },
     messageSettings: {
         channelId: { type: String, required: false },
@@ -74,7 +88,12 @@ const productsSchema = new Schema<IProducts>({
             _id: { type: Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
             version: { type: String, required: true },
             date: { type: Date, required: true, default: Date.now },
-            path: { type: String, required: true },
+            path: { type: String, required: false, default: "" },
+            status: { type: String, enum: ["uploading", "published", "failed"], default: "published" },
+            sha256: { type: String, required: false },
+            fileCount: { type: Number, required: false, min: 0 },
+            uncompressedSize: { type: Number, required: false, min: 0 },
+            errorMessage: { type: String, required: false },
         }
     ]
 });

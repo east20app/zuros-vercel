@@ -1,0 +1,5 @@
+import { notFound, redirect } from "next/navigation";
+import { getMyAuthLicense } from "@/lib/actions/apps.actions";
+import AuthSetupWizard from "@/components/AuthSetupWizard";
+export const dynamic="force-dynamic";
+export default async function AuthSetupPage({params}:{params: Promise<{licenseId:string}>}){ const resolvedParams = await params;const license=await getMyAuthLicense(resolvedParams.licenseId).catch(()=>null);if(!license)notFound();if(license.configured)redirect(`/dashboard/auth/${resolvedParams.licenseId}`);return <main className="mx-auto max-w-3xl px-4 py-7 sm:px-6"><h1 className="text-3xl font-bold text-white">Configure seu ZUROS Auth</h1><p className="mt-2 text-zinc-400">Pagamento aprovado. Falta apenas conectar sua aplicação do Discord.</p><div className="mt-7"><AuthSetupWizard licenseId={resolvedParams.licenseId}/></div></main>}

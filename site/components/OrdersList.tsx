@@ -35,7 +35,7 @@ export function OrdersList({ appId, initial }: { appId: string; initial: OrderEn
                             onClick={() => apply({ ...filters, type: value || "all" })}
                             className={`rounded-md px-4 py-1.5 text-sm font-medium transition-all ${
                                 (filters.type || "all") === (value || "all")
-                                    ? "bg-[#5865f2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
+                                    ? "bg-[#7c3aed] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
                                     : "text-[#949ba4] hover:bg-white/[.06] hover:text-white"
                             }`}
                         >

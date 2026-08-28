@@ -25,7 +25,7 @@ function ShieldIcon({ level }: { level: number }) {
     const color = level >= 80 ? "#23a559" : level >= 50 ? "#f0b232" : level > 0 ? "#f23f43" : "#4e5058";
     return (
         <div className="relative grid h-28 w-28 shrink-0 place-items-center">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-24 w-24 fill-none stroke-current drop-shadow-[0_0_18px_rgba(88,101,242,.5)]" style={{ color }}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-24 w-24 fill-none stroke-current drop-shadow-[0_0_18px_rgba(124,58,237,.5)]" style={{ color }}>
                 <path strokeWidth="1.5" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z" />
             </svg>
             <span className="absolute inset-0 grid place-items-center">

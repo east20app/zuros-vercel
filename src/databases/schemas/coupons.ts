@@ -12,9 +12,9 @@ export interface ICoupons {
 
 const couponSchema = new Schema<ICoupons>({
     storeId: { type: Schema.Types.ObjectId, ref: "stores", required: true },
-    code: { type: String, required: true },
-    discount: { type: Number, required: true },
-    remainingUses: { type: Number, required: true },
+    code: { type: String, required: true, trim: true, uppercase: true },
+    discount: { type: Number, required: true, min: 0, max: 100 },
+    remainingUses: { type: Number, required: true, min: 0, validate: { validator: Number.isInteger, message: "Usos restantes devem ser um número inteiro." } },
     expiresAt: { type: Date, required: true },
     roles: { type: [String], required: false },
     products: { type: [String], required: false, default: ["all"] },

@@ -14,9 +14,10 @@ import { requireUser } from "@/lib/require-admin";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { appId: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<Metadata> {
+    const resolvedParams = await params;
     try {
-        const app = await getAppDetail(params.appId);
+        const app = await getAppDetail(resolvedParams.appId);
         return {
             title: `${app.name} · ZUROS APP`,
             description: `Detalhes, status e renovação do bot ${app.name}.`,
@@ -26,12 +27,12 @@ export async function generateMetadata({ params }: { params: { appId: string } }
     }
 }
 
-export default async function AppDetailPage({ params }: { params: { appId: string } }) {
+export default async function AppDetailPage({ params }: { params: Promise<{ appId: string }> }) { const resolvedParams = await params;
     await requireUser();
 
     let app;
     try {
-        app = await getAppDetail(params.appId);
+        app = await getAppDetail(resolvedParams.appId);
     } catch (error) {
         if (error instanceof ActionError) {
             notFound();
@@ -39,14 +40,14 @@ export default async function AppDetailPage({ params }: { params: { appId: strin
         throw error;
     }
 
-    const extracts = await listAppExtracts(params.appId);
+    const extracts = await listAppExtracts(resolvedParams.appId);
     const routeId = app.botId || app.id;
     const tone = getRemainingTone(app.expiresAt, app.lifetime);
 
     const statusInfo = (
         <Card className="flex flex-col gap-3 text-sm">
             <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-                <span className="h-4 w-1 rounded-full bg-gradient-to-b from-[#5865f2] to-[#eb459e]" />
+                <span className="h-4 w-1 rounded-full bg-gradient-to-b from-[#7c3aed] to-[#eb459e]" />
                 Informações
             </h3>
             <div className="divide-y divide-white/[.04]">
@@ -69,7 +70,7 @@ export default async function AppDetailPage({ params }: { params: { appId: strin
     const controls = (
         <Card className="flex flex-col gap-4">
             <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-                <span className="h-4 w-1 rounded-full bg-[#5865f2]" />
+                <span className="h-4 w-1 rounded-full bg-[#7c3aed]" />
                 Controles da aplicação
             </h3>
             <p className="text-sm text-zinc-400">
@@ -133,7 +134,7 @@ export default async function AppDetailPage({ params }: { params: { appId: strin
 
                     <Card className="flex flex-col gap-3">
                         <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-                            <span className="h-4 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                            <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                             Histórico de renovações
                         </h3>
                         {extracts.length === 0 ? (

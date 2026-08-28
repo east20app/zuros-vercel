@@ -43,7 +43,7 @@ export async function saveReleaseUploadChunk(uploadId: string, index: number, da
     const storage = await bucket(); const name = uploadFilename(uploadId, index);
     const existing = await storage.find({ filename: name }).toArray();
     await Promise.all(existing.map((file) => storage.delete(file._id)));
-    await new Promise<void>((resolve, reject) => { const stream = storage.openUploadStream(name, { metadata: { uploadId, index, temporary: true } }); stream.once("error", reject); stream.once("finish", resolve); stream.end(data); });
+    await new Promise<void>((resolve, reject) => { const stream = storage.openUploadStream(name, { metadata: { uploadId, index, temporary: true, expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000) } }); stream.once("error", reject); stream.once("finish", resolve); stream.end(data); });
 }
 
 export async function assembleReleaseUpload(uploadId: string, totalChunks: number): Promise<Buffer> {
@@ -60,4 +60,16 @@ export async function assembleReleaseUpload(uploadId: string, totalChunks: numbe
     } finally {
         await Promise.all(ids.map((id) => storage.delete(id).catch(() => undefined)));
     }
+}
+export async function discardReleaseUpload(uploadId: string): Promise<void> {
+    const storage = await bucket();
+    const files = await storage.find({ "metadata.uploadId": uploadId, "metadata.temporary": true }).toArray();
+    await Promise.all(files.map((file) => storage.delete(file._id).catch(() => undefined)));
+}
+
+export async function cleanupExpiredReleaseUploads(now = new Date()): Promise<number> {
+    const storage = await bucket();
+    const files = await storage.find({ "metadata.temporary": true, "metadata.expiresAt": { $lte: now } }).limit(500).toArray();
+    await Promise.all(files.map((file) => storage.delete(file._id).catch(() => undefined)));
+    return files.length;
 }

@@ -7,8 +7,8 @@ DISCORD_CLIENT_SECRET=
 OWNER_ID=
 
 # Obrigatórias: persistência
-MONGO_DB_URL=mongodb+srv://usuario:senha@cluster/banco
-DROX_BOTS_MONGO_URI=mongodb+srv://usuario:senha@cluster/drox_bots
+MONGO_DB_URL=
+DROX_BOTS_MONGO_URI=
 
 # Pagamentos EFI (obrigatórias somente se o gateway EFI for usado)
 EFI_WEBHOOK_SECRET=
@@ -23,3 +23,5 @@ PROMISSEPAY_WEBHOOK_URL=https://seu-projeto.vercel.app/api/webhooks/promissepay
 
 # Não cadastrar manualmente: VERCEL, PORT, NODE_ENV e NEXT_PHASE são definidas
 # pela plataforma. NEXT_DIST_DIR e BUILD_NODE_OPTIONS também não são necessários.
+ZUROS_AUTH_SERVICE_URL=https://auth.zuros.site
+PLATFORM_SERVICE_KEY=

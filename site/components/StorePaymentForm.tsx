@@ -10,10 +10,10 @@ export function StorePaymentForm({ appId, settings }: { appId: string; settings:
         <div className="grid gap-4 lg:grid-cols-3">
             <Card className="flex flex-col gap-4 lg:col-span-2">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                    <span className="h-4 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                    <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                     Gateway de pagamento
                 </h3>
-                <PaymentGatewayForm settings={settings} onSave={async (gateway, credentials) => { await saveStorePaymentConfig(appId, gateway, credentials); }} />
+                <PaymentGatewayForm settings={settings} allowedGateways={["efi", "manual"]} onSave={async (gateway, credentials) => { await saveStorePaymentConfig(appId, gateway, credentials); }} />
             </Card>
 
             <Card className="flex flex-col gap-3">
@@ -35,10 +35,6 @@ export function StorePaymentForm({ appId, settings }: { appId: string; settings:
                     <div className="flex items-center justify-between py-2">
                         <span className="text-zinc-500">Manual (PIX)</span>
                         <Badge tone={settings.manualConfigured ? "green" : "zinc"}>{settings.manualConfigured ? "Configurado" : "Não configurado"}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between py-2">
-                        <span className="text-zinc-500">PromissePay</span>
-                        <Badge tone={settings.promisseConfigured ? "green" : "zinc"}>{settings.promisseConfigured ? (settings.promisseValid ? "Válido" : "Configurado") : "Não configurado"}</Badge>
                     </div>
                 </div>
             </Card>

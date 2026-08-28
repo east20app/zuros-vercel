@@ -3,10 +3,11 @@ import { UserBotWorkspaceBar } from "@/components/UserBotWorkspaceBar";
 import { getBotIdentity } from "@/lib/actions/apps.actions";
 import { ActionError } from "@/lib/actions/context";
 
-export default async function UserBotLayout({ children, params }: { children: React.ReactNode; params: { appId: string } }) {
+export default async function UserBotLayout({ children, params }: { children: React.ReactNode; params: Promise<{ appId: string }> }) {
+    const resolvedParams = await params;
     let bot;
     try {
-        bot = await getBotIdentity(params.appId);
+        bot = await getBotIdentity(resolvedParams.appId);
     } catch (error) {
         if (error instanceof ActionError) notFound();
         throw error;

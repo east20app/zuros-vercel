@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
 export interface AppTabItem {
@@ -10,7 +11,9 @@ export interface AppTabItem {
 }
 
 export function AppTabs({ tabs, defaultTab }: { tabs: AppTabItem[]; defaultTab?: string }) {
-    const [activeId, setActiveId] = useState(defaultTab ?? tabs[0]?.id);
+    const searchParams = useSearchParams();
+    const requestedTab = searchParams.get("tab");
+    const [activeId, setActiveId] = useState(requestedTab && tabs.some((tab) => tab.id === requestedTab) ? requestedTab : defaultTab ?? tabs[0]?.id);
     const current = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
 
     return (
@@ -29,7 +32,7 @@ export function AppTabs({ tabs, defaultTab }: { tabs: AppTabItem[]; defaultTab?:
                         aria-selected={tab.id === current?.id}
                         className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                             tab.id === current?.id
-                                ? "bg-[#5865f2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
+                                ? "bg-[#7c3aed] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
                                 : "text-zinc-400 hover:bg-white/[.06] hover:text-white"
                         }`}
                     >

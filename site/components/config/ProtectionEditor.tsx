@@ -46,8 +46,8 @@ function ChoiceChecklist({ items, value, onChange }: { items: Array<{ id: string
             {items.length ? items.map((item) => {
                 const checked = selected.has(item.id);
                 return (
-                    <label key={item.id} className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition ${checked ? "bg-[#5865f2]/20 text-white" : "text-[#b5bac1] hover:bg-[#35373c]"}`}>
-                        <input type="checkbox" checked={checked} onChange={() => onChange(checked ? value.filter((id) => id !== item.id) : [...value, item.id])} className="h-4 w-4 accent-[#5865f2]" />
+                    <label key={item.id} className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition ${checked ? "bg-[#7c3aed]/20 text-white" : "text-[#b5bac1] hover:bg-[#35373c]"}`}>
+                        <input type="checkbox" checked={checked} onChange={() => onChange(checked ? value.filter((id) => id !== item.id) : [...value, item.id])} className="h-4 w-4 accent-[#7c3aed]" />
                         <span className="truncate">{item.name}</span>
                     </label>
                 );

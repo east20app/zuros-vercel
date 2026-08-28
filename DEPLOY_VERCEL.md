@@ -28,3 +28,25 @@ dentro dos bots dos clientes hospedados, pois exigem uma conexão Discord Gatewa
 Uploads de releases usam o disco local em `releases/`. O filesystem das funções
 da Vercel não é persistente; mantenha essa operação no serviço contínuo até migrar
 os arquivos para armazenamento de objetos.
+
+## Separação painel e worker
+
+O projeto da Vercel publica somente o site localizado em site. Não execute o bot Discord ou loops infinitos em Serverless Functions. O processo src/index.ts e services/drox-bot devem permanecer em hospedagem persistente.
+
+## Variáveis críticas
+
+Configure no ambiente da Vercel, nunca no Git:
+
+- MONGO_DB_URL
+- NEXTAUTH_URL
+- NEXTAUTH_SECRET
+- DISCORD_CLIENT_ID
+- DISCORD_CLIENT_SECRET
+- OWNER_ID
+- EFI_WEBHOOK_URL_SECRET
+- PROMISSEPAY_WEBHOOK_SECRET
+- ZUROS_AUTH_API_URL
+- ZUROS_AUTH_SERVICE_KEY
+- DATA_ENCRYPTION_KEY, antes de qualquer migração criptográfica
+
+Use vercel-env.example como matriz sem valores. Depois do deploy, valide a página inicial, login, dashboard, checkout e os três endpoints de webhook.

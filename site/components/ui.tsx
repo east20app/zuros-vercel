@@ -29,23 +29,23 @@ export function Button({
     title?: string;
 }) {
     const base =
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 active:scale-[.98] select-none";
+        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b0e] disabled:cursor-not-allowed disabled:opacity-40 active:scale-[.98] select-none";
     const variants: Record<string, string> = {
         primary:
-            "border border-[#5865f2]/70 bg-[#5865f2] text-white shadow-[0_4px_18px_-8px_rgba(88,101,242,.75)] hover:border-[#4752c4]/70 hover:bg-[#4752c4] hover:-translate-y-px",
+            "border border-[#7c3aed]/70 bg-[#7c3aed] text-white shadow-[0_4px_18px_-8px_rgba(124,58,237,.75)] hover:border-[#6d28d9]/70 hover:bg-[#6d28d9] hover:-translate-y-px",
         success:
             "border border-[#23a559]/70 bg-[#23a559] text-white shadow-[0_4px_18px_-8px_rgba(35,165,89,.6)] hover:border-[#1e8b4d]/70 hover:bg-[#1e8b4d] hover:-translate-y-px",
         secondary:
-            "border border-white/[.08] bg-[#2b2d31] text-[#f2f3f5] shadow-[inset_0_1px_0_rgba(255,255,255,.04)] hover:bg-[#313338] hover:-translate-y-px",
+            "border border-white/[.08] bg-white/[.045] text-[#f4f4f5] shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur hover:border-white/[.14] hover:bg-white/[.075] hover:-translate-y-px",
         danger:
             "border border-[#f23f43]/70 bg-[#f23f43] text-white shadow-[0_4px_18px_-8px_rgba(242,63,67,.6)] hover:border-[#d93135]/70 hover:bg-[#d93135] hover:-translate-y-px",
         ghost: "text-[#b5bac1] hover:bg-white/[.06] hover:text-white",
         outline:
-            "border border-[#4e5058] text-[#b5bac1] shadow-[inset_0_1px_0_rgba(255,255,255,.03)] hover:border-[#5865f2]/60 hover:bg-[#5865f2]/10 hover:text-white",
+            "border border-[#4e5058] text-[#b5bac1] shadow-[inset_0_1px_0_rgba(255,255,255,.03)] hover:border-[#7c3aed]/60 hover:bg-[#7c3aed]/10 hover:text-white",
     };
     const sizes: Record<string, string> = {
-        sm: "px-3 py-1.5 text-xs",
-        md: "px-4 py-2.5 text-sm",
+        sm: "min-h-9 px-3 py-1.5 text-xs",
+        md: "min-h-10 px-4 py-2.5 text-sm",
     };
 
     if (href) {
@@ -88,7 +88,7 @@ export function PageHeader({
                 <div className="flex items-center gap-2.5"><h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{title}</h1></div>
                 {subtitle && <p className="mt-1.5 text-sm text-[#949ba4]">{subtitle}</p>}
             </div>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
+            {actions && <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">{actions}</div>}
         </div>
     );
 }
@@ -120,7 +120,7 @@ export function DiscordCard({
     className?: string;
 }) {
     return (
-        <div className={`relative overflow-hidden rounded-lg border border-white/[.08] bg-[#232428] shadow-[0_2px_12px_rgba(0,0,0,.3)] ${className}`}>
+        <div className={`relative overflow-hidden rounded-xl border border-white/[.07] bg-white/[.035] shadow-[inset_0_1px_0_rgba(255,255,255,.025),0_16px_40px_-28px_rgba(0,0,0,.9)] backdrop-blur-xl ${className}`}>
             {accent && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 rounded-r" style={{ backgroundColor: accent }} />}
             {(title || actions) && (
                 <header className="flex items-center justify-between gap-3 border-b border-white/[.06] px-4 py-3">
@@ -141,7 +141,7 @@ export function Badge({ children, tone = "zinc" }: { children: ReactNode; tone?:
         green: "bg-[#23a559]/12 text-[#2fc06a] border-[#23a559]/40",
         red: "bg-[#f23f43]/12 text-[#f97175] border-[#f23f43]/40",
         amber: "bg-[#f0b232]/12 text-[#f8c25c] border-[#f0b232]/40",
-        blue: "bg-[#5865f2]/12 text-[#7983f5] border-[#5865f2]/40",
+        blue: "bg-[#7c3aed]/12 text-[#a78bfa] border-[#7c3aed]/40",
         zinc: "bg-white/[.05] text-[#b5bac1] border-white/[.08]",
     };
     return (
@@ -160,7 +160,7 @@ export function UserChip({ userId, name, avatarUrl }: { userId: string; name?: s
     const label = name || `Usuário •${suffix}`;
     return (
         <span title={userId || "ID indisponível"} className="inline-flex max-w-[180px] items-center gap-2 rounded-full border border-white/[.08] bg-white/[.04] py-1 pl-1 pr-2.5 text-xs text-[#b5bac1]">
-            {avatarUrl ? <span aria-hidden="true" className="h-6 w-6 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${avatarUrl})` }} /> : <span className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-[#5865f2] to-[#eb459e] text-[10px] font-bold text-white">{label.charAt(0).toUpperCase()}</span>}
+            {avatarUrl ? <span aria-hidden="true" className="h-6 w-6 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${avatarUrl})` }} /> : <span className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-[10px] font-bold text-white">{label.charAt(0).toUpperCase()}</span>}
             <span className="truncate font-medium">{label}</span>
         </span>
     );
@@ -175,7 +175,7 @@ export function Stat({ label, value, hint }: { label: string; value: ReactNode; 
     return (
         <Card className="group flex flex-col gap-1.5">
             <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#949ba4]">
-                <i className="h-1.5 w-1.5 rounded-full bg-[#5865f2]/80 transition group-hover:bg-[#5865f2] group-hover:shadow-[0_0_10px_rgba(88,101,242,.9)]" />
+                <i className="h-1.5 w-1.5 rounded-full bg-[#7c3aed]/80 transition group-hover:bg-[#7c3aed] group-hover:shadow-[0_0_10px_rgba(124,58,237,.9)]" />
                 {label}
             </span>
             <span className="text-2xl font-semibold tracking-tight text-white">{value}</span>
@@ -186,7 +186,7 @@ export function Stat({ label, value, hint }: { label: string; value: ReactNode; 
 
 export function Spinner() {
     return (
-        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#5865f2]/30 border-t-[#7983f5]" />
+        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#7c3aed]/30 border-t-[#a78bfa]" />
     );
 }
 
@@ -214,14 +214,14 @@ export function DiscordSkeleton({ rows = 4 }: { rows?: number }) {
 export interface PillTabItem { label: string; href: string; active?: boolean }
 export function PillTabs({ items, className = "" }: { items: PillTabItem[]; className?: string }) {
     return (
-        <nav className={`inline-flex rounded-lg border border-white/[.08] bg-[#232428]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)] ${className}`}>
+        <nav className={`inline-flex items-center gap-1 rounded-lg border border-white/[.08] bg-[#232428]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)] ${className}`}>
             {items.map((item) => (
                 <Link
                     key={`${item.href}:${item.label}`}
                     href={item.href}
-                    className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                    className={`inline-flex min-h-9 items-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all ${
                         item.active
-                            ? "bg-[#5865f2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
+                            ? "bg-[#7c3aed] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
                             : "text-[#949ba4] hover:bg-white/[.06] hover:text-white"
                     }`}
                 >
@@ -236,7 +236,7 @@ export function Empty({ text, title, icon, action }: { text?: string; title?: st
     return (
         <div className="zuros-card zuros-card-lit flex flex-col items-center justify-center border-dashed px-5 py-14 text-center">
             {icon && (
-                <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-white/[.08] bg-[#1e1f22] text-2xl text-[#5865f2] shadow-[inset_0_1px_0_rgba(255,255,255,.04),0_0_30px_-10px_rgba(88,101,242,.3)]">
+                <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-white/[.08] bg-[#1e1f22] text-2xl text-[#7c3aed] shadow-[inset_0_1px_0_rgba(255,255,255,.04),0_0_30px_-10px_rgba(124,58,237,.3)]">
                     {icon}
                 </span>
             )}
@@ -266,7 +266,7 @@ export function Field({
 }
 
 export const inputClass =
-    "w-full rounded-lg border border-[#4e5058]/80 bg-[#1e1f22] px-3.5 py-2.5 text-sm text-[#f2f3f5] placeholder-[#72767d] shadow-[inset_0_1px_0_rgba(255,255,255,.02)] outline-none transition focus:border-[#5865f2] focus:bg-[#1e1f22] focus:shadow-[0_0_0_3px_rgba(88,101,242,.18)]";
+    "w-full rounded-lg border border-[#4e5058]/80 bg-[#1e1f22] px-3.5 py-2.5 text-sm text-[#f2f3f5] placeholder-[#72767d] shadow-[inset_0_1px_0_rgba(255,255,255,.02)] outline-none transition focus:border-[#7c3aed] focus:bg-[#1e1f22] focus:shadow-[0_0_0_3px_rgba(124,58,237,.18)]";
 
 export function SecretInput({
     value,
@@ -373,10 +373,10 @@ export function Modal({
                 className="zuros-card zuros-card-lit relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden p-6 animate-scale-in"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#5865f2]/60 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7c3aed]/60 to-transparent" />
                 <div className="mb-5 flex shrink-0 items-center justify-between">
                     <h3 id={titleId} className="flex items-center gap-2 text-base font-semibold text-white">
-                        <span className="h-4 w-1 rounded-full bg-[#5865f2]" />
+                        <span className="h-4 w-1 rounded-full bg-[#7c3aed]" />
                         {title}
                     </h3>
                     <button
@@ -419,7 +419,7 @@ export function ConfirmDialog({
     return (
         <Modal open={open} onClose={onCancel} title={title}>
             <p className="text-sm leading-6 text-[#b5bac1]">{message}</p>
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:justify-end">
                 <Button variant="ghost" disabled={busy} onClick={onCancel}>
                     Cancelar
                 </Button>

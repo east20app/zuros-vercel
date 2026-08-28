@@ -213,7 +213,7 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
                 ) : error ? (
                     <div className="px-3 py-3 text-xs text-zinc-400">
                         <p>Não foi possível carregar os bots.</p>
-                        <button type="button" onClick={() => void refresh()} className="mt-2 font-medium text-[#7983f5] hover:text-white">
+                        <button type="button" onClick={() => void refresh()} className="mt-2 font-medium text-[#a78bfa] hover:text-white">
                             Tentar novamente
                         </button>
                     </div>

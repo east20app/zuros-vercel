@@ -10,7 +10,7 @@ import { useToast } from "./Toast";
 import { Icon } from "./Icon";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
-const fallbackFeatures = ["Hospedagem e gerenciamento integrados", "Atualizações e monitoramento pelo painel", "Suporte para configuração da aplicação"];
+const fallbackFeatures = ["Infraestrutura e gerenciamento integrados", "Atualizações e monitoramento pelo painel", "Suporte para configuração da aplicação"];
 
 export function PublicStoreCatalog({ stores, canPurchase = false }: { stores: StoreCatalogDTO[]; canPurchase?: boolean }) {
     const router = useRouter();
@@ -35,7 +35,7 @@ export function PublicStoreCatalog({ stores, canPurchase = false }: { stores: St
             <p className="mt-4 min-h-16 text-sm leading-6 text-[#b5bac1]">{product.description?.split(/\r?\n|[•;]/)[0] || "Aplicação profissional integrada à plataforma ZUROS."}</p>
             <div className="my-7 border-y border-zinc-800/80 py-6"><span className="text-sm font-medium text-zinc-500">R$</span><strong className="ml-2 text-4xl font-semibold tracking-tight text-white">{money.format(monthly.price).replace("R$", "").trim()}</strong><span className="ml-2 text-sm text-zinc-500">/ por mês</span></div>
             <ul className="flex-1 space-y-3">{features.map((feature) => <li key={feature} className="flex gap-3 text-sm leading-5 text-zinc-300"><span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-500/10 text-emerald-400"><Icon name="check" className="h-3 w-3" /></span>{feature}</li>)}</ul>
-            {canPurchase ? <button type="button" disabled={pending} onClick={() => startTransition(async () => { const result = await startPurchase({ storeId: store.id, productId: product.id, plan: "monthly" }); if (!result.ok) { push(result.error, "error"); return; } router.push(`/dashboard/store/cart/${result.data.cartId}`); })} className="mt-7 rounded-md bg-[#00CBA4] px-5 py-3 text-center text-sm font-semibold text-[#111214] transition hover:bg-[#16e0ba] disabled:cursor-wait disabled:opacity-60">{pending ? "Abrindo pagamento..." : `Comprar ${product.name}`}</button> : <Link href="/login?callbackUrl=/planos" className="mt-7 rounded-md bg-[#5865f2] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#4752c4]">Entrar para comprar</Link>}
+            {!product.available ? <button type="button" disabled className="mt-7 cursor-not-allowed rounded-md border border-violet-500/25 bg-violet-500/10 px-5 py-3 text-center text-sm font-semibold text-violet-200 opacity-80">Em preparação</button> : canPurchase ? <button type="button" disabled={pending} onClick={() => startTransition(async () => { const result = await startPurchase({ storeId: store.id, productId: product.id, plan: "monthly" }); if (!result.ok) { push(result.error, "error"); return; } router.push(`/dashboard/store/cart/${result.data.cartId}`); })} className="mt-7 rounded-md bg-[#7c3aed] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#6d28d9] disabled:cursor-wait disabled:opacity-60">{pending ? "Abrindo pagamento..." : `Comprar ${product.name}`}</button> : <Link href="/login?callbackUrl=/planos" className="mt-7 rounded-md bg-[#7c3aed] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#6d28d9]">Entrar para comprar</Link>}
         </article>;
     })}</div>;
 }

@@ -115,7 +115,7 @@ function rangeStart(range: SalesRange): number {
 
 async function resolveAppContext(appId: string): Promise<VendasContext> {
     const discordId = await requireSessionUser();
-    const identifier = /^[a-f\d]{24}$/i.test(appId) ? { $or: [{ _id: appId }, { botId: appId }] } : { botId: appId };
+    const identifier = /^[a-f\d]{24}$/i.test(appId) ? { $or: [{ _id: appId }, { botId: appId }, { appId }] } : { botId: appId };
     const app = (await databases.applications
         .findOne(identifier)
         .populate("storeId")
@@ -720,6 +720,8 @@ async function getStoreOwnerSettings(ctx: VendasContext): Promise<SettingsView> 
         manualConfigured: !!(settings?.manual_payment_credentials?.pix_key),
         promisseConfigured: !!settings?.promissepay_credentials?.api_key,
         promisseValid,
+        sharpifyConfigured: false,
+        sharpifyValid: false,
         stores: [],
     };
 }
@@ -761,7 +763,7 @@ export async function saveStorePaymentConfig(
     const settings = await databases.userSettings.findOne({ userId_campos: store.ownerId_campos });
     if (!settings?.userId_discord) throw new ActionError("O dono da loja não está vinculado ao painel.");
 
-    if (!["efi", "manual", "promisse"].includes(gateway)) {
+    if (!["efi", "manual"].includes(gateway)) {
         throw new ActionError("Gateway de pagamento inválido.");
     }
 
@@ -787,13 +789,7 @@ export async function saveStorePaymentConfig(
             key_type: credentials.manual.key_type,
         };
     }
-    if (gateway === "promisse") {
-        if (!credentials.promisse?.api_key) {
-            throw new ActionError("Preencha a API Key do PromissePay.");
-        }
-        update.promissepay_credentials = { api_key: credentials.promisse.api_key.trim() };
-        promisseWrapper.clearInstance(settings.userId_discord);
-    }
+
 
     await databases.userSettings.updateOne({ userId_campos: store.ownerId_campos }, { $set: update }, { upsert: true });
     return { ok: true };

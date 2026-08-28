@@ -6,6 +6,7 @@ export interface IStores {
     ownerId_campos: string;
     teamId_campos?: string;
     balance: number;
+    creditedOperationKeys?: string[];
     logsAndRoles?: {
         sales?: string | null;
         renovations?: string | null;
@@ -24,6 +25,7 @@ const settingsSchema = new Schema<IStores>({
     ownerId_campos: { type: String, required: true },
     teamId_campos: { type: String, default: null },
     balance: { type: Number, default: 0 },
+    creditedOperationKeys: { type: [String], default: [], select: false },
     logsAndRoles: {
         sales: { type: String, default: null },
         renovations: { type: String, default: null },

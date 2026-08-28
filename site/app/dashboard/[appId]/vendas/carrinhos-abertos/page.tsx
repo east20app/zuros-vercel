@@ -9,21 +9,22 @@ import { STEP_LABELS } from "@/lib/vendas";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { appId: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<Metadata> {
+    const resolvedParams = await params;
     try {
-        const ctx = await getVendasContext(params.appId);
+        const ctx = await getVendasContext(resolvedParams.appId);
         return { title: `Carrinhos · ${ctx.botName} · ZUROS APP`, description: `Carrinhos abertos do bot ${ctx.botName}.` };
     } catch {
         return { title: "Carrinhos · ZUROS APP" };
     }
 }
 
-export default async function CarrinhosPage({ params }: { params: { appId: string } }) {
+export default async function CarrinhosPage({ params }: { params: Promise<{ appId: string }> }) { const resolvedParams = await params;
     await requireUser();
 
     let ctx;
     try {
-        ctx = await getVendasContext(params.appId);
+        ctx = await getVendasContext(resolvedParams.appId);
     } catch (error) {
         if (error instanceof ActionError) {
             notFound();
@@ -31,13 +32,13 @@ export default async function CarrinhosPage({ params }: { params: { appId: strin
         throw error;
     }
 
-    const carts = await getOpenCarts(params.appId);
+    const carts = await getOpenCarts(resolvedParams.appId);
 
     return (
         <main className="mx-auto max-w-6xl px-5 py-8">
             <div className="mb-6">
                 <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                     <h1 className="text-2xl font-bold tracking-tight text-white">Carrinhos abertos</h1>
                 </div>
                 <p className="mt-1.5 text-sm text-zinc-500">

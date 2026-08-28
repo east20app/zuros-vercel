@@ -1,5 +1,7 @@
 "use server";
 
+import { reserveCouponForCart } from "@root/src/integration/coupon-reservations";
+
 import crypto from "crypto";
 import axios from "axios";
 import QRCode from "qrcode";
@@ -7,7 +9,9 @@ import { QrCodePix } from "qrcode-pix";
 import databases from "@root/src/databases";
 import efiWrapper from "@root/src/functions/efi_wrapper";
 import promisseWrapper from "@root/src/functions/promisse_wrapper";
+import sharpifyWrapper from "@root/src/functions/sharpify_wrapper";
 import sdkWrapper from "@root/src/functions/camposcloud-sdk";
+import { provisionAuthLicense } from "@root/src/functions/zuros-auth-client";
 import { buildHostedBotPackageBuffer, getReleasePath, releaseExists } from "@root/src/functions/hosted-bot";
 import { buildApplicationEnvironment, buildApplicationPackageConfig } from "@root/src/integration/apps";
 import type { IProducts } from "@root/src/databases/schemas/products";
@@ -15,7 +19,7 @@ import type { IStores } from "@root/src/databases/schemas/stores";
 import type { IApplications } from "@root/src/databases/schemas/applications";
 import type { HydratedDocument } from "mongoose";
 import AdmZip from "adm-zip";
-import { calculatePixPrice, createPurchaseCart, getPurchaseCart, listStoreCatalogs, listStoreProducts } from "@root/src/integration";
+import { calculatePixPrice, createPurchaseCart, getPurchaseCart, listStoreCatalogs, listStoreProducts, resolvePaymentGateway } from "@root/src/integration";
 import type { PurchasePlan } from "@root/src/integration";
 import { requireSessionUser, type ActionResult } from "./context";
 
@@ -70,8 +74,9 @@ export async function generatePurchasePayment(cartId: string): Promise<{ qrcodeD
     let qrcodeDataUrl = "";
     let copyPaste = "";
     let paymentId = "";
+    const paymentGateway = resolvePaymentGateway(settings);
 
-    if (settings.payment_gateway === "efi") {
+    if (paymentGateway === "efi") {
         const gateway = await efiWrapper.getInstance(settings.userId_discord);
         const pixKey = settings.efi_credentials?.pix_key;
         if (!gateway?.isValid || !pixKey) throw new Error("Não foi possível iniciar o pagamento PIX. Entre em contato com o suporte.");
@@ -81,20 +86,28 @@ export async function generatePurchasePayment(cartId: string): Promise<{ qrcodeD
         copyPaste = payment.pixCopiaECola;
         qrcodeDataUrl = await QRCode.toDataURL(copyPaste, { errorCorrectionLevel: "M" });
         paymentId = payment.txid || txid;
-    } else if (settings.payment_gateway === "manual") {
+    } else if (paymentGateway === "manual") {
         const manual = settings.manual_payment_credentials;
         if (!manual?.pix_key || !manual.key_type) throw new Error("Pagamento PIX indisponível. Entre em contato com o suporte.");
         const transactionId = crypto.randomBytes(6).toString("hex").slice(0, 12);
         const qr = QrCodePix({ version: "01", key: manual.pix_key, name: "ZUROS APP", city: "SAO PAULO", transactionId, message: `Compra ${cart._id}`, value: finalPrice });
         qrcodeDataUrl = await qr.base64();
         copyPaste = qr.payload();
-    } else if (settings.payment_gateway === "promisse") {
+    } else if (paymentGateway === "promisse") {
         const apiKey = settings.promissepay_credentials?.api_key;
         if (!apiKey) throw new Error("Pagamento PIX indisponível. Entre em contato com o suporte.");
         const transaction = await promisseWrapper.createTransaction(apiKey, Math.round(finalPrice * 100));
         if (!transaction) throw new Error("Não foi possível gerar o pagamento PIX. Tente novamente.");
         qrcodeDataUrl = `data:image/png;base64,${transaction.qrCodeBase64}`;
         copyPaste = transaction.copyPaste;
+        paymentId = transaction.id;
+    } else if (paymentGateway === "sharpify") {
+        const credentials = settings.sharpify_credentials;
+        if (!credentials?.client_id || !credentials.client_secret) throw new Error("Pagamento PIX indisponível. Entre em contato com o suporte.");
+        const transaction = await sharpifyWrapper.createTransaction({ client_id: credentials.client_id, client_secret: credentials.client_secret }, finalPrice, String(cart._id));
+        if (!transaction) throw new Error("Não foi possível gerar o pagamento PIX. Tente novamente.");
+        copyPaste = transaction.copyPaste;
+        qrcodeDataUrl = await QRCode.toDataURL(copyPaste, { errorCorrectionLevel: "M" });
         paymentId = transaction.id;
     } else {
         throw new Error("Pagamento PIX indisponível. Entre em contato com o suporte.");
@@ -120,26 +133,41 @@ export async function pollPurchaseCart(cartId: string) {
 export async function applyPurchaseCoupon(cartId: string, code: string): Promise<ActionResult<{ discount: number }>> {
     try {
         const discordId = await requireSessionUser();
-        const normalized = code.trim();
-        if (!normalized) throw new Error("Digite o código do cupom.");
-        const cart = await databases.cartsBuy.findOne({ _id: cartId, userId: discordId, status: "opened", step: "select-coupons" });
-        if (!cart) throw new Error("Este carrinho não aceita mais cupons.");
-        const coupon = await databases.coupons.findOne({ code: normalized, storeId: cart.storeId });
-        if (!coupon || coupon.remainingUses <= 0 || coupon.expiresAt < new Date()) throw new Error("Cupom inválido ou expirado.");
-        if (coupon.roles?.length) throw new Error("Este cupom é exclusivo para cargos do servidor.");
-        if (coupon.products?.length && !coupon.products.includes("all") && !coupon.products.includes(String(cart.productId))) {
-            throw new Error("Este cupom não é válido para este produto.");
-        }
-        const claimed = await databases.coupons.findOneAndUpdate({ _id: coupon._id, remainingUses: { $gt: 0 } }, { $inc: { remainingUses: -1 } }, { new: true });
-        if (!claimed) throw new Error("Este cupom não possui mais usos disponíveis.");
-        cart.coupon = coupon._id as never;
-        await cart.save();
-        return { ok: true, data: { discount: coupon.discount } };
+        const cart = await databases.cartsBuy.findOne({ _id: cartId, userId: discordId }, { productId: 1 }).lean();
+        if (!cart) throw new Error("Carrinho não encontrado.");
+        const result = await reserveCouponForCart({ cartType: "buy", cartId, userId: discordId, code, productId: String(cart.productId) });
+        return { ok: true, data: { discount: result.discount } };
     } catch (error) {
         return { ok: false, error: error instanceof Error ? error.message : "Não foi possível aplicar o cupom." };
     }
 }
 
+export async function deliverAuthPurchase(cartId: string): Promise<ActionResult<{ licenseId: string; dashboardUrl: string }>> {
+    try {
+        const discordId = await requireSessionUser();
+        const existing = await databases.authLicenses.findOne({ purchaseId: cartId });
+        if (existing?.status === "active" && existing.externalLicenseId) return { ok: true, data: { licenseId: existing.externalLicenseId, dashboardUrl: existing.authId ? `/dashboard/auth/${existing._id}` : `/dashboard/auth/${existing._id}/setup` } };
+        const cart = await databases.cartsBuy.findOne({ _id: cartId, userId: discordId, status: { $in: ["opened", "processing"] }, step: "payment-confirmed" }).populate("productId");
+        if (!cart) throw new Error("Pagamento ainda não confirmado ou licença já entregue.");
+        const product = cart.productId as unknown as IProducts;
+        const productType = product.productType || "bot";
+        if (productType !== "auth" && productType !== "complete") throw new Error("Este produto exige a configuração do bot.");
+        await databases.cartsBuy.updateOne({ _id: cart._id, status: { $in: ["opened", "processing"] } }, { $set: { status: "processing", deliveryState: "provisioning" } });
+        const expiresAt = cart.lifetime ? null : new Date(Date.now() + (cart.days || 30) * 86400000);
+        const local = await databases.authLicenses.findOneAndUpdate({ purchaseId: cart._id }, { $setOnInsert: { ownerId: discordId, storeId: cart.storeId, productId: product._id, purchaseId: cart._id, plan: product.authSettings?.plan || "basic", status: "pending", expiresAt, lifetime: !!cart.lifetime, limits: { servers: product.authSettings?.servers || 1, verifiedUsers: product.authSettings?.verifiedUsers || 1000 }, features: product.authSettings?.features || [], provisionKey: `purchase:${cart._id}` } }, { upsert: true, new: true });
+        try {
+            const provisioned = await provisionAuthLicense({ ownerDiscordId: discordId, productId: String(product._id), purchaseId: String(cart._id), plan: (product.authSettings?.plan || "basic") as "basic" | "cloud" | "pro", expiresAt: expiresAt?.toISOString() || null, lifetime: !!cart.lifetime, limits: local.limits, features: local.features });
+            await databases.authLicenses.updateOne({ _id: local._id }, { $set: { externalLicenseId: provisioned.licenseId, externalAccountId: provisioned.accountId, dashboardUrl: `/dashboard/auth/${local._id}/setup`, status: "active", expiresAt: provisioned.expiresAt ? new Date(provisioned.expiresAt) : expiresAt }, $unset: { lastError: "" } });
+            await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { status: "closed", delivered: true, deliveryState: "delivered" } });
+            return { ok: true, data: { licenseId: provisioned.licenseId, dashboardUrl: `/dashboard/auth/${local._id}/setup` } };
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : "Falha ao ativar o ZUROS Auth.";
+            await databases.authLicenses.updateOne({ _id: local._id }, { $set: { status: "error", lastError: msg } });
+            await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { status: "opened", delivered: false, deliveryState: "retryable_error" } });
+            throw new Error("Pagamento confirmado, mas o ZUROS Auth não respondeu. Tente ativar novamente.");
+        }
+    } catch (error) { return { ok: false, error: error instanceof Error ? error.message : "Não foi possível ativar o ZUROS Auth." }; }
+}
 export async function deliverPurchaseApplication(input: { cartId: string; botName: string; botToken: string; serverId?: string }): Promise<ActionResult<{ applicationId: string }>> {
     let application: HydratedDocument<IApplications> | undefined;
     let hostedId = "";
@@ -153,12 +181,18 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
         if (botName.length > 25) throw new Error("O nome do bot pode ter no máximo 25 caracteres.");
         if (serverId && !/^\d{17,20}$/.test(serverId)) throw new Error("ID do servidor Discord inválido.");
 
-        const cart = await databases.cartsBuy.findOne({ _id: input.cartId, userId: discordId, status: "opened", step: "payment-confirmed" }).populate("productId").populate("storeId");
+        const cart = await databases.cartsBuy.findOne({ _id: input.cartId, userId: discordId, status: { $in: ["opened", "processing"] }, step: "payment-confirmed" }).populate("productId").populate("storeId");
         if (!cart) throw new Error("O pagamento ainda não foi confirmado ou o carrinho já foi entregue.");
         const product = cart.productId as unknown as IProducts;
         const store = cart.storeId as unknown as IStores;
         if (!product?.currentReleaseVersion || !store) throw new Error("Produto indisponível. Entre em contato com o suporte.");
         if (!await releaseExists(String(product._id), String(product.currentReleaseVersion)).catch(() => false)) throw new Error("Arquivo da aplicação indisponível. Entre em contato com o suporte.");
+
+        const existingApp = await databases.applications.findOne({ ownerId: discordId, storeId: store._id, productId: product._id }).sort({ createdAt: -1 });
+        if (existingApp?.appId) {
+            await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { status: "closed", delivered: true, deliveryState: "delivered", applicationId: existingApp._id } });
+            return { ok: true, data: { applicationId: String(existingApp._id) } };
+        }
 
         const botInfo = await axios.get("https://discord.com/api/v10/applications/@me", { headers: { Authorization: `Bot ${botToken}` }, timeout: 15_000 }).catch(() => null);
         if (!botInfo?.data?.id) throw new Error("O token informado não pertence a um bot Discord válido.");
@@ -175,7 +209,7 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
             }
         }
 
-        const locked = await databases.cartsBuy.findOneAndUpdate({ _id: cart._id, status: "opened", step: "payment-confirmed" }, { $set: { status: "processing" } }, { new: true });
+        const locked = await databases.cartsBuy.findOneAndUpdate({ _id: cart._id, status: { $in: ["opened", "processing"] }, step: "payment-confirmed" }, { $set: { status: "processing", deliveryState: "provisioning" } }, { new: true });
         if (!locked) throw new Error("Este carrinho já está sendo processado.");
         const owner = await databases.userSettings.findOne({ userId_campos: store.ownerId_campos });
         sdk = owner ? await sdkWrapper.getInstance(owner.userId_discord).catch(() => null) : null;
@@ -186,13 +220,7 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
         application = await databases.applications.create({ storeId: store._id, productId: product._id, name: botName, ownerId: discordId, botId: botInfo.data.id, token: botToken, serverId: detectedServerId, expiresAt: locked.lifetime ? null : new Date(Date.now() + (locked.days || 30) * 86_400_000), version: product.currentReleaseVersion, lifetime: !!locked.lifetime });
         const config = { token: botToken, ownerId: discordId, applicationId: String(application._id), botId: botInfo.data.id, version: String(product.currentReleaseVersion), serverId: detectedServerId };
         const file = await buildHostedBotPackageBuffer(getReleasePath(String(product._id), String(product.currentReleaseVersion)), buildApplicationPackageConfig(config));
-        // Mesmo contrato usado pelo carrinho do Discord: envie a release
-        // completa na criação. Criar um pacote provisório e fazer upload em
-        // seguida deixava a aplicação sem o arquivo principal e causava 500.
         const runtimeEnvironment = product.runtimeEnvironment?.toLowerCase().includes("node") ? "nodejs" : "python";
-        // A API da hospedagem responde 500 para nomes com acentos, espaços ou
-        // separadores Unicode. Use um identificador técnico ASCII e único; o
-        // nome escolhido pelo cliente continua salvo em application.name.
         const appName = `zuros-${String(application._id)}`;
         const environmentVariables = buildApplicationEnvironment(config);
         const createHostedApplication = (teamId?: string) => sdk!.instance.createApplication({
@@ -214,8 +242,6 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
             : "import time\nwhile True:\n    time.sleep(60)\n"));
         const createBootstrapApplication = () => sdk!.instance.createApplication({
             appName,
-            // Reserva mínima confirmada contra a API real. Memória maior e
-            // variáveis são aplicadas somente depois que a aplicação existe.
             memoryMB: 256,
             mainFile: bootstrapMainFile,
             runtimeEnvironment,
@@ -228,8 +254,6 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
         let lastHostingError: unknown;
         for (let attempt = 1; attempt <= 3; attempt++) {
             try {
-                // 1: contrato do bot com equipe; 2: sem equipe inválida;
-                // 3: reserva mínima válida e upload posterior.
                 if (attempt === 3) {
                     uploaded = await createBootstrapApplication();
                     usedBootstrap = true;
@@ -251,9 +275,6 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
             const uploadResult = await uploaded.uploadFile({ file, path: "/" });
             if (axios.isAxiosError(uploadResult)) throw uploadResult;
             try {
-                // O objeto Application retornado pela API perde métodos ao ser
-                // serializado em alguns nós. Chame a atualização pelo SDK raiz,
-                // que possui contrato estável e recebe appId explicitamente.
                 await sdk!.instance.updateApplication({
                     appId: hostedId,
                     appName,
@@ -264,9 +285,6 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
                     environmentVariables,
                 });
             } catch (updateError) {
-                // A release gerada já contém config.json/.env. Alguns nós da
-                // hospedagem retornam 500 ao atualizar metadados; isso não deve
-                // apagar um upload válido nem impedir a inicialização.
                 if (!axios.isAxiosError(updateError) || (updateError.response?.status || 0) < 500) throw updateError;
                 console.warn("[deliverPurchaseApplication] Metadados indisponíveis; iniciando com a configuração do pacote.", { hostedId, status: updateError.response?.status });
             }
@@ -275,9 +293,20 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
         console.info("[deliverPurchaseApplication] Release criada na hospedagem.", { hostedId });
         application.appId = hostedId;
         await application.save();
+        let authProvisioningFailed = false;
+        if (product.productType === "complete") {
+            try {
+                const authExpiresAt = locked.lifetime ? null : new Date(Date.now() + (locked.days || 30) * 86400000);
+                const provisioned = await provisionAuthLicense({ ownerDiscordId: discordId, productId: String(product._id), purchaseId: String(locked._id), plan: (product.authSettings?.plan || "pro") as "basic" | "cloud" | "pro", expiresAt: authExpiresAt?.toISOString() || null, lifetime: !!locked.lifetime, limits: { servers: product.authSettings?.servers || 1, verifiedUsers: product.authSettings?.verifiedUsers || 1000 }, features: product.authSettings?.features || [] });
+                await databases.authLicenses.findOneAndUpdate({ purchaseId: locked._id }, { $set: { ownerId: discordId, storeId: store._id, productId: product._id, purchaseId: locked._id, applicationId: application!._id, externalLicenseId: provisioned.licenseId, externalAccountId: provisioned.accountId, dashboardUrl: `/dashboard/auth/${application!._id}`, plan: provisioned.plan, status: "active", expiresAt: provisioned.expiresAt ? new Date(provisioned.expiresAt) : authExpiresAt, lifetime: !!locked.lifetime, limits: { servers: product.authSettings?.servers || 1, verifiedUsers: product.authSettings?.verifiedUsers || 1000 }, features: product.authSettings?.features || [], provisionKey: `purchase:${locked._id}` } }, { upsert: true, new: true });
+            } catch (authError) {
+                authProvisioningFailed = true;
+                console.error("[deliverPurchaseApplication] Bot entregue, mas auth falhou:", authError instanceof Error ? authError.message : authError);
+            }
+        }
         await databases.cartsBuy.updateOne(
             { _id: locked._id, status: "processing" },
-            { $set: { status: "closed", delivered: true, applicationId: application._id } }
+            { $set: { status: "closed", delivered: !authProvisioningFailed, deliveryState: authProvisioningFailed ? "partial_delivery" : "delivered", applicationId: application._id } }
         );
         return { ok: true, data: { applicationId: String(application._id) } };
     } catch (error) {
@@ -286,9 +315,9 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
             : error instanceof Error ? { name: error.name, message: error.message } : "Erro desconhecido");
         if (application) await databases.applications.deleteOne({ _id: application._id }).catch(() => undefined);
         if (hostedId && sdk) await sdk.instance.deleteApplication({ appId: hostedId }).catch(() => undefined);
-        if (input.cartId) await databases.cartsBuy.updateOne({ _id: input.cartId, status: "processing" }, { $set: { status: "opened" } }).catch(() => undefined);
+        if (input.cartId) await databases.cartsBuy.updateOne({ _id: input.cartId, status: "processing" }, { $set: { status: "opened", delivered: false, deliveryState: "retryable_error" } }).catch(() => undefined);
 
-        let message = error instanceof Error ? error.message.replace(/CamposCloud/gi, "hospedagem") : "Não foi possível entregar a aplicação.";
+        let msg = error instanceof Error ? error.message.replace(/CamposCloud/gi, "hospedagem") : "Não foi possível entregar a aplicação.";
         if (axios.isAxiosError(error)) {
             const body = error.response?.data;
             const detail = typeof body === "string"
@@ -300,10 +329,10 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
                 ? (body as { error: string }).error
                 : undefined;
             const status = error.response?.status;
-            message = status && status >= 500
+            msg = status && status >= 500
                 ? "A hospedagem não conseguiu preparar o bot agora. O carrinho continua aberto; aguarde alguns segundos e tente enviar novamente."
                 : apiError || detail || `Falha de conexão com a hospedagem (HTTP ${status ?? "?"}). Tente novamente.`;
         }
-        return { ok: false, error: message };
+        return { ok: false, error: msg };
     }
 }

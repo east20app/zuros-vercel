@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sidebar, type SidebarUser } from "./Sidebar";
+import { DashboardOnboarding, MobileDashboardNav } from "./DashboardOnboarding";
+import { BotActivityNotificationWatcher } from "./BotActivityNotificationWatcher";
 
 export function DashboardShell({
     user,
@@ -20,6 +22,7 @@ export function DashboardShell({
     const pathname = usePathname();
     const automaticFocus = /^\/dashboard\/[^/]+\/config(?:\/|$)/.test(pathname);
     const [manualCollapsed, setManualCollapsed] = useState<boolean | null>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     useEffect(() => {
         const saved = localStorage.getItem("sidebar-collapsed") ?? localStorage.getItem("zuros-sidebar-collapsed");
         if (saved !== null) setManualCollapsed(saved === "true");
@@ -33,10 +36,13 @@ export function DashboardShell({
 
     return (
         <>
-            <Sidebar user={user} balance={balance} pendingCount={pendingCount} canAdmin={canAdmin} collapsed={focusMode} onToggleCollapsed={toggleSidebar} />
-            <div className={`min-h-[calc(100vh-4rem)] pt-16 ${focusMode ? "lg:ml-20" : "lg:ml-64"} transition-[margin]`}>
-                <div className="min-h-[calc(100vh-4rem)] border-t border-zinc-900 bg-background lg:rounded-tl-[28px] lg:border-l">{children}</div>
+            <BotActivityNotificationWatcher />
+            <Sidebar user={user} balance={balance} pendingCount={pendingCount} canAdmin={canAdmin} collapsed={focusMode} onToggleCollapsed={toggleSidebar} mobileMenuOpen={mobileMenuOpen} onSetMobileMenuOpen={setMobileMenuOpen} />
+            <div className={`zuros-dashboard-stage min-h-[calc(100dvh-4rem)] pt-16 ${focusMode ? "lg:ml-20" : "lg:ml-64"} transition-[margin] duration-300`}>
+                <div className="zuros-dashboard-content min-h-[calc(100dvh-4rem)]">{children}</div>
             </div>
+            <MobileDashboardNav onOpenMenu={() => setMobileMenuOpen(true)} />
+            <DashboardOnboarding />
         </>
     );
 }

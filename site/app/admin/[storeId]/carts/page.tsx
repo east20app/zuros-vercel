@@ -11,14 +11,14 @@ const stepLabels: Record<string, string> = {
     "payment-confirmed": "Pagamento confirmado",
 };
 
-export default async function StoreCartsPage({ params }: { params: { storeId: string } }) {
-    const carts = await listOpenCarts(params.storeId);
+export default async function StoreCartsPage({ params }: { params: Promise<{ storeId: string }> }) { const resolvedParams = await params;
+    const carts = await listOpenCarts(resolvedParams.storeId);
 
     return (
         <div className="flex flex-col gap-4">
             <div>
                 <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                     <h1 className="text-2xl font-bold tracking-tight text-white">Carrinhos abertos</h1>
                 </div>
                 <p className="mt-1.5 text-sm text-zinc-500">

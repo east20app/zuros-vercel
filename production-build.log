@@ -1,0 +1,9 @@
+Next.js 15.5.21 production build
+Date: 2026-08-28
+Command: NEXT_DIST_DIR=.next-ci npm --prefix site run build:next
+Result: PASS, exit code 0
+Static pages generated: 20/20
+Application routes reported: 55
+Shared first load JavaScript: 103 kB
+Main public page first load JavaScript: 131 kB
+Build directory is ignored and is not part of Git.

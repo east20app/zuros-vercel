@@ -138,7 +138,7 @@ export function DroxDiscordPreview({ value, title = "Prévia do painel" }: { val
                             key={item}
                             aria-pressed={mode === item}
                             onClick={() => setMode(item)}
-                            className={`rounded px-2.5 py-1 text-xs capitalize transition ${mode === item ? "bg-[#5865f2] text-white" : "text-[#949ba4] hover:text-white"}`}
+                            className={`rounded px-2.5 py-1 text-xs capitalize transition ${mode === item ? "bg-[#7c3aed] text-white" : "text-[#949ba4] hover:text-white"}`}
                         >
                             {item}
                         </button>
@@ -147,11 +147,11 @@ export function DroxDiscordPreview({ value, title = "Prévia do painel" }: { val
             </div>
             <div className="rounded-lg bg-[#313338] p-4">
                 <div className="flex items-start gap-3">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#5865F2] text-sm font-black text-white shadow-[0_0_14px_-4px_rgba(88,101,242,.8)]">D</span>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#5865F2] text-sm font-black text-white shadow-[0_0_14px_-4px_rgba(124,58,237,.8)]">D</span>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                             <strong className="text-sm text-white">Drox Bot</strong>
-                            <span className="rounded bg-[#5865f2] px-1 text-[10px] font-semibold text-white">APP</span>
+                            <span className="rounded bg-[#7c3aed] px-1 text-[10px] font-semibold text-white">APP</span>
                             <span className="text-xs text-[#949ba4]">hoje às {now}</span>
                         </div>
                         <div className="mt-1.5">

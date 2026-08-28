@@ -4,6 +4,7 @@ import { Card, Empty, Stat, UserChip } from "@/components/ui";
 import { PaymentActions } from "@/components/PaymentActions";
 import { getAdminOverview, listAdminStores, listPendingPayments } from "@/lib/actions/admin.actions";
 import { formatDate, formatMoney } from "@/lib/status";
+import { CreateStoreButton } from "@/components/CreateStoreButton";
 
 export const dynamic = "force-dynamic";
 
@@ -13,20 +14,23 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminOverviewPage() {
-    const overview = await getAdminOverview();
-    const { renew, buy } = await listPendingPayments();
-    const stores = await listAdminStores();
+    const [overview, { renew, buy }, stores] = await Promise.all([
+        getAdminOverview(),
+        listPendingPayments(),
+        listAdminStores(),
+    ]);
 
     return (
         <div className="flex flex-col gap-6">
             <div className="flex items-end justify-between gap-4">
                 <div>
                 <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
                     <h1 className="text-2xl font-bold tracking-tight text-white">Visão geral</h1>
                 </div>
                 <p className="mt-1.5 text-sm text-zinc-500">Resumo de todas as suas lojas.</p>
                 </div>
+                {stores.length === 0 ? <CreateStoreButton /> : null}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

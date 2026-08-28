@@ -1,7 +1,7 @@
 const questions = [
-    ["O que acontece se eu não renovar?", "Quando o plano vence, a aplicação entra em período de carência e fica pausada. Durante esse prazo você ainda pode renovar sem perder a configuração; depois dele, a hospedagem pode ser removida."],
+    ["O que acontece se eu não renovar?", "Quando o plano vence, a aplicação entra em período de carência e fica pausada. Durante esse prazo você ainda pode renovar sem perder a configuração; depois dele, a infraestrutura pode ser desativada."],
     ["O que é o período de carência?", "É uma janela de segurança após o vencimento. Ela evita que uma falha ou atraso no pagamento apague imediatamente a sua aplicação."],
-    ["Como funciona o suporte?", "O suporte orienta sobre acesso, cobrança, hospedagem e uso do painel. Use o Discord da comunidade ou envie um e-mail para suporte@zuros.app."],
+    ["Como funciona o suporte?", "O suporte orienta sobre acesso, cobrança, infraestrutura e uso do painel. Use o Discord da comunidade ou envie um e-mail para suporte@zuros.app."],
 ];
 
 export function FaqAccordion() {

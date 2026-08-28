@@ -1,0 +1,14 @@
+ZUROS quality checks — 2026-08-28
+PASS secret scan: no known secrets in tracked files
+PASS TypeScript root
+PASS TypeScript site
+PASS ESLint site
+PASS Node tests: 13/13
+PASS Python compileall
+PASS Python unit tests: 6/6
+PASS Ruff integration client and tests
+PASS Black integration client and tests
+PASS npm audit root: 0 vulnerabilities
+PASS npm audit site: 0 vulnerabilities
+PASS Next.js production build: 55 routes, exit code 0
+NOTE legacy DROX runtime was syntax-checked but intentionally not reformatted in bulk
