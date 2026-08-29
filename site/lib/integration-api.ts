@@ -1,0 +1,14 @@
+import crypto from "node:crypto";
+import { NextResponse } from "next/server";
+
+export type ApiErrorCode = "INVALID_CREDENTIAL" | "CONFIGURATION_REQUIRED" | "INVALID_REQUEST" | "NOT_FOUND" | "UPSTREAM_ERROR" | "INTERNAL_ERROR";
+export function requestId(request: Request): string { const incoming=request.headers.get("x-request-id")?.trim(); return incoming&&incoming.length<=128?incoming:crypto.randomUUID(); }
+function credentials(): string[] { return [process.env.ZUROS_BRIDGE_CREDENTIAL,...(process.env.ZUROS_BRIDGE_CREDENTIALS||"").split(",")].map(v=>v?.trim()||"").filter(Boolean); }
+function safeEqual(a:string,b:string):boolean { const x=Buffer.from(a),y=Buffer.from(b); return x.length===y.length&&crypto.timingSafeEqual(x,y); }
+export function isAuthorized(request:Request):boolean { const header=request.headers.get("authorization")||""; const token=header.startsWith("Bearer ")?header.slice(7).trim():""; return token.length>=32&&credentials().some(c=>safeEqual(token,c)); }
+const headers=(id:string)=>({"Cache-Control":"no-store, max-age=0","X-Request-ID":id});
+export function ok(data:unknown,id:string,status=200){ return NextResponse.json({success:true,data,request_id:id},{status,headers:headers(id)}); }
+export function fail(code:ApiErrorCode,message:string,id:string,status:number){ return NextResponse.json({success:false,error:{code,message},request_id:id},{status,headers:headers(id)}); }
+export async function readJson(request:Request,maxBytes=16384):Promise<Record<string,unknown>> { const raw=await request.text(); if(Buffer.byteLength(raw,"utf8")>maxBytes)throw new Error("PAYLOAD_TOO_LARGE"); if(!raw)return {}; const parsed:unknown=JSON.parse(raw); if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))throw new Error("INVALID_JSON"); return parsed as Record<string,unknown>; }
+export function text(value:unknown,max=128):string|null { if(typeof value!=="string")return null; const normalized=value.trim(); return normalized&&normalized.length<=max?normalized:null; }
+export async function authRequest(authId:string,path:string,init:RequestInit={}):Promise<{status:number;data:unknown}> { const expected=process.env.ZUROS_AUTH_ID?.trim(); const credential=process.env.ZUROS_BOT_CREDENTIAL?.trim(); const base=(process.env.ZUROS_BACKEND_URL||process.env.ZUROS_AUTH_SERVICE_URL||"https://auth.zuros.site").replace(/\/$/,""); if(!expected||!credential)throw new Error("AUTH_NOT_CONFIGURED"); if(!safeEqual(authId,expected))throw new Error("AUTH_NOT_FOUND"); const response=await fetch(`${base}${path}`,{...init,cache:"no-store",signal:AbortSignal.timeout(20000),headers:{Accept:"application/json","Content-Type":"application/json","X-Auth-Id":expected,"X-Bot-Credential":credential,...init.headers}}); const raw=await response.text(); let data:unknown=null; try{data=raw?JSON.parse(raw):null}catch{data={detail:raw.slice(0,500)}} return {status:response.status,data}; }
