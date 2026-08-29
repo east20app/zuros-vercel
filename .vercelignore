@@ -18,3 +18,4 @@ site/next-build-visual-staging/**
 site/next-build-visual/**
 .codex-analysis/
 .codex-recovery/
+site/.next-ci/
