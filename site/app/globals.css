@@ -1321,3 +1321,21 @@ input, select, textarea { border-radius: .45rem; }
 @media (prefers-reduced-motion: reduce) {
     .plans-product-card, .admin-store-card-v2, .admin-primary-action, .admin-secondary-action, .dashboard-app-card-v2 { transition: none; transform: none !important; }
 }
+
+
+/* New ZUROS mark and wordmark */
+.brand-logo { display: inline-flex; min-width: 0; align-items: center; gap: .58rem; overflow: visible; }
+.brand-logo-full { justify-content: flex-start; }
+.brand-logo-compact { justify-content: center; gap: 0; }
+.brand-logo-mark { display: block; width: 2rem; height: 2rem; flex: 0 0 auto; object-fit: contain; }
+.brand-logo-full .brand-logo-mark { width: 2rem; height: 2rem; }
+.brand-logo-type { display: flex; min-width: 0; flex-direction: column; justify-content: center; line-height: 1; }
+.brand-logo-type strong { color: #f2f6f0; font-family: "Arial Narrow", "Inter", sans-serif; font-size: .96rem; font-weight: 800; letter-spacing: .12em; }
+.brand-logo-type small { margin-top: .25rem; color: var(--lime); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .38rem; letter-spacing: .16em; }
+.brand-logo:hover .brand-logo-mark { filter: drop-shadow(0 0 8px rgba(214,255,99,.3)); }
+.brand-logo-compact .brand-logo-mark { width: 100%; height: 100%; }
+
+@media (max-width: 640px) {
+  .brand-logo-type strong { font-size: .85rem; }
+  .brand-logo-type small { font-size: .34rem; }
+}
