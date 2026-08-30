@@ -91,7 +91,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
     try {
       const r = await saveAuthSettings(licenseId, (settings as unknown as Record<string, unknown>));
       if (r.ok) {
-        setSuccess("Settings saved successfully");
+        setSuccess("Configurações gerais salvas.");
         setTimeout(() => setSuccess(null), 3000);
       } else {
         setError(r.error);
@@ -110,7 +110,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
     try {
       const r = await saveAuthDefinitions(licenseId, (definitions as unknown as Record<string, boolean>));
       if (r.ok) {
-        setSuccess("Definitions saved successfully");
+        setSuccess("Regras de proteção salvas.");
         setTimeout(() => setSuccess(null), 3000);
       } else {
         setError(r.error);
@@ -127,27 +127,27 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
   };
 
   const oauthDefs = [
-    { key: "zuros_oauth2" as const, label: "ZUROS OAuth2", desc: "Enable ZUROS OAuth2 verification flow" },
-    { key: "require_oauth2" as const, label: "Require OAuth2", desc: "Require OAuth2 verification before granting access" },
-    { key: "persistent_oauth2" as const, label: "Persistent OAuth2", desc: "Keep OAuth2 tokens persistent across sessions" },
-    { key: "auto_join_oauth2" as const, label: "Auto Join OAuth2", desc: "Automatically join guild after OAuth2 verification" },
+    { key: "zuros_oauth2" as const, label: "Ativar OAuth2 do ZUROS", desc: "Usa o fluxo de verificação OAuth2 do ZUROS." },
+    { key: "require_oauth2" as const, label: "Exigir OAuth2", desc: "Pede verificação OAuth2 antes de liberar o acesso." },
+    { key: "persistent_oauth2" as const, label: "OAuth2 persistente", desc: "Mantém a sessão OAuth2 entre acessos." },
+    { key: "auto_join_oauth2" as const, label: "Entrada automática", desc: "Adiciona o membro ao servidor após a verificação." },
   ];
 
   const cargoDefs = [
-    { key: "remove_autorole" as const, label: "Remove Autorole", desc: "Remove autorole when user is unverified" },
+    { key: "remove_autorole" as const, label: "Remover autorole", desc: "Remove o cargo quando o membro perde a verificação." },
   ];
 
   const protecaoDefs = [
-    { key: "block_vpn" as const, label: "Block VPN", desc: "Block users connecting via VPN" },
-    { key: "block_mobile" as const, label: "Block Mobile", desc: "Block users connecting from mobile devices" },
-    { key: "block_no_verified_email" as const, label: "Block No Verified Email", desc: "Block users without a verified email" },
-    { key: "block_no_email" as const, label: "Block No Email", desc: "Block users without any email" },
-    { key: "block_spam" as const, label: "Block Spam", desc: "Block detected spam accounts" },
+    { key: "block_vpn" as const, label: "Bloquear VPN", desc: "Bloqueia acessos identificados por VPN." },
+    { key: "block_mobile" as const, label: "Bloquear mobile", desc: "Bloqueia acessos feitos por dispositivos móveis." },
+    { key: "block_no_verified_email" as const, label: "Exigir e-mail verificado", desc: "Bloqueia membros sem e-mail confirmado." },
+    { key: "block_no_email" as const, label: "Exigir e-mail", desc: "Bloqueia membros sem e-mail associado." },
+    { key: "block_spam" as const, label: "Bloquear spam", desc: "Bloqueia contas identificadas como spam." },
   ];
 
   return (
     <div className="rounded-2xl border border-white/[.07] bg-[#08090b] p-5 sm:p-6 space-y-6">
-      <h2 className="text-lg font-semibold text-white">Auth Settings</h2>
+      <div className="auth-module-intro"><div><p className="auth-module-kicker">REGRAS DE OPERAÇÃO</p><h3>Como o acesso deve funcionar.</h3></div></div>
 
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-red-300 text-sm">
@@ -162,7 +162,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
       )}
 
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-zinc-300">General Settings</h3>
+        <h3 className="auth-subsection-title">Identidade e destinos</h3>
 
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-400">Auth Name</label>
@@ -242,16 +242,16 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
             disabled={isSavingSettings}
             className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
           >
-            {isSavingSettings ? "Saving..." : "Save Settings"}
+            {isSavingSettings ? "Salvando..." : "Salvar identidade"}
           </button>
         </div>
       </div>
 
       <div className="space-y-5">
-        <h3 className="text-sm font-medium text-zinc-300">Definitions</h3>
+        <h3 className="auth-subsection-title">Políticas de proteção</h3>
 
         <div className="space-y-3">
-          <h4 className="text-xs font-medium text-zinc-400">Fluxo OAuth</h4>
+          <h4 className="auth-subsection-kicker">Fluxo OAuth</h4>
           {oauthDefs.map((def) => (
             <label
               key={def.key}
@@ -279,7 +279,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
         </div>
 
         <div className="space-y-3">
-          <h4 className="text-xs font-medium text-zinc-400">Cargos</h4>
+          <h4 className="auth-subsection-kicker">Cargos</h4>
           {cargoDefs.map((def) => (
             <label
               key={def.key}
@@ -307,7 +307,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
         </div>
 
         <div className="space-y-3">
-          <h4 className="text-xs font-medium text-zinc-400">Proteções</h4>
+          <h4 className="auth-subsection-kicker">Proteções</h4>
           {protecaoDefs.map((def) => (
             <label
               key={def.key}
@@ -340,7 +340,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
             disabled={isSavingDefs}
             className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
           >
-            {isSavingDefs ? "Saving..." : "Save Definitions"}
+            {isSavingDefs ? "Salvando..." : "Salvar políticas"}
           </button>
         </div>
       </div>

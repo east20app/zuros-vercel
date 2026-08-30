@@ -15,7 +15,7 @@ export default function AuthSetupWizard({ licenseId }: { licenseId: string }) {
   const [isCreating, setIsCreating] = useState(false);
 
   const field = (key: keyof typeof form, value: string) => setForm((v) => ({ ...v, [key]: value }));
-  const inputClass = "mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none focus:border-violet-500";
+  const inputClass = "auth-field mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none focus:border-violet-500";
 
   const discover = useCallback(async () => {
     setError("");
@@ -49,14 +49,14 @@ export default function AuthSetupWizard({ licenseId }: { licenseId: string }) {
 
   if (result) {
     return (
-      <div className="rounded-2xl border border-emerald-500/25 bg-[#08090b] p-5 sm:p-7">
-        <p className="text-xl font-semibold text-white">Auth configurado com sucesso</p>
-        <p className="mt-2 text-sm text-zinc-400">Copie a chave agora. Por segurança, ela só é exibida uma vez.</p>
+      <div className="auth-setup-result rounded-2xl border border-emerald-500/25 bg-[#08090b] p-5 sm:p-7">
+        <p className="auth-result-title text-xl font-semibold text-white">Sua camada Auth está pronta.</p>
+        <p className="mt-2 text-sm text-zinc-400">Salve os dados abaixo agora. Por segurança, a chave de integração só aparece uma vez.</p>
         <div className="mt-5 space-y-4">
           <Secret label="Key de integração" value={result.integrationKey || "A chave já havia sido criada anteriormente."} />
           <Secret label="Callback URL" value={result.callbackUrl} />
         </div>
-        <a href={`/dashboard/auth/${licenseId}`} className="mt-6 block rounded-xl bg-violet-600 px-5 py-3 text-center font-semibold text-white hover:bg-violet-500">
+        <a href={`/dashboard/auth/${licenseId}`} className="auth-primary-button mt-6 block rounded-xl bg-violet-600 px-5 py-3 text-center font-semibold text-white hover:bg-violet-500">
           Abrir painel do Auth
         </a>
       </div>
@@ -67,11 +67,11 @@ export default function AuthSetupWizard({ licenseId }: { licenseId: string }) {
   const canCreate = !!form.guildId;
 
   return (
-    <div className="rounded-2xl border border-violet-500/20 bg-[#08090b] p-5 sm:p-7">
+    <div className="auth-setup-form rounded-2xl border border-violet-500/20 bg-[#08090b] p-5 sm:p-7">
       <div className="mb-6">
-        <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs text-violet-300">Configuração protegida</span>
-        <h2 className="mt-4 text-2xl font-semibold text-white">Conecte seu bot OAuth</h2>
-        <p className="mt-2 text-sm leading-6 text-zinc-400">Use os dados da aplicação no Discord Developer Portal. Os segredos são enviados diretamente ao backend do ZUROS Auth e armazenados criptografados.</p>
+        <span className="auth-protected-tag rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs text-violet-300">CONFIGURAÇÃO PROTEGIDA</span>
+        <h2 className="mt-4 text-2xl font-semibold text-white">Conecte sua operação do Discord.</h2>
+        <p className="mt-2 text-sm leading-6 text-zinc-400">Use os dados da aplicação no Discord Developer Portal. O ZUROS valida o acesso, encontra os servidores disponíveis e prepara o fluxo sem expor seus segredos.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -103,13 +103,13 @@ export default function AuthSetupWizard({ licenseId }: { licenseId: string }) {
         <button
           disabled={isDiscovering || !canDiscover}
           onClick={discover}
-          className="mt-6 w-full rounded-xl bg-violet-600 px-5 py-3 font-semibold text-white hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="auth-primary-button mt-6 w-full rounded-xl bg-violet-600 px-5 py-3 font-semibold text-white hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {isDiscovering ? "Validando no Discord..." : "Validar bot e buscar servidores"}
+          {isDiscovering ? "Validando no Discord..." : "Validar aplicação e buscar servidores"}
         </button>
       ) : (
         <div className="mt-6 rounded-xl border border-white/10 bg-black/30 p-4">
-          <p className="font-medium text-white">{botName} validado</p>
+          <p className="auth-validation-success font-medium text-white"><span /> {botName} validado e pronto para continuar</p>
           <label className="mt-4 block text-sm text-zinc-300">
             Servidor principal
             <select className={inputClass} value={form.guildId} onChange={(e) => field("guildId", e.target.value)}>
@@ -124,7 +124,7 @@ export default function AuthSetupWizard({ licenseId }: { licenseId: string }) {
             onClick={create}
             className="mt-4 w-full rounded-xl bg-violet-600 px-5 py-3 font-semibold text-white hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isCreating ? "Criando auth..." : "Criar e configurar auth"}
+            {isCreating ? "Ativando camada..." : "Ativar ZUROS Auth"}
           </button>
         </div>
       )}
@@ -136,9 +136,9 @@ function Secret({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="auth-secret-label text-xs uppercase tracking-wider text-zinc-500">{label}</p>
       <div className="mt-2 flex gap-2">
-        <code className="min-w-0 flex-1 overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-3 text-sm text-zinc-200">{value}</code>
+        <code className="auth-secret-value min-w-0 flex-1 overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-3 text-sm text-zinc-200">{value}</code>
         <button
           onClick={() => navigator.clipboard.writeText(value).then(() => setCopied(true))}
           className="shrink-0 rounded-xl border border-white/10 px-4 text-sm text-white hover:bg-white/5"

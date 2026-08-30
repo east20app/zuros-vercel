@@ -3,19 +3,8 @@
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { fetchAuthStats } from "@/lib/actions/auth.actions";
 
-interface AuthOverviewProps {
-  licenseId: string;
-}
-
-interface AuthStats {
-  total_verified: number;
-  new_today: number;
-  success_rate: number;
-  pending_role_syncs: number;
-  gifts_active: number;
-  recovery_running: number;
-  daily_data: { date: string; count: number }[];
-}
+interface AuthOverviewProps { licenseId: string; }
+interface AuthStats { total_verified: number; new_today: number; success_rate: number; pending_role_syncs: number; gifts_active: number; recovery_running: number; daily_data: { date: string; count: number }[]; }
 
 export default function AuthOverview({ licenseId }: AuthOverviewProps) {
   const [stats, setStats] = useState<AuthStats | null>(null);
@@ -25,98 +14,31 @@ export default function AuthOverview({ licenseId }: AuthOverviewProps) {
   const loadStats = useCallback(() => {
     startTransition(async () => {
       try {
-        const r = await fetchAuthStats(licenseId);
-        if (r.ok) {
-          setStats(r.data as unknown as AuthStats);
-          setError(null);
-        } else {
-          setError(r.error);
-        }
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Falha ao carregar estatísticas.");
-      }
+        const response = await fetchAuthStats(licenseId);
+        if (response.ok) { setStats(response.data as unknown as AuthStats); setError(null); }
+        else setError(response.error);
+      } catch (err: unknown) { setError(err instanceof Error ? err.message : "Não foi possível carregar os sinais do Auth."); }
     });
   }, [licenseId]);
 
   useEffect(() => { loadStats(); }, [loadStats]);
 
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 sm:p-6 space-y-3">
-        <p className="text-red-300 text-sm">{error}</p>
-        <button onClick={loadStats} className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs text-red-300 hover:bg-red-500/20">Tentar novamente</button>
-      </div>
-    );
-  }
+  if (error) return <div className="auth-inline-state auth-inline-error"><strong>O sinal não respondeu.</strong><p>{error}</p><button onClick={loadStats}>Tentar novamente <span>↗</span></button></div>;
+  if (isPending || !stats) return <div className="auth-overview-loading"><div className="auth-loading-line" /><div className="auth-loading-grid">{Array.from({ length: 6 }).map((_, index) => <div key={index} />)}</div></div>;
 
-  if (isPending || !stats) {
-    return (
-      <div className="rounded-2xl border border-white/[.07] bg-[#08090b] p-5 sm:p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 w-48 rounded bg-white/5" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-white/5" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const statCards = [
-    { label: "Total Verified", value: stats.total_verified, color: "text-emerald-300" },
-    { label: "New Today", value: stats.new_today, color: "text-violet-300" },
-    { label: "Success Rate", value: `${stats.success_rate}%`, color: "text-emerald-300" },
-    { label: "Pending Role Syncs", value: stats.pending_role_syncs, color: "text-amber-300" },
-    { label: "Gifts Active", value: stats.gifts_active, color: "text-violet-300" },
-    { label: "Recovery Running", value: stats.recovery_running, color: stats.recovery_running > 0 ? "text-amber-300" : "text-zinc-400" },
+  const cards = [
+    { code: "01", label: "Membros verificados", value: stats.total_verified.toLocaleString("pt-BR"), tone: "is-lime", note: "base protegida" },
+    { code: "02", label: "Entradas hoje", value: stats.new_today.toLocaleString("pt-BR"), tone: "is-coral", note: "novo movimento" },
+    { code: "03", label: "Taxa de sucesso", value: `${stats.success_rate}%`, tone: "is-green", note: "fluxo concluído" },
+    { code: "04", label: "Sincronizações", value: stats.pending_role_syncs.toLocaleString("pt-BR"), tone: stats.pending_role_syncs ? "is-coral" : "is-lime", note: stats.pending_role_syncs ? "pedem atenção" : "fila limpa" },
+    { code: "05", label: "Gifts ativos", value: stats.gifts_active.toLocaleString("pt-BR"), tone: "is-lime", note: "acessos disponíveis" },
+    { code: "06", label: "Recuperações", value: stats.recovery_running.toLocaleString("pt-BR"), tone: stats.recovery_running ? "is-coral" : "is-muted", note: stats.recovery_running ? "em andamento" : "nenhuma pendência" },
   ];
+  const maxCount = Math.max(...stats.daily_data.map((day) => day.count), 1);
 
-  const maxCount = Math.max(...stats.daily_data.map((d) => d.count), 1);
-
-  return (
-    <div className="rounded-2xl border border-white/[.07] bg-[#08090b] p-5 sm:p-6 space-y-6">
-      <h2 className="text-lg font-semibold text-white">Auth Overview</h2>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {statCards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-xl border border-white/[.07] bg-white/[.02] p-4"
-          >
-            <p className="text-xs text-zinc-400 mb-1">{card.label}</p>
-            <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
-          </div>
-        ))}
-      </div>
-
-      {stats.daily_data.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-zinc-300">Daily Verifications</h3>
-          <div className="flex items-end gap-1.5 h-32">
-            {stats.daily_data.map((day, i) => (
-              <div
-                key={i}
-                className="flex-1 flex flex-col items-center gap-1"
-              >
-                <span className="text-[10px] text-zinc-500">{day.count}</span>
-                <div
-                  className="w-full rounded-t bg-violet-600/60 hover:bg-violet-500/60 transition-colors"
-                  style={{
-                    height: `${(day.count / maxCount) * 100}%`,
-                    minHeight: "2px",
-                  }}
-                  title={`${day.date}: ${day.count}`}
-                />
-                <span className="text-[9px] text-zinc-600 truncate w-full text-center">
-                  {day.date.slice(5)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <div className="auth-overview-panel">
+    <header className="auth-module-intro"><div><p className="auth-module-kicker">LEITURA DO MOMENTO</p><h3>Como o acesso está se comportando.</h3></div><button className="auth-refresh-action" onClick={loadStats} aria-label="Atualizar sinais">Atualizar <span>↻</span></button></header>
+    <div className="auth-signal-grid">{cards.map((card) => <article key={card.code} className={`auth-signal-card ${card.tone}`}><div><span>{card.code}</span><i /></div><p>{card.label}</p><strong>{card.value}</strong><small>{card.note}</small></article>)}</div>
+    {stats.daily_data.length > 0 && <section className="auth-activity-strip"><header><div><p className="auth-module-kicker">ÚLTIMOS 7 DIAS</p><h3>Ritmo de verificações</h3></div><span>{stats.daily_data.reduce((sum, day) => sum + day.count, 0).toLocaleString("pt-BR")} eventos</span></header><div className="auth-bars" aria-label="Verificações por dia">{stats.daily_data.map((day) => <div key={day.date} title={`${day.date}: ${day.count}`}><span>{day.count}</span><i style={{ height: `${Math.max((day.count / maxCount) * 100, 3)}%` }} /><small>{day.date.slice(5)}</small></div>)}</div></section>}
+  </div>;
 }
