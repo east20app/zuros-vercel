@@ -913,7 +913,7 @@ body {
 .mobile-dashboard-nav { border-top: 1px solid rgba(214,236,241,.13); background: rgba(7,16,22,.93); backdrop-filter: blur(18px); }
 .mobile-nav-link { display: flex; flex-direction: column; align-items: center; gap: .28rem; color: #71838c; font-size: .62rem; font-weight: 700; transition: color 180ms ease; }
 .mobile-nav-link.is-active, .mobile-nav-link:hover { color: var(--lime); }
-.mobile-nav-main { display: grid; width: 3.55rem; height: 3.55rem; place-items: center; justify-self-center; border: 1px solid var(--lime); border-radius: 50%; background: var(--lime); color: #091116; box-shadow: 0 0 30px rgba(214,255,99,.32); transition: transform 180ms ease, background-color 180ms ease; }
+.mobile-nav-main { display: grid; width: 3.55rem; height: 3.55rem; place-items: center; justify-self: center; border: 1px solid var(--lime); border-radius: 50%; background: var(--lime); color: #091116; box-shadow: 0 0 30px rgba(214,255,99,.32); transition: transform 180ms ease, background-color 180ms ease; }
 .mobile-nav-main:hover { background: #e6ff95; transform: translateY(-2px); }
 
 
