@@ -34,15 +34,11 @@ export function PublicStoreCatalog({ stores, canPurchase = false }: { stores: St
         const features = product.description?.split(/\r?\n|[•;]/).map((item) => item.trim()).filter(Boolean).slice(0, 6) || fallbackFeatures;
         const isZurosBot = featuredEntry?.product.id === product.id;
         const popular = isZurosBot || (!featuredEntry && entries.length === 1 && index === 0);
-        const runtime = isZurosBot ? "python" : product.productType === "bot" ? "bot runtime" : "managed service";
-        const command = isZurosBot ? "python bot.py" : product.productType === "bot" ? "start on deploy" : "managed by ZUROS";
-        const release = isZurosBot ? "Release v1.55.23" : "Release contínuo";
         return <article key={product.id} className={`plans-product-card ${popular ? "is-featured" : ""}`}>
             <div className="plans-product-glow" aria-hidden="true" />
             <div className="plans-product-topline"><span>{String(index + 1).padStart(2, "0")}</span><span>{store.name}</span>{popular && <b>MAIS ESCOLHIDO</b>}</div>
             <div className="plans-product-heading"><div><p className="plans-product-overline">{isZurosBot ? "O começo mais completo" : product.productType === "auth" ? "Camada de proteção" : "Para sua operação"}</p><h2>{isZurosBot ? "Zuros Bot" : product.name}</h2><p>{product.description?.split(/\r?\n|[•;]/)[0] || "Aplicação profissional integrada à plataforma ZUROS."}</p></div><span className="plans-product-symbol" aria-hidden="true">↗</span></div>
-            {product.bannerUrl ? <div className="plans-product-banner"><Image unoptimized fill sizes="(max-width: 768px) 100vw, 33vw" src={product.bannerUrl} alt={`Banner de ${product.name}`} className="object-cover" /></div> : <div className="plans-product-visual" aria-hidden="true"><span className="plans-product-visual-mark">{isZurosBot ? "Z" : product.name.charAt(0).toUpperCase()}</span><span className="plans-product-visual-line" /><span className="plans-product-visual-code">{isZurosBot ? "BOT / READY" : "APP / READY"}</span></div>}
-            <div className="plans-product-techline"><span><b>RUNTIME</b>{runtime}</span><span><b>START</b>{command}</span><span><b>RELEASE</b>{release}</span></div>
+            {product.bannerUrl ? <div className="plans-product-banner"><Image unoptimized fill sizes="(max-width: 768px) 100vw, 33vw" src={product.bannerUrl} alt={`Banner de ${product.name}`} className="object-cover" /></div> : <div className="plans-product-visual" aria-hidden="true"><span className="plans-product-visual-mark">{isZurosBot ? "Z" : product.name.charAt(0).toUpperCase()}</span><span className="plans-product-visual-line" /><span className="plans-product-visual-code">{isZurosBot ? "ZUROS BOT" : "ZUROS APP"}</span></div>}
             <div className="plans-product-price"><span>R$</span><strong>{money.format(monthly.price).replace("R$", "").trim()}</strong><small>/ mês</small></div>
             <div className="plans-product-includes"><span>Inclui na operação</span><span className="plans-product-rule" /></div>
             <ul>{features.map((feature) => <li key={feature}><span><Icon name="check" className="h-3 w-3" /></span>{feature}</li>)}</ul>
