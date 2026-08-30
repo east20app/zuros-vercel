@@ -47,7 +47,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
     const statusInfo = (
         <Card className="flex flex-col gap-3 text-sm">
             <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-                <span className="h-4 w-1 rounded-full bg-gradient-to-b from-[#7c3aed] to-[#eb459e]" />
+                <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                 Informações
             </h3>
             <div className="divide-y divide-white/[.04]">
@@ -70,7 +70,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
     const controls = (
         <Card className="flex flex-col gap-4">
             <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-                <span className="h-4 w-1 rounded-full bg-[#7c3aed]" />
+                <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                 Controles da aplicação
             </h3>
             <p className="text-sm text-zinc-400">
@@ -134,7 +134,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
 
                     <Card className="flex flex-col gap-3">
                         <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-                            <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
+                            <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                             Histórico de renovações
                         </h3>
                         {extracts.length === 0 ? (
@@ -176,9 +176,9 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
     };
 
     return (
-        <main className="mx-auto min-w-0 max-w-6xl px-5 py-8">
-            <div className="mb-6">
-                <Link href="/dashboard" className="group inline-flex items-center gap-1 text-sm text-zinc-500 transition hover:text-magenta-300">
+        <main className="app-detail-page mx-auto min-w-0 max-w-6xl px-5 py-8">
+            <div className="app-detail-heading mb-6">
+                <Link href="/dashboard" className="group inline-flex items-center gap-1 text-sm text-zinc-500 transition hover:text-[var(--accent-strong)]">
                     <span className="transition group-hover:-translate-x-0.5">←</span> Voltar
                 </Link>
                 <PageHeader

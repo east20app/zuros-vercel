@@ -16,33 +16,10 @@ export function AppTabs({ tabs, defaultTab }: { tabs: AppTabItem[]; defaultTab?:
     const [activeId, setActiveId] = useState(requestedTab && tabs.some((tab) => tab.id === requestedTab) ? requestedTab : defaultTab ?? tabs[0]?.id);
     const current = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
 
-    return (
-        <div>
-            <nav
-                aria-label="Seções da aplicação"
-                role="tablist"
-                className="inline-flex flex-wrap rounded-xl border border-white/[.08] bg-background p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]"
-            >
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        type="button"
-                        role="tab"
-                        onClick={() => setActiveId(tab.id)}
-                        aria-selected={tab.id === current?.id}
-                        className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                            tab.id === current?.id
-                                ? "bg-[#7c3aed] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
-                                : "text-zinc-400 hover:bg-white/[.06] hover:text-white"
-                        }`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </nav>
-            <div key={current?.id} className="mt-6 animate-fade-in">
-                {current?.content}
-            </div>
-        </div>
-    );
+    return <div>
+        <nav aria-label="Seções da aplicação" role="tablist" className="app-tabs">
+            {tabs.map((tab, index) => <button key={tab.id} type="button" role="tab" onClick={() => setActiveId(tab.id)} aria-selected={tab.id === current?.id} className={`app-tab ${tab.id === current?.id ? "is-active" : ""}`}><span>0{index + 1}</span>{tab.label}</button>)}
+        </nav>
+        <div key={current?.id} className="mt-6 animate-fade-in">{current?.content}</div>
+    </div>;
 }

@@ -14,7 +14,7 @@ const RANGES: Array<{ key: SalesRange; label: string }> = [
     { key: "tudo", label: "Tudo" },
 ];
 
-const PALETTE = ["#7c3aed", "#23a559", "#f0b232", "#f23f43", "#eb459e", "#00b0f4", "#949ba4", "#2fc06a", "#a68a00", "#c9cdfb"];
+const PALETTE = ["#d6ff63", "#ff745a", "#67d98f", "#f0bb54", "#89c7d1", "#e8f1ef", "#8fa0a8", "#b4e85e", "#d59d64", "#6e8994"];
 
 export function SalesDashboard({ appId, productName, initial }: { appId: string; productName: string; initial: SalesOverview }) {
     const [range, setRange] = useState<SalesRange>("7d");
@@ -42,8 +42,8 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
         chartsRef.current.forEach((chart) => chart.destroy());
         chartsRef.current = [];
 
-        const tick = "#7f849c";
-        const grid = "rgba(255,255,255,.06)";
+        const tick = "#7f929c";
+        const grid = "rgba(214,236,241,.10)";
 
         const dailyChart = new Chart(daily, {
             type: "bar",
@@ -53,8 +53,8 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                     {
                         label: "Vendas",
                         data: data.byDay.map((point) => point.total),
-                        backgroundColor: "rgba(124,58,237,.75)",
-                        borderColor: "#a78bfa",
+                        backgroundColor: "rgba(214,255,99,.72)",
+                        borderColor: "#e6ff9c",
                         borderWidth: 1,
                         borderRadius: 5,
                     },
@@ -101,7 +101,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                 plugins: {
                     legend: {
                         position: "bottom",
-                        labels: { color: "#b5bac1", boxWidth: 10, boxHeight: 10, padding: 12 },
+                        labels: { color: "#b9c6c8", boxWidth: 10, boxHeight: 10, padding: 12 },
                     },
                     tooltip: {
                         callbacks: {
@@ -138,12 +138,12 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
     }
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="sales-dashboard flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-zinc-500">
                     {data.ordersCount} {data.ordersCount === 1 ? "venda registrada" : "vendas registradas"} pelo bot {productName}.
                 </p>
-                <div className="inline-flex rounded-lg border border-white/[.08] bg-[#232428]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
+                <div className="sales-range-picker inline-flex rounded-lg border border-white/[.08] bg-[#122029]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
                     {RANGES.map((option) => (
                         <button
                             key={option.key}
@@ -151,7 +151,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                             onClick={() => changeRange(option.key)}
                             className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
                                 range === option.key
-                                    ? "bg-[#7c3aed] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(0,0,0,.6)]"
+                                    ? "bg-[var(--accent)] text-[#091116] shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(214,255,99,.35)]"
                                     : "text-[#949ba4] hover:bg-white/[.06] hover:text-white"
                             }`}
                         >
@@ -171,7 +171,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                 <div className="grid gap-4 lg:grid-cols-3">
                     <Card className="flex flex-col gap-3 lg:col-span-2">
                         <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                            <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
+                            <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                             Vendas por dia
                         </h3>
                         <div className="relative h-[260px]">
@@ -180,7 +180,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                     </Card>
                     <Card className="flex flex-col gap-3">
                         <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                            <span className="h-4 w-1 rounded-full bg-gradient-to-b from-[#7c3aed] to-[#a78bfa]" />
+                            <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                             Por produto
                         </h3>
                         {data.byProduct.length === 0 ? (
