@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Card, Empty, Stat, UserChip } from "@/components/ui";
+import { Empty, UserChip } from "@/components/ui";
 import { PaymentActions } from "@/components/PaymentActions";
 import { getAdminOverview, listAdminStores, listPendingPayments } from "@/lib/actions/admin.actions";
 import { formatDate, formatMoney } from "@/lib/status";
@@ -20,133 +20,76 @@ export default async function AdminOverviewPage() {
         listAdminStores(),
     ]);
 
+    const pendingTotal = renew.length + buy.length;
+    const totalApplications = overview.applicationsCount;
+    const totalProducts = overview.productsCount;
+    const recentAdds = overview.recentExtracts.filter((entry) => entry.action === "add").length;
+    const adminMetrics = [
+        { label: "Lojas na operação", value: overview.storesCount, detail: "Ambientes conectados", tone: "lime", mark: "01" },
+        { label: "Saldo consolidado", value: formatMoney(overview.balance), detail: "Disponível entre lojas", tone: "green", mark: "02" },
+        { label: "Aplicações ativas", value: totalApplications, detail: `${totalProducts} ${totalProducts === 1 ? "produto publicado" : "produtos publicados"}`, tone: "coral", mark: "03" },
+        { label: "Aguardando decisão", value: pendingTotal, detail: pendingTotal ? "Pagamentos para revisar" : "Nenhuma pendência aberta", tone: pendingTotal ? "coral" : "green", mark: "04" },
+    ] as const;
+
     return (
-        <div className="flex flex-col gap-6">
-            <div className="flex items-end justify-between gap-4">
+        <div className="admin-overview-v2">
+            <section className="admin-hero-v2">
                 <div>
-                <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
-                    <h1 className="text-2xl font-bold tracking-tight text-white">Visão geral</h1>
+                    <p className="admin-kicker"><span />CONTROL ROOM / ADMIN</p>
+                    <h1>O negócio por<br /><span>trás da operação.</span></h1>
+                    <p className="admin-hero-copy">Uma leitura consolidada das suas lojas, pagamentos e movimentações. Entre em cada frente quando houver uma decisão para tomar.</p>
                 </div>
-                <p className="mt-1.5 text-sm text-zinc-500">Resumo de todas as suas lojas.</p>
+                <div className="admin-hero-aside">
+                    <span className="admin-hero-aside-label">Ritmo do ambiente</span>
+                    <strong>{pendingTotal ? "Revisão pendente" : "Operação estável"}</strong>
+                    <small>{pendingTotal ? `${pendingTotal} ${pendingTotal === 1 ? "item pede" : "itens pedem"} uma decisão` : `${recentAdds} movimentações positivas recentes`}</small>
+                    <div className="admin-hero-bars" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
                 </div>
-                {stores.length === 0 ? <CreateStoreButton /> : null}
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <Stat label="Lojas" value={overview.storesCount} />
-                <Stat label="Saldo total" value={formatMoney(overview.balance)} />
-                <Stat label="Aplicações" value={overview.applicationsCount} />
-                <Stat label="Produtos" value={overview.productsCount} />
-                <Stat label="Cupons" value={overview.couponsCount} />
-                <Stat label="Pagamentos pendentes" value={overview.pendingPaymentsCount} hint={overview.pendingPaymentsCount > 0 ? "Aprove ou recuse abaixo." : undefined} />
-            </div>
-
-            <Card className="flex flex-col gap-4">
-                <h2 className="text-sm font-semibold text-white">Pagamentos pendentes</h2>
-                {renew.length === 0 && buy.length === 0 ? (
-                    <Empty text="Nenhum pagamento pendente." />
-                ) : (
-                    <div className="flex flex-col gap-4">
-                        {renew.map((cart) => (
-                            <div key={`renew-${cart.id}`} className="flex flex-col gap-2 rounded-xl border border-zinc-800/80 bg-black/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.02)] transition hover:border-zinc-700">
-                                <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                                    <div>
-                                        <span className="font-medium text-white">Renovação · {cart.appName}</span>
-                                        <span className="ml-2 inline-flex align-middle"><UserChip userId={cart.userId} /></span>
-                                    </div>
-                                    <span className="font-medium text-zinc-200">
-                                        {formatMoney(cart.finalPrice)} · expira {formatDate(cart.expiresAt)}
-                                    </span>
-                                </div>
-                                <PaymentActions type="renew" id={cart.id} />
-                            </div>
-                        ))}
-                        {buy.map((cart) => (
-                            <div key={`buy-${cart.id}`} className="flex flex-col gap-2 rounded-xl border border-zinc-800/80 bg-black/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.02)] transition hover:border-zinc-700">
-                                <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                                    <div>
-                                        <span className="font-medium text-white">Compra · {cart.productName}</span>
-                                        <span className="ml-2 inline-flex align-middle"><UserChip userId={cart.userId} /></span>
-                                    </div>
-                                    <span className="font-medium text-zinc-200">
-                                        {formatMoney(cart.finalPrice)} · expira {formatDate(cart.expiresAt)}
-                                    </span>
-                                </div>
-                                <PaymentActions type="buy" id={cart.id} />
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </Card>
-
-            <Card className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-semibold text-white">Movimentações recentes</h2>
-                    {stores[0] && (
-                        <Link href={`/admin/${stores[0].id}/extracts`} className="text-xs text-zinc-500 transition hover:text-emerald-300">
-                            Ver extrato completo →
-                        </Link>
-                    )}
+                <div className="admin-hero-actions">
+                    {stores.length === 0 ? <CreateStoreButton /> : <Link className="admin-primary-action" href={`/admin/${stores[0].id}`}>Abrir primeira loja <span>↗</span></Link>}
+                    <Link className="admin-secondary-action" href="/admin/settings">Configurações <span>↗</span></Link>
                 </div>
-                {overview.recentExtracts.length === 0 ? (
-                    <Empty text="Nenhuma movimentação." />
-                ) : (
-                    <div className="overflow-x-auto rounded-xl border border-white/[.05]">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b border-zinc-800 bg-zinc-950/60 text-left text-xs uppercase tracking-wide text-zinc-500">
-                                    <th className="py-3 pl-4 pr-4">Data</th>
-                                    <th className="py-3 pr-4">Loja</th>
-                                    <th className="py-3 pr-4">Origem</th>
-                                    <th className="py-3 pr-4">Descrição</th>
-                                    <th className="py-3 pr-4">Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {overview.recentExtracts.map((e) => (
-                                    <tr key={e.id} className="border-b border-zinc-900 text-zinc-300 transition last:border-0 hover:bg-zinc-900/40">
-                                        <td className="py-3 pl-4 pr-4">{formatDate(e.createdAt)}</td>
-                                        <td className="py-3 pr-4">{e.storeName}</td>
-                                        <td className="py-3 pr-4">{e.origin}</td>
-                                        <td className="py-3 pr-4">{e.description || "—"}</td>
-                                        <td className={`py-3 pr-4 font-medium ${e.action === "add" ? "text-emerald-400" : "text-red-400"}`}>
-                                            {e.action === "add" ? "+" : "−"}
-                                            {formatMoney(e.amount)}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </Card>
+                <div className="admin-hero-foot"><span><i />Visão consolidada</span><span><i />Atualização em tempo real</span><span><i />Acesso restrito</span></div>
+            </section>
 
-            <Card className="flex flex-col gap-3">
-                <h2 className="text-sm font-semibold text-white">Suas lojas</h2>
-                {stores.length === 0 ? (
-                    <Empty text="Nenhuma loja criada. Use o botão Nova loja para começar." />
-                ) : (
-                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                        {stores.map((store) => (
-                            <Link
-                                key={store.id}
-                                href={`/admin/${store.id}`}
-                                className="group rounded-xl border border-zinc-800/80 bg-black/30 p-4 text-sm transition hover:border-emerald-500/30 hover:bg-zinc-900/40"
-                            >
-                                <div className="flex items-center gap-2 font-medium text-white">
-                                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-emerald-500/15 bg-gradient-to-br from-emerald-500/15 to-transparent text-xs font-bold text-emerald-400">{store.name.charAt(0).toUpperCase()}</span>
-                                    <span className="truncate">{store.name}</span>
-                                </div>
-                                <div className="mt-2 text-xs text-zinc-500">
-                                    {store.applicationsCount} apps · {store.productsCount} produtos ·{" "}
-                                    saldo {formatMoney(store.balance)}
-                                </div>
-                            </Link>
-                        ))}
+            <section className="admin-metrics-v2" aria-label="Resumo administrativo">
+                {adminMetrics.map((metric) => (
+                    <article className={`admin-metric-v2 admin-metric-${metric.tone}`} key={metric.label}>
+                        <div className="admin-metric-top"><span>{metric.mark}</span><i /></div>
+                        <span className="admin-metric-label">{metric.label}</span>
+                        <strong>{metric.value}</strong>
+                        <small>{metric.detail}</small>
+                    </article>
+                ))}
+            </section>
+
+            <section className="admin-focus-grid">
+                <article className="admin-focus-panel admin-payments-panel">
+                    <header className="admin-panel-header"><div><p className="admin-section-index">01 / DECISÕES</p><h2>O que precisa<br />de resposta.</h2></div><span className="admin-panel-count">{String(pendingTotal).padStart(2, "0")}</span></header>
+                    {pendingTotal === 0 ? <Empty text="Nenhum pagamento pendente." /> : <div className="admin-payment-list">
+                        {renew.map((cart) => <div key={`renew-${cart.id}`} className="admin-payment-row"><div className="admin-payment-kind admin-payment-kind-renew">R</div><div className="admin-payment-main"><strong>Renovação · {cart.appName}</strong><span><UserChip userId={cart.userId} /> <em>vence {formatDate(cart.expiresAt)}</em></span></div><strong className="admin-payment-value">{formatMoney(cart.finalPrice)}</strong><PaymentActions type="renew" id={cart.id} /></div>)}
+                        {buy.map((cart) => <div key={`buy-${cart.id}`} className="admin-payment-row"><div className="admin-payment-kind">C</div><div className="admin-payment-main"><strong>Compra · {cart.productName}</strong><span><UserChip userId={cart.userId} /> <em>expira {formatDate(cart.expiresAt)}</em></span></div><strong className="admin-payment-value">{formatMoney(cart.finalPrice)}</strong><PaymentActions type="buy" id={cart.id} /></div>)}
+                    </div>}
+                </article>
+                <article className="admin-focus-panel admin-control-panel">
+                    <header className="admin-panel-header"><div><p className="admin-section-index">02 / ACESSOS</p><h2>Entre no<br />contexto certo.</h2></div><span className="admin-panel-symbol">↗</span></header>
+                    <div className="admin-control-list">
+                        <Link href={stores[0] ? `/admin/${stores[0].id}/products` : "/admin"} className="admin-control-link"><span className="admin-control-icon">P</span><span><strong>Catálogo de produtos</strong><small>{totalProducts} {totalProducts === 1 ? "produto organizado" : "produtos organizados"}</small></span><b>→</b></Link>
+                        <Link href={stores[0] ? `/admin/${stores[0].id}/extracts` : "/admin"} className="admin-control-link"><span className="admin-control-icon">E</span><span><strong>Extrato consolidado</strong><small>Veja o movimento financeiro</small></span><b>→</b></Link>
+                        <Link href="/admin/users" className="admin-control-link"><span className="admin-control-icon">U</span><span><strong>Pessoas e acessos</strong><small>Usuários com relacionamento</small></span><b>→</b></Link>
                     </div>
-                )}
-            </Card>
+                </article>
+            </section>
+
+            <section className="admin-ledger-panel">
+                <header className="admin-panel-header admin-ledger-header"><div><p className="admin-section-index">03 / MOVIMENTO</p><h2>O que mudou recentemente.</h2><p>Uma leitura curta do fluxo financeiro, sem IDs soltos ou excesso de ruído.</p></div>{stores[0] && <Link href={`/admin/${stores[0].id}/extracts`} className="admin-text-action">Abrir extrato completo <span>↗</span></Link>}</header>
+                {overview.recentExtracts.length === 0 ? <Empty text="Nenhuma movimentação." /> : <div className="admin-ledger-table-wrap"><table className="admin-ledger-table"><thead><tr><th>Quando</th><th>Contexto</th><th>Movimento</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>{overview.recentExtracts.map((entry) => <tr key={entry.id}><td>{formatDate(entry.createdAt)}</td><td><strong>{entry.storeName}</strong><small>{entry.origin}</small></td><td><span className={`admin-ledger-direction ${entry.action === "add" ? "is-add" : "is-remove"}`}><i />{entry.action === "add" ? "Entrada" : "Saída"}</span></td><td>{entry.description || "Movimentação registrada"}</td><td className={entry.action === "add" ? "is-add" : "is-remove"}>{entry.action === "add" ? "+" : "−"}{formatMoney(entry.amount)}</td></tr>)}</tbody></table></div>}
+            </section>
+
+            <section className="admin-stores-panel">
+                <header className="admin-panel-header admin-stores-header"><div><p className="admin-section-index">04 / AMBIENTES</p><h2>Suas lojas.</h2></div><span className="admin-panel-count">{String(stores.length).padStart(2, "0")}</span></header>
+                {stores.length === 0 ? <Empty text="Nenhuma loja criada. Use o botão Nova loja para começar." /> : <div className="admin-store-grid-v2">{stores.map((store) => <Link key={store.id} href={`/admin/${store.id}`} className="admin-store-card-v2"><div className="admin-store-card-top"><span>{store.name.charAt(0).toUpperCase()}</span><small>Loja / ambiente</small><b>↗</b></div><h3>{store.name}</h3><p>{store.applicationsCount} aplicações · {store.productsCount} produtos</p><div className="admin-store-card-foot"><span>Saldo disponível</span><strong>{formatMoney(store.balance)}</strong></div></Link>)}</div>}
+            </section>
         </div>
     );
 }

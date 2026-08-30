@@ -20,7 +20,7 @@ const serviceOptions: { value: ServiceFilter; label: string }[] = [
 function statusPill(state?: string) {
     if (state === "online") return { dot: "bg-[#23a559]", glow: "shadow-[0_0_12px_#23a559]", label: "Online" };
     if (state === "degraded") return { dot: "bg-[#f0b232]", glow: "", label: "Degradado" };
-    if (state === "starting") return { dot: "bg-[#7c3aed]", glow: "", label: "Iniciando" };
+    if (state === "starting") return { dot: "bg-[#d6ff63]", glow: "", label: "Iniciando" };
     return { dot: "bg-[#949ba4]", glow: "", label: "Offline" };
 }
 
@@ -50,10 +50,10 @@ export function TelemetryDashboard() {
     const warnCount = data.logs.filter((entry) => entry.level === "warn").length;
 
     return (
-        <section className="flex flex-col gap-4 rounded-xl border border-white/[.08] bg-[#232428] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
+        <section className="admin-telemetry-panel flex flex-col gap-4 rounded-xl border border-white/[.08] bg-[#122029] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 font-semibold text-white">
-                    <span className="h-4 w-1 rounded-full bg-[#7c3aed]" />
+                    <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                     Telemetria da plataforma
                 </h2>
                 <div className="flex items-center gap-2 text-xs">
@@ -71,7 +71,7 @@ export function TelemetryDashboard() {
                             type="button"
                             onClick={() => setSeverity(option.value)}
                             aria-pressed={severity === option.value}
-                            className={`rounded px-2.5 py-1 text-xs font-medium transition ${severity === option.value ? "bg-[#7c3aed] text-white" : "text-[#949ba4] hover:text-white"}`}
+                            className={`rounded px-2.5 py-1 text-xs font-medium transition ${severity === option.value ? "bg-[var(--accent)] text-[#091116]" : "text-[#949ba4] hover:text-white"}`}
                         >
                             {option.label}
                         </button>
@@ -81,7 +81,7 @@ export function TelemetryDashboard() {
                     aria-label="Filtrar por serviço"
                     value={service}
                     onChange={(event) => setService(event.target.value as ServiceFilter)}
-                    className="rounded-md border border-[#4e5058]/70 bg-[#1e1f22] px-2.5 py-1 text-xs text-[#b5bac1] outline-none focus:border-[#7c3aed]"
+                    className="rounded-md border border-[#4e5058]/70 bg-[#1e1f22] px-2.5 py-1 text-xs text-[#b5bac1] outline-none focus:border-[var(--accent)]"
                 >
                     {serviceOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
@@ -106,7 +106,7 @@ export function TelemetryDashboard() {
                 })}
             </div>
 
-            <div className="max-h-72 space-y-1 overflow-auto rounded-lg border border-white/[.06] bg-black p-3 font-mono text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,.6)]">
+            <div className="admin-telemetry-feed max-h-72 space-y-1 overflow-auto rounded-lg border border-white/[.06] bg-black/40 p-3 font-mono text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,.6)]">
                 {loading && <div className="space-y-2">{[0, 1, 2, 3].map((index) => <div key={index} className="skeleton h-4 w-full rounded" />)}</div>}
                 {!loading && data.logs.length === 0 && <p className="text-[#949ba4]">Nenhum evento registrado para este filtro.</p>}
                 {!loading && data.logs.map((entry) => (
