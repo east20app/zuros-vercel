@@ -137,7 +137,7 @@ function UserAvatar({ user }: { user?: SidebarUser }) {
     return user?.image ? (
         <Image unoptimized priority referrerPolicy="no-referrer" src={user.image} width={36} height={36} alt={`Avatar de ${user.name || "usuário"}`} className="h-9 w-9 shrink-0 rounded-full object-cover" />
     ) : (
-        <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-600 to-purple-400 text-sm font-bold text-white">
+        <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--accent)] text-sm font-bold text-[#091116]">
             {(user?.name || "Z")[0]}
         </span>
     );
@@ -230,7 +230,7 @@ function ConfigRail({ storeId, pathname, user }: { storeId: string; pathname: st
                             title={`${item.label} — ${meta.description}`}
                             aria-label={item.label}
                             className={`grid h-10 w-10 place-items-center rounded-xl text-sm transition ${
-                                active ? "border border-violet-500/30 bg-violet-500/10 text-violet-300" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"
+                                active ? "border border-[var(--accent)]/35 bg-[var(--accent)]/10 text-[var(--accent-strong)]" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"
                             }`}
                         >
                             <Icon name={meta.icon} className="h-4 w-4" />
@@ -270,7 +270,7 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
                 onClick={onExpand}
                 title="Expandir menu"
                 aria-label="Expandir menu"
-                className="grid h-10 w-10 place-items-center rounded-xl border border-zinc-800 text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+                className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--accent)]/25 text-[var(--accent-strong)] transition hover:bg-[var(--accent)]/10 hover:text-white"
             >
                 <SidebarIcon name="right" className="h-5 w-5" />
             </button>
@@ -427,15 +427,15 @@ export function Sidebar({
 
 
             <div className={`mt-5 hidden rounded-xl border border-zinc-800 bg-background p-1 lg:grid ${canAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-violet-600 text-white shadow-[0_8px_20px_-10px_rgba(124,58,237,.8)]" : "text-zinc-500 hover:text-white"}`}>
+                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:text-white"}`}>
                     Apps
                 </Link>
                 {canAdmin && (
-                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-violet-600 text-white" : "text-zinc-500 hover:text-white"}`}>
+                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
                         Admin
                     </Link>
                 )}
-                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-violet-600 text-white" : "text-zinc-500 hover:text-white"}`}>
+                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
                     Conta
                 </Link>
             </div>

@@ -9,20 +9,21 @@ import { FaqAccordion } from "@/components/FaqAccordion";
 import { getPlatformTelemetry } from "@root/src/integration/telemetry";
 import databases from "@root/src/databases";
 import type { Metadata } from "next";
-import { Icon } from "@/components/Icon";
 import type { ReactNode } from "react";
+import { Icon } from "@/components/Icon";
 import { publicMetadata } from "@/lib/site-url";
 import { PublicFooter } from "@/components/PublicFooter";
 
 const features: Array<[ReactNode, string, string]> = [
-    [<Icon key="payment" name="payment" className="h-5 w-5" />, "Vendas e PIX automáticos", "Catálogo, pagamentos, cupons e renovações em um fluxo integrado, sem conferência manual."],
-    [<Icon key="package" name="package" className="h-5 w-5" />, "Infraestrutura e versões", "Publique versões validadas e acompanhe status, consumo e atividade de cada aplicação."],
-    [<Icon key="bot" name="bot" className="h-5 w-5" />, "Gestão Discord conectada", "Configure sua operação pelo painel e mantenha bot, loja e aplicações sincronizados."],
+    [<Icon key="payment" name="payment" className="h-5 w-5" />, "Venda sem fricção", "Catálogo, PIX, cupons e renovações dentro de um mesmo fluxo operacional."],
+    [<Icon key="package" name="package" className="h-5 w-5" />, "Infraestrutura rastreável", "Publique versões, acompanhe consumo e identifique o que precisa de atenção."],
+    [<Icon key="bot" name="bot" className="h-5 w-5" />, "Discord no centro", "Configure o DROX pelo navegador e mantenha bot, loja e aplicações sincronizados."],
 ];
 
 export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
-    return publicMetadata("ZUROS APP · Bots Discord, vendas e infraestrutura gerenciada", "Publique, venda e gerencie aplicações Discord em um só lugar.", "/");
+    return publicMetadata("ZUROS APP · Operação para comunidades que crescem", "Uma camada de operação para vender, configurar e acompanhar suas aplicações Discord.", "/");
 }
 
 export default async function HomePage() {
@@ -40,27 +41,67 @@ export default async function HomePage() {
     const telemetry = getPlatformTelemetry({ limit: 0 });
     const uptimeDays = Math.floor(telemetry.uptimeSeconds / 86400);
 
-    return <div className="relative min-h-screen text-white">
-        <div className="zuros-backdrop" aria-hidden />
-        <div className="zuros-grid" aria-hidden />
-        <AnnouncementBar />
-        <PublicNavbar user={user} pendingCount={pendingCount} />
-        <main>
-            <section className="mx-auto flex min-h-[620px] w-full max-w-6xl flex-col items-center justify-center px-4 pb-20 pt-16 text-center sm:px-6 sm:pt-24">
-                <div className="animate-fade-up">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/[.08] bg-white/[.035] px-3.5 py-1.5 text-xs font-medium text-zinc-300 backdrop-blur"><i className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,.9)]" />Plataforma completa para Discord</span>
-                    <h1 className="mx-auto mt-7 max-w-5xl text-5xl font-semibold leading-[.98] tracking-[-.055em] text-white sm:text-7xl lg:text-[5.5rem]">Seu bot, sua loja e suas vendas.<span className="mt-2 block bg-gradient-to-r from-violet-300 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent">Tudo conectado.</span></h1>
-                    <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">Configure o DROX pelo navegador, automatize pagamentos e acompanhe suas aplicações em um painel rápido, seguro e fácil de usar.</p>
-                    <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><Link href={user ? "/dashboard" : "/login"} className="rounded-xl bg-violet-600 px-7 py-3.5 text-center text-sm font-semibold text-white shadow-[0_14px_38px_-14px_rgba(124,58,237,.8)] transition hover:-translate-y-px hover:bg-violet-500">{user ? "Abrir minhas aplicações" : "Começar agora"}</Link><Link href="#recursos" className="rounded-xl border border-white/[.09] bg-white/[.035] px-7 py-3.5 text-center text-sm font-semibold text-zinc-200 backdrop-blur transition hover:border-white/[.16] hover:bg-white/[.065]">Explorar produtos</Link></div>
-                </div>
-                <div className="mt-16 grid w-full max-w-4xl gap-3 sm:grid-cols-3">
-                    {[{label:"Aplicações",value:activeApps || "Online"},{label:"Lojas conectadas",value:stores || "Disponível"},{label:"Infraestrutura",value:uptimeDays ? `${uptimeDays} dias` : "Estável"}].map((item) => <div key={item.label} className="rounded-2xl border border-white/[.065] bg-white/[.025] px-5 py-4 backdrop-blur-xl"><b className="block text-xl font-semibold text-white">{item.value}</b><span className="mt-1 block text-xs text-zinc-500">{item.label}</span></div>)}
-                </div>
-            </section>
-            <section id="recursos" className="border-y border-white/[.055] bg-black/25"><div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.22em] text-violet-400">Aplicações ZUROS</p><h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Escolha o que sua comunidade precisa.</h2></div><p className="max-w-md text-sm leading-6 text-zinc-500">Planos mensais com infraestrutura, atualizações e painel de configuração integrados.</p></div><div className="mt-10">{catalogs.length ? <PublicStoreCatalog stores={catalogs} canPurchase={!!user} /> : <div className="zuros-card border-dashed py-14 text-center text-sm text-zinc-500">Novos produtos serão publicados em breve.</div>}</div></div></section>
-            <section id="beneficios" className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6"><div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.22em] text-violet-400">Uma operação mais simples</p><h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Tudo que você precisa para administrar seu bot.</h2><p className="mt-4 leading-7 text-zinc-500">As funções que antes dependiam de comandos também ficam disponíveis em uma experiência visual completa.</p></div><div className="mt-10 grid gap-4 md:grid-cols-3">{features.map(([icon,title,description], index) => <article key={title} className="zuros-card zuros-lift min-h-56 p-6"><span className="text-xs font-medium text-zinc-600">0{index + 1}</span><span className="mt-8 grid h-11 w-11 place-items-center rounded-xl border border-violet-500/20 bg-violet-500/[.09] text-violet-300">{icon}</span><h3 className="mt-5 font-semibold text-white">{title}</h3><p className="mt-2 text-sm leading-6 text-zinc-500">{description}</p></article>)}</div></section>
-            <section className="mx-auto w-full max-w-5xl px-4 pb-12 sm:px-6"><div className="zuros-card flex flex-col items-center px-6 py-14 text-center sm:px-10"><span className="zuros-pill">Painel DROX conectado</span><h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">Gerencie sua comunidade sem sair do navegador.</h2><p className="mt-4 max-w-xl text-sm leading-6 text-zinc-500">Produtos, estoque, automações, proteção, mensagens, sorteios e configurações reunidos em um só lugar.</p><Link href={user ? "/dashboard" : "/login"} className="mt-7 rounded-xl bg-violet-600 px-7 py-3 text-sm font-semibold text-white hover:bg-violet-500">{user ? "Ir para o painel" : "Entrar com Discord"}</Link></div></section>
-            <section id="faq" className="mx-auto w-full max-w-4xl px-4 py-20 sm:px-6"><p className="text-xs font-semibold uppercase tracking-[.22em] text-violet-400">Dúvidas frequentes</p><h2 className="mb-8 mt-3 text-3xl font-semibold">Antes de começar</h2><FaqAccordion /></section>
-        </main>        <PublicFooter isAuthenticated={!!user} />
-    </div>;
+    return (
+        <div className="home-shell relative min-h-screen overflow-x-clip text-white">
+            <div className="zuros-backdrop" aria-hidden />
+            <div className="zuros-grid" aria-hidden />
+            <AnnouncementBar />
+            <PublicNavbar user={user} pendingCount={pendingCount} />
+            <main>
+                <section className="home-hero mx-auto grid w-full max-w-7xl items-center gap-12 px-5 pb-24 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-[1.05fr_.95fr] lg:gap-16 lg:pb-32 lg:pt-28">
+                    <div className="home-hero-copy animate-fade-up">
+                        <p className="home-kicker"><span className="home-kicker-mark" />ZUROS / OPERAÇÃO DIGITAL</p>
+                        <h1 className="home-title mt-7 max-w-4xl">Seu Discord não é só um servidor.<span>É uma operação.</span></h1>
+                        <p className="home-lede mt-7 max-w-xl">Venda, configure e acompanhe suas aplicações com uma camada de controle feita para comunidades que já passaram da improvisação.</p>
+                        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                            <Link href={user ? "/dashboard" : "/login"} className="home-primary-cta">{user ? "Abrir minhas aplicações" : "Começar pelo painel"}<span aria-hidden>↗</span></Link>
+                            <Link href="#recursos" className="home-secondary-cta">Ver como funciona</Link>
+                        </div>
+                        <div className="home-proof-row mt-10">
+                            <span><i />Operação em um só lugar</span>
+                            <span><i />Acesso via Discord</span>
+                            <span><i />Sem configuração manual</span>
+                        </div>
+                    </div>
+
+                    <aside className="home-signal-wrap" aria-label="Resumo da operação ZUROS">
+                        <div className="home-signal-panel animate-fade-up" style={{ animationDelay: "100ms" }}>
+                            <div className="home-signal-topline"><span>LIVE / PLATFORM PULSE</span><span className="home-signal-live"><i />online</span></div>
+                            <div className="home-signal-heading"><div><span className="home-signal-label">Seu centro de comando</span><strong>O que está acontecendo agora</strong></div><span className="home-signal-index">01</span></div>
+                            <div className="home-signal-chart" aria-hidden="true"><span style={{ height: "28%" }} /><span style={{ height: "44%" }} /><span style={{ height: "36%" }} /><span style={{ height: "61%" }} /><span style={{ height: "52%" }} /><span style={{ height: "78%" }} /><span style={{ height: "69%" }} /><span style={{ height: "92%" }} /><span style={{ height: "82%" }} /><span style={{ height: "100%" }} /></div>
+                            <div className="home-signal-stats">
+                                <div><strong>{activeApps || "—"}</strong><span>apps ativos</span></div>
+                                <div><strong>{stores || "—"}</strong><span>lojas conectadas</span></div>
+                                <div><strong>{uptimeDays ? `${uptimeDays}d` : "OK"}</strong><span>infra estável</span></div>
+                            </div>
+                            <div className="home-signal-log"><span className="home-log-time">agora</span><span>checkout, bot e atualizações no mesmo pulso</span><span className="home-log-arrow">↗</span></div>
+                        </div>
+                        <div className="home-orbit home-orbit-one" aria-hidden="true" /><div className="home-orbit home-orbit-two" aria-hidden="true" />
+                    </aside>
+                </section>
+
+                <section id="recursos" className="home-section home-catalog-section border-y border-white/[.07]">
+                    <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:py-24">
+                        <div className="home-section-heading grid gap-6 lg:grid-cols-[.9fr_1.1fr] lg:items-end">
+                            <div><p className="home-section-index">01 / APLICAÇÕES ZUROS</p><h2 className="home-section-title mt-4">Escolha o próximo módulo da sua operação.</h2></div>
+                            <p className="home-section-note max-w-md lg:justify-self-end">Planos mensais com infraestrutura, atualizações e painel de configuração conectados desde o primeiro acesso.</p>
+                        </div>
+                        <div className="mt-12">{catalogs.length ? <PublicStoreCatalog stores={catalogs} canPurchase={!!user} /> : <div className="zuros-card border-dashed py-14 text-center text-sm text-zinc-500">Novos produtos serão publicados em breve.</div>}</div>
+                    </div>
+                </section>
+
+                <section id="beneficios" className="home-section mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
+                    <div className="grid gap-10 lg:grid-cols-[.78fr_1.22fr] lg:gap-20">
+                        <div><p className="home-section-index">02 / O SISTEMA</p><h2 className="home-section-title mt-4">Menos abas abertas. Mais leitura do que importa.</h2><p className="home-section-note mt-5 max-w-md">As funções que antes ficavam espalhadas entre comandos, planilhas e mensagens agora trabalham na mesma direção.</p></div>
+                        <div className="home-feature-grid">{features.map(([icon, title, description], index) => <article key={title} className="home-feature-card"><div className="home-feature-number">0{index + 1}</div><span className="home-feature-icon">{icon}</span><h3>{title}</h3><p>{description}</p><span className="home-feature-line" /></article>)}</div>
+                    </div>
+                </section>
+
+                <section className="mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8 lg:pb-28"><div className="home-manifesto"><span className="home-manifesto-mark">ZU</span><div><p className="home-section-index">03 / A IDEIA</p><h2>O painel não precisa parecer um painel.</h2><p>Precisa dar contexto, mostrar o próximo passo e desaparecer quando tudo está funcionando.</p></div><Link href={user ? "/dashboard" : "/login"} className="home-manifesto-link">{user ? "Ir para o painel" : "Entrar com Discord"}<span>↗</span></Link></div></section>
+
+                <section id="faq" className="home-section mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 lg:py-24"><p className="home-section-index">04 / DÚVIDAS FREQUENTES</p><h2 className="home-section-title mt-4">Antes de ligar a operação.</h2><div className="mt-9"><FaqAccordion /></div></section>
+            </main>
+            <PublicFooter isAuthenticated={!!user} />
+        </div>
+    );
 }

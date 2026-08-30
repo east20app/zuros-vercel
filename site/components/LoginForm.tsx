@@ -33,17 +33,21 @@ export function LoginForm() {
         setStarting(false);
     }
 
-    return <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12 text-white">
+    return <main className="login-shell">
         <div className="zuros-backdrop" aria-hidden /><div className="zuros-grid" aria-hidden />
-        <section className="zuros-card zuros-card-lit w-full max-w-md p-8 animate-fade-up sm:p-10">
-            <div className="flex justify-center"><Link href="/" aria-label="ZUROS — início"><BrandLogo priority className="h-14 w-48" /></Link></div>
-            <h1 className="mt-8 text-center text-2xl font-semibold tracking-tight">Entrar na plataforma</h1>
-            <p className="mt-2 text-center text-sm leading-6 text-zinc-400">Entre somente com a <strong className="font-medium text-white">conta Discord proprietária da loja</strong>. É ela que conecta aplicações, licenças e faturas.</p>
-            {error && <div role="alert" className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{ERROR_MESSAGES[error] || ERROR_MESSAGES.Default}</div>}
-            <div className="mt-6">{status === "loading" || starting ? <div className="flex h-12 items-center justify-center"><Spinner /></div> : <button onClick={handleSignIn} className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-violet-400/25 bg-gradient-to-b from-violet-500 to-purple-700 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_12px_30px_-12px_rgba(124,58,237,.65)] transition hover:-translate-y-px hover:from-violet-400 hover:to-purple-600"><DiscordIcon />Entrar com Discord</button>}</div>
-            <p className="mt-4 text-center text-xs leading-5 text-zinc-600">Ao entrar, você concorda em utilizar a plataforma de forma legítima.</p>
-            <div className="mt-6 text-center"><a href="mailto:suporte@zuros.app?subject=Ajuda%20para%20entrar" className="text-sm text-violet-400 transition hover:text-violet-300">Precisa de ajuda para entrar?</a></div>
-            <div className="mt-6 border-t border-zinc-800/70 pt-6 text-center"><Link href="/" className="text-sm text-zinc-400 transition hover:text-white">← Voltar para o início</Link></div>
+        <section className="login-visual" aria-label="Sobre a plataforma ZUROS">
+            <Link href="/" aria-label="ZUROS — início"><BrandLogo priority className="h-10 w-40" /></Link>
+            <div className="login-visual-content"><p className="home-kicker"><span className="home-kicker-mark" />ZUROS / CONTROL ROOM</p><h1>Uma leitura clara do que move sua comunidade.</h1><p>O painel reúne operação, vendas e infraestrutura em um lugar pensado para quem precisa decidir rápido.</p></div>
+            <div className="login-visual-footer"><span>01</span><div><b>ACESSO PROPRIETÁRIO</b><small>Entre com a conta Discord vinculada à loja.</small></div></div>
+        </section>
+        <section className="login-panel animate-fade-up">
+            <div className="login-mobile-brand"><Link href="/" aria-label="ZUROS — início"><BrandLogo priority className="h-9 w-36" /></Link></div>
+            <div className="login-panel-top"><span className="home-section-index">ENTRAR / 01</span><Link href="/" className="login-back">Voltar ao início <span aria-hidden>↗</span></Link></div>
+            <div className="login-copy"><h2>Bem-vindo de volta.</h2><p>Entre com a conta Discord proprietária da loja. É ela que conecta suas aplicações, licenças e faturas.</p></div>
+            {error && <div role="alert" className="login-error">{ERROR_MESSAGES[error] || ERROR_MESSAGES.Default}</div>}
+            <div className="mt-8">{status === "loading" || starting ? <div className="flex h-14 items-center justify-center"><Spinner /></div> : <button onClick={handleSignIn} className="login-discord-button"><DiscordIcon /><span>Entrar com Discord</span><span aria-hidden className="ml-auto text-lg">↗</span></button>}</div>
+            <p className="login-legal">Ao entrar, você concorda em utilizar a plataforma de forma legítima.</p>
+            <div className="login-help"><a href="mailto:suporte@zuros.app?subject=Ajuda%20para%20entrar">Precisa de ajuda para entrar?</a><span>O acesso é protegido pela autenticação do Discord.</span></div>
         </section>
     </main>;
 }
