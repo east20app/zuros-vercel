@@ -14,7 +14,7 @@ const RANGES: Array<{ key: SalesRange; label: string }> = [
     { key: "tudo", label: "Tudo" },
 ];
 
-const PALETTE = ["#d6ff63", "#ff745a", "#67d98f", "#f0bb54", "#89c7d1", "#e8f1ef", "#8fa0a8", "#b4e85e", "#d59d64", "#6e8994"];
+const PALETTE = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#60a5fa", "#a1a1aa", "#71717a", "#34d399", "#fb7185", "#94a3b8"];
 
 export function SalesDashboard({ appId, productName, initial }: { appId: string; productName: string; initial: SalesOverview }) {
     const [range, setRange] = useState<SalesRange>("7d");
@@ -42,8 +42,8 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
         chartsRef.current.forEach((chart) => chart.destroy());
         chartsRef.current = [];
 
-        const tick = "#7f929c";
-        const grid = "rgba(214,236,241,.10)";
+        const tick = "#71717a";
+        const grid = "rgba(161,161,170,.12)";
 
         const dailyChart = new Chart(daily, {
             type: "bar",
@@ -53,8 +53,8 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                     {
                         label: "Vendas",
                         data: data.byDay.map((point) => point.total),
-                        backgroundColor: "rgba(214,255,99,.72)",
-                        borderColor: "#e6ff9c",
+                        backgroundColor: "rgba(59,130,246,.72)",
+                        borderColor: "#60a5fa",
                         borderWidth: 1,
                         borderRadius: 5,
                     },
@@ -143,7 +143,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                 <p className="text-sm text-zinc-500">
                     {data.ordersCount} {data.ordersCount === 1 ? "venda registrada" : "vendas registradas"} pelo bot {productName}.
                 </p>
-                <div className="sales-range-picker inline-flex rounded-lg border border-white/[.08] bg-[#122029]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
+                <div className="sales-range-picker inline-flex rounded-md border border-[#2d2d33] bg-[#171719] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
                     {RANGES.map((option) => (
                         <button
                             key={option.key}
@@ -151,7 +151,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                             onClick={() => changeRange(option.key)}
                             className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
                                 range === option.key
-                                    ? "bg-[var(--accent)] text-[#091116] shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(214,255,99,.35)]"
+                                    ? "bg-[var(--accent)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15),0_4px_14px_-6px_rgba(59,130,246,.35)]"
                                     : "text-[#949ba4] hover:bg-white/[.06] hover:text-white"
                             }`}
                         >
@@ -170,8 +170,8 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
             ) : (
                 <div className="grid gap-4 lg:grid-cols-3">
                     <Card className="flex flex-col gap-3 lg:col-span-2">
-                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                            <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-[#fafafa]">
+                            <span className="h-4 w-1 rounded-full bg-[#3b82f6]" />
                             Vendas por dia
                         </h3>
                         <div className="relative h-[260px]">
@@ -179,8 +179,8 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                         </div>
                     </Card>
                     <Card className="flex flex-col gap-3">
-                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                            <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-[#fafafa]">
+                            <span className="h-4 w-1 rounded-full bg-[#3b82f6]" />
                             Por produto
                         </h3>
                         {data.byProduct.length === 0 ? (
