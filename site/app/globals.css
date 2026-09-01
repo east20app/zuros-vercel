@@ -1629,3 +1629,33 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus, selec
     .sales-summary { grid-template-columns: 1fr 1fr; }
     .sales-summary > .zuros-card, .sales-pending-stat { min-height: 5.9rem; padding: .8rem; }
 }
+
+
+.sales-status-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    border: 1px solid #2d2d33;
+    border-radius: .75rem;
+    background: linear-gradient(90deg, rgba(35,35,38,.9), rgba(23,23,25,.88));
+    padding: .9rem 1rem;
+}
+.sales-status-main { display: flex; min-width: 0; align-items: center; gap: .7rem; }
+.sales-status-main > div { min-width: 0; }
+.sales-status-main strong, .sales-status-main small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sales-status-main strong { color: #fafafa; font-size: .8rem; }
+.sales-status-main small { margin-top: .25rem; color: #71717a; font-size: .68rem; }
+.sales-status-dot { width: .55rem; height: .55rem; flex: 0 0 auto; border-radius: 999px; background: #22c55e; box-shadow: 0 0 0 .22rem rgba(34,197,94,.12), 0 0 14px rgba(34,197,94,.55); }
+.sales-status-chip { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid rgba(34,197,94,.25); border-radius: 999px; background: rgba(34,197,94,.08); padding: .38rem .6rem; color: #86efac; font-size: .62rem; font-weight: 700; white-space: nowrap; }
+.sales-status-chip i { width: .3rem; height: .3rem; border-radius: 999px; background: currentColor; }
+.sales-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: .85rem; }
+.sales-section-heading h2 { margin-top: .35rem; color: #fafafa; font-family: "Inter", sans-serif; font-size: 1.2rem; letter-spacing: -.04em; }
+.sales-section-heading > span { color: #71717a; font-size: .65rem; text-align: right; }
+@media (max-width: 640px) {
+    .sales-status-strip { align-items: flex-start; flex-direction: column; }
+    .sales-status-chip { align-self: flex-start; }
+    .sales-section-heading { align-items: flex-start; flex-direction: column; }
+    .sales-section-heading > span { text-align: left; }
+}
