@@ -1737,3 +1737,44 @@ body {
     .dashboard-command-hero-simple .dashboard-action-primary { width: 100%; }
     .dashboard-apps-count { display: none; }
 }
+
+
+/* ZUROS Control Room — tokens finais para reduzir ruído visual. */
+:root {
+    --background: #0b0d0e;
+    --background-dark: #0b0d0e;
+    --surface: #15191a;
+    --surface-elevated: #1c2223;
+    --border-subtle: rgba(229, 239, 235, .12);
+    --foreground: #f3f7f4;
+    --muted-foreground: #a4b1ad;
+    --text-quiet: #71807a;
+    --lime: #d6ff63;
+    --accent: #d6ff63;
+    --accent-strong: #d6ff63;
+    --accent-soft: rgba(214, 255, 99, .12);
+    --accent-glow: transparent;
+}
+html, body { background: #0b0d0e; color: #f3f7f4; }
+body { background-image: none; }
+.zuros-backdrop, .zuros-grid, .home-orbit, .plans-product-glow { display: none !important; }
+.zuros-card, .plans-product-card, .home-feature-card, .home-signal-panel, .home-manifesto, .dashboard-empty-v2 {
+    background: #15191a !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+.zuros-btn-glow, .home-primary-cta, .plans-product-action, .dashboard-action-primary { box-shadow: none !important; }
+.zuros-btn-glow:hover, .home-primary-cta:hover, .plans-product-action:hover, .dashboard-action-primary:hover { transform: none !important; }
+.zuros-sidebar-panel, .zuros-mobile-header, .zuros-mobile-menu-button, .mobile-dashboard-nav, .user-bot-workspace-bar {
+    background: #0f1213 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+.home-section-index, .home-kicker, .plans-product-topline, .dashboard-eyebrow { letter-spacing: .08em !important; }
+.home-feature-number, .home-signal-index, .home-log-time, .home-signal-chart, .home-signal-log { display: none !important; }
+button, a { transition-property: background-color, border-color, color, opacity !important; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
