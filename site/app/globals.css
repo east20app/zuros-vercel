@@ -1693,3 +1693,47 @@ body {
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+
+/* Dashboard limpa: uma tarefa principal por tela. */
+.dashboard-home-v2 {
+    max-width: 72rem;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+.dashboard-command-hero-simple {
+    min-height: 0;
+    align-items: center;
+    border-bottom: 1px solid #242427;
+    padding: 1rem 0 1.35rem;
+}
+.dashboard-command-hero-simple .dashboard-command-copy { max-width: 34rem; }
+.dashboard-command-hero-simple .home-kicker { color: #71717a; letter-spacing: .14em; }
+.dashboard-command-hero-simple .home-kicker-mark { width: .95rem; background: #3b82f6; box-shadow: none; }
+.dashboard-command-hero-simple h1 {
+    margin-top: .45rem;
+    color: #fafafa;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.6rem, 2.5vw, 2.15rem);
+    font-weight: 650;
+    letter-spacing: -.045em;
+    line-height: 1.05;
+}
+.dashboard-command-hero-simple .dashboard-command-lede { margin-top: .35rem; color: #71717a; font-size: .78rem; }
+.dashboard-command-hero-simple .dashboard-action-primary { min-height: 2.45rem; border-radius: .5rem; background: #3b82f6; color: #fff; box-shadow: none; font-size: .75rem; }
+.dashboard-command-hero-simple .dashboard-action-primary:hover { background: #60a5fa; }
+.dashboard-apps-section { margin-top: 2.4rem; }
+.dashboard-apps-heading { align-items: center; border-bottom-color: #242427; padding-bottom: .75rem; }
+.dashboard-apps-heading .home-section-index { color: #71717a; font-size: .62rem; letter-spacing: .14em; }
+.dashboard-apps-heading h2 { margin-top: .25rem; color: #fafafa; font-family: "Inter", sans-serif; font-size: 1rem; letter-spacing: -.025em; }
+.dashboard-apps-count strong { color: #fafafa; font-size: 1.25rem; }
+.dashboard-apps-count span { color: #71717a; }
+.dashboard-empty-v2 { margin-top: 1rem; min-height: 15rem; border-color: #2d2d33; background: #151517; box-shadow: none; }
+.dashboard-empty-v2 .dashboard-empty-mark { color: #3b82f6; }
+.dashboard-empty-v2 h2 { max-width: 28rem; font-size: 1.25rem; }
+@media (max-width: 640px) {
+    .dashboard-home-v2 { padding-top: 1rem; }
+    .dashboard-command-hero-simple { align-items: flex-start; flex-direction: column; gap: 1rem; }
+    .dashboard-command-hero-simple .dashboard-action-primary { width: 100%; }
+    .dashboard-apps-count { display: none; }
+}
