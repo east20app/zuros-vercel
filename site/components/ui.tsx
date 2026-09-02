@@ -29,16 +29,16 @@ export function Button({
     title?: string;
 }) {
     const base =
-        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-40 active:scale-[.98] select-none";
+        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
     const variants: Record<string, string> = {
         primary:
-            "border border-[var(--accent)] bg-[var(--accent)] text-[#091116] shadow-[0_4px_18px_-8px_rgba(214,255,99,.45)] hover:border-[#e6ff95] hover:bg-[#e6ff95] hover:-translate-y-px",
+            "border border-[var(--accent)] bg-[var(--accent)] text-[#091116] hover:border-[#e6ff95] hover:bg-[#e6ff95]",
         success:
             "border border-[#23a559]/70 bg-[#23a559] text-white shadow-[0_4px_18px_-8px_rgba(35,165,89,.6)] hover:border-[#1e8b4d]/70 hover:bg-[#1e8b4d] hover:-translate-y-px",
         secondary:
-            "border border-white/[.08] bg-white/[.045] text-[#f4f4f5] shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur hover:border-white/[.14] hover:bg-white/[.075] hover:-translate-y-px",
+            "border border-white/[.12] bg-transparent text-[#f4f4f5] hover:border-white/[.22] hover:bg-white/[.05]",
         danger:
-            "border border-[#ff745a]/70 bg-[#ff745a] text-[#091116] shadow-[0_4px_18px_-8px_rgba(255,116,90,.45)] hover:border-[#ff957f]/70 hover:bg-[#ff957f] hover:-translate-y-px",
+            "border border-[#ff745a]/70 bg-[#ff745a] text-[#091116] hover:border-[#ff957f]/70 hover:bg-[#ff957f]",
         ghost: "text-[#b5c2c6] hover:bg-white/[.06] hover:text-white",
         outline:
             "border border-[#4e606a] text-[#b5c2c6] shadow-[inset_0_1px_0_rgba(255,255,255,.03)] hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/10 hover:text-white",
@@ -96,7 +96,7 @@ export function PageHeader({
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
     return (
         <div
-            className={`zuros-card zuros-card-lit zuros-lift p-5 ${className}`}
+            className={`zuros-card p-5 ${className}`}
         >
             {children}
         </div>
@@ -120,7 +120,7 @@ export function DiscordCard({
     className?: string;
 }) {
     return (
-        <div className={`relative overflow-hidden rounded-xl border border-white/[.07] bg-white/[.035] shadow-[inset_0_1px_0_rgba(255,255,255,.025),0_16px_40px_-28px_rgba(0,0,0,.9)] backdrop-blur-xl ${className}`}>
+        <div className={`relative overflow-hidden rounded-xl border border-white/[.12] bg-[#15191a] ${className}`}>
             {accent && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 rounded-r" style={{ backgroundColor: accent }} />}
             {(title || actions) && (
                 <header className="flex items-center justify-between gap-3 border-b border-white/[.06] px-4 py-3">
@@ -173,14 +173,14 @@ export function TechnicalId({ value, label }: { value: string | null | undefined
 
 export function Stat({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
     return (
-        <Card className="group flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 border-b border-white/[.12] bg-[#15191a] p-4">
             <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#949ba4]">
                 <i className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]/80 transition group-hover:bg-[var(--accent)] group-hover:shadow-[0_0_10px_rgba(214,255,99,.75)]" />
                 {label}
             </span>
             <span className="text-2xl font-semibold tracking-tight text-white">{value}</span>
             {hint && <span className="text-xs text-[#949ba4]">{hint}</span>}
-        </Card>
+        </div>
     );
 }
 
