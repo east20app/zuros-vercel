@@ -1810,3 +1810,14 @@ button, a { transition-property: background-color, border-color, color, opacity 
 .reference-plans-catalog .plans-product-card { border-radius: 1rem; background: #0d0d0f !important; }
 .reference-plans-catalog .plans-product-card.is-featured { transform: none; }
 .reference-plans-catalog .plans-product-card:hover { transform: translateY(-2px); border-color: #34343a !important; }
+
+
+.reference-public-page { background: #050505; }
+.reference-public-title { max-width: 52rem; margin-top: 1rem; color: #fff; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; font-size: clamp(2.8rem, 7vw, 5.6rem); font-weight: 800; letter-spacing: -.075em; line-height: .98; }
+.reference-public-title span { color: var(--accent); }
+.reference-public-lede { max-width: 42rem; margin-top: 1.25rem; color: #a1a1aa; font-size: 1.05rem; line-height: 1.7; }
+.reference-status-panel { overflow: hidden; border: 1px solid #1c1c1f; border-radius: 1rem; background: #09090b; }
+.reference-status-row { display: flex; align-items: center; gap: .75rem; border-bottom: 1px solid #1c1c1f; padding: 1.25rem 1.5rem; color: #e4e4e7; font-size: .9rem; }
+.reference-status-row:last-child { border-bottom: 0; }
+.reference-status-row strong { margin-left: auto; color: var(--accent); font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.reference-status-dot { width: .5rem; height: .5rem; flex: none; border-radius: 999px; background: var(--accent); }
