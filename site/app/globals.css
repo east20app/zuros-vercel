@@ -1821,3 +1821,37 @@ button, a { transition-property: background-color, border-color, color, opacity 
 .reference-status-row:last-child { border-bottom: 0; }
 .reference-status-row strong { margin-left: auto; color: var(--accent); font-size: .75rem; font-weight: 700; text-transform: uppercase; }
 .reference-status-dot { width: .5rem; height: .5rem; flex: none; border-radius: 999px; background: var(--accent); }
+
+
+/* Tema visual definitivo da referência: preto, roxo e superfícies sólidas. */
+:root {
+    --accent: #7c3aed;
+    --accent-strong: #a78bfa;
+    --accent-soft: rgba(124, 58, 237, .14);
+    --accent-glow: rgba(124, 58, 237, .22);
+    --lime: #7c3aed;
+    --background: #050505;
+    --background-dark: #050505;
+    --surface: #0d0d0f;
+    --surface-elevated: #161618;
+    --foreground: #e4e4e7;
+}
+body, .reference-home, .reference-plans, .reference-public-page { background: #050505 !important; }
+.zuros-card, .plans-product-card, .home-feature-card, .home-signal-panel, .home-manifesto, .dashboard-empty-v2, .reference-proof-panel, .reference-status-panel {
+    border-color: #1c1c1f !important;
+    border-radius: 1rem !important;
+    background: #09090b !important;
+    box-shadow: none !important;
+}
+.public-nav-wrap { background: rgba(5, 5, 5, .96) !important; }
+.public-nav { border-bottom-color: #1c1c1f !important; }
+.public-nav::after { background: #7c3aed !important; box-shadow: none !important; }
+.public-nav-link.is-active, .public-nav-link:hover { color: #a78bfa !important; }
+.home-primary-cta, .plans-product-action, .dashboard-action-primary { background: #7c3aed !important; border-color: #7c3aed !important; color: white !important; border-radius: .75rem !important; box-shadow: none !important; }
+.home-primary-cta:hover, .plans-product-action:hover, .dashboard-action-primary:hover { background: #6d28d9 !important; }
+.home-secondary-cta, .home-secondary-cta:hover { border-color: #27272a !important; background: transparent !important; border-radius: .75rem !important; }
+.home-kicker-mark { background: #7c3aed !important; box-shadow: none !important; }
+.home-title span, .reference-plans-intro h1 span, .reference-public-title span { color: #a78bfa !important; }
+.dashboard-app-status.is-good, .reference-status-row strong, .reference-status-dot { color: #a78bfa !important; background: #7c3aed !important; }
+.dashboard-app-card-v2:hover { border-color: #7c3aed !important; background: #0d0d0f !important; }
+.zuros-dashboard-stage, .zuros-dashboard-content { background: #050505 !important; }
