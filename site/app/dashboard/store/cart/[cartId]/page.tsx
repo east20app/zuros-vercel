@@ -8,7 +8,14 @@ import { Icon } from "@/components/Icon";
 export const dynamic = "force-dynamic";
 
 export default async function PurchaseCartPage({ params }: { params: Promise<{ cartId: string }> }) { const resolvedParams = await params;
-    const [, cart] = await Promise.all([requireUser(), getMyPurchaseCart(resolvedParams.cartId)]);
+    await requireUser();
+    let cart;
+    try {
+        cart = await getMyPurchaseCart(resolvedParams.cartId);
+    } catch (error) {
+        console.error("Falha ao carregar carrinho de pagamento", error);
+        return <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-5 py-16 text-center"><h1 className="text-2xl font-semibold text-white">Pagamento indisponível</h1><p className="mt-3 text-sm leading-6 text-zinc-400">Não foi possível carregar este carrinho. Volte aos planos e tente iniciar o pagamento novamente.</p><div className="mt-7"><Button href="/planos">Voltar aos planos</Button></div></main>;
+    }
     if (!cart) notFound();
     const expired = cart.step !== "payment-confirmed" && new Date(cart.expiresAt).getTime() <= Date.now();
     const completed = cart.status === "closed";
