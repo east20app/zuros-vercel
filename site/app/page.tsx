@@ -39,12 +39,12 @@ export default async function HomePage() {
     ]);
 
     return (
-        <div className="home-shell relative min-h-screen overflow-x-clip text-white">
+        <div className="reference-home min-h-screen overflow-x-clip text-white">
             <AnnouncementBar />
             <PublicNavbar user={user} pendingCount={pendingCount} />
             <main>
-                <section className="home-hero mx-auto grid w-full max-w-7xl items-center gap-12 px-5 pb-24 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-[1.05fr_.95fr] lg:gap-16 lg:pb-32 lg:pt-28">
-                    <div className="home-hero-copy animate-fade-up">
+                <section className="reference-hero mx-auto flex w-full max-w-7xl flex-col items-center px-5 pb-20 pt-20 text-center sm:px-8 sm:pt-28">
+                    <div className="reference-hero-copy animate-fade-up">
                         <p className="home-kicker"><span className="home-kicker-mark" />ZUROS / OPERAÇÃO DIGITAL</p>
                         <h1 className="home-title mt-7 max-w-4xl">Seu Discord não é só um servidor.<span>É uma operação.</span></h1>
                         <p className="home-lede mt-7 max-w-xl">Venda, configure e acompanhe suas aplicações com uma camada de controle feita para comunidades que já passaram da improvisação.</p>
@@ -59,11 +59,11 @@ export default async function HomePage() {
                         </div>
                     </div>
 
-                    <aside className="home-signal-wrap" aria-label="Resumo da operação ZUROS">
-                        <div className="home-signal-panel animate-fade-up" style={{ animationDelay: "100ms" }}>
-                            <div className="home-signal-topline"><span>VISÃO DO PRODUTO</span><span className="home-signal-live"><i />ativo</span></div>
-                            <div className="home-signal-heading"><div><span className="home-signal-label">Centro de controle</span><strong>O essencial da operação</strong></div></div>
-                            <div className="home-signal-stats">
+                    <aside className="reference-proof-wrap" aria-label="Resumo da operação ZUROS">
+                        <div className="reference-proof-panel animate-fade-up" style={{ animationDelay: "100ms" }}>
+                            <div className="reference-proof-topline"><span>VISÃO DO PRODUTO</span><span className="home-signal-live"><i />ativo</span></div>
+                            <div className="reference-proof-heading"><div><span className="home-signal-label">Centro de controle</span><strong>O essencial da operação</strong></div></div>
+                            <div className="reference-proof-stats">
                                 <div><strong>{activeApps || "—"}</strong><span>aplicações ativas</span></div>
                                 <div><strong>{stores || "—"}</strong><span>lojas conectadas</span></div>
                             </div>
