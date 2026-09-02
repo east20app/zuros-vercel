@@ -6,7 +6,6 @@ import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicStoreCatalog } from "@/components/PublicStoreCatalog";
 import { FaqAccordion } from "@/components/FaqAccordion";
-import { getPlatformTelemetry } from "@root/src/integration/telemetry";
 import databases from "@root/src/databases";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -38,13 +37,9 @@ export default async function HomePage() {
         activeAppsPromise,
         storesPromise,
     ]);
-    const telemetry = getPlatformTelemetry({ limit: 0 });
-    const uptimeDays = Math.floor(telemetry.uptimeSeconds / 86400);
 
     return (
         <div className="home-shell relative min-h-screen overflow-x-clip text-white">
-            <div className="zuros-backdrop" aria-hidden />
-            <div className="zuros-grid" aria-hidden />
             <AnnouncementBar />
             <PublicNavbar user={user} pendingCount={pendingCount} />
             <main>
@@ -66,24 +61,20 @@ export default async function HomePage() {
 
                     <aside className="home-signal-wrap" aria-label="Resumo da operação ZUROS">
                         <div className="home-signal-panel animate-fade-up" style={{ animationDelay: "100ms" }}>
-                            <div className="home-signal-topline"><span>LIVE / PLATFORM PULSE</span><span className="home-signal-live"><i />online</span></div>
-                            <div className="home-signal-heading"><div><span className="home-signal-label">Seu centro de comando</span><strong>O que está acontecendo agora</strong></div><span className="home-signal-index">01</span></div>
-                            <div className="home-signal-chart" aria-hidden="true"><span style={{ height: "28%" }} /><span style={{ height: "44%" }} /><span style={{ height: "36%" }} /><span style={{ height: "61%" }} /><span style={{ height: "52%" }} /><span style={{ height: "78%" }} /><span style={{ height: "69%" }} /><span style={{ height: "92%" }} /><span style={{ height: "82%" }} /><span style={{ height: "100%" }} /></div>
+                            <div className="home-signal-topline"><span>VISÃO DO PRODUTO</span><span className="home-signal-live"><i />ativo</span></div>
+                            <div className="home-signal-heading"><div><span className="home-signal-label">Centro de controle</span><strong>O essencial da operação</strong></div></div>
                             <div className="home-signal-stats">
-                                <div><strong>{activeApps || "—"}</strong><span>apps ativos</span></div>
+                                <div><strong>{activeApps || "—"}</strong><span>aplicações ativas</span></div>
                                 <div><strong>{stores || "—"}</strong><span>lojas conectadas</span></div>
-                                <div><strong>{uptimeDays ? `${uptimeDays}d` : "OK"}</strong><span>infra estável</span></div>
                             </div>
-                            <div className="home-signal-log"><span className="home-log-time">agora</span><span>checkout, bot e atualizações no mesmo pulso</span><span className="home-log-arrow">↗</span></div>
                         </div>
-                        <div className="home-orbit home-orbit-one" aria-hidden="true" /><div className="home-orbit home-orbit-two" aria-hidden="true" />
                     </aside>
                 </section>
 
                 <section id="recursos" className="home-section home-catalog-section border-y border-white/[.07]">
                     <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:py-24">
                         <div className="home-section-heading grid gap-6 lg:grid-cols-[.9fr_1.1fr] lg:items-end">
-                            <div><p className="home-section-index">01 / APLICAÇÕES ZUROS</p><h2 className="home-section-title mt-4">Escolha o próximo módulo da sua operação.</h2></div>
+                            <div><p className="home-section-index">PRODUTOS</p><h2 className="home-section-title mt-4">Escolha o que sua operação precisa.</h2></div>
                             <p className="home-section-note max-w-md lg:justify-self-end">Planos mensais com infraestrutura, atualizações e painel de configuração conectados desde o primeiro acesso.</p>
                         </div>
                         <div className="mt-12">{catalogs.length ? <PublicStoreCatalog stores={catalogs} canPurchase={!!user} /> : <div className="zuros-card border-dashed py-14 text-center text-sm text-zinc-500">Novos produtos serão publicados em breve.</div>}</div>
@@ -92,14 +83,14 @@ export default async function HomePage() {
 
                 <section id="beneficios" className="home-section mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
                     <div className="grid gap-10 lg:grid-cols-[.78fr_1.22fr] lg:gap-20">
-                        <div><p className="home-section-index">02 / O SISTEMA</p><h2 className="home-section-title mt-4">Menos abas abertas. Mais leitura do que importa.</h2><p className="home-section-note mt-5 max-w-md">As funções que antes ficavam espalhadas entre comandos, planilhas e mensagens agora trabalham na mesma direção.</p></div>
-                        <div className="home-feature-grid">{features.map(([icon, title, description], index) => <article key={title} className="home-feature-card"><div className="home-feature-number">0{index + 1}</div><span className="home-feature-icon">{icon}</span><h3>{title}</h3><p>{description}</p><span className="home-feature-line" /></article>)}</div>
+                        <div><p className="home-section-index">RECURSOS</p><h2 className="home-section-title mt-4">Tudo no mesmo lugar.</h2><p className="home-section-note mt-5 max-w-md">Venda, configure e acompanhe suas aplicações sem espalhar a operação em várias ferramentas.</p></div>
+                        <div className="home-feature-grid">{features.map(([icon, title, description]) => <article key={title} className="home-feature-card"><span className="home-feature-icon">{icon}</span><h3>{title}</h3><p>{description}</p></article>)}</div>
                     </div>
                 </section>
 
-                <section className="mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8 lg:pb-28"><div className="home-manifesto"><span className="home-manifesto-mark">ZU</span><div><p className="home-section-index">03 / A IDEIA</p><h2>O painel não precisa parecer um painel.</h2><p>Precisa dar contexto, mostrar o próximo passo e desaparecer quando tudo está funcionando.</p></div><Link href={user ? "/dashboard" : "/login"} className="home-manifesto-link">{user ? "Ir para o painel" : "Entrar com Discord"}<span>↗</span></Link></div></section>
+                <section className="mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8 lg:pb-28"><div className="home-manifesto"><span className="home-manifesto-mark">ZU</span><div><p className="home-section-index">A IDEIA</p><h2>Clareza antes de complexidade.</h2><p>Precisa dar contexto, mostrar o próximo passo e desaparecer quando tudo está funcionando.</p></div><Link href={user ? "/dashboard" : "/login"} className="home-manifesto-link">{user ? "Ir para o painel" : "Entrar com Discord"}<span>↗</span></Link></div></section>
 
-                <section id="faq" className="home-section mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 lg:py-24"><p className="home-section-index">04 / DÚVIDAS FREQUENTES</p><h2 className="home-section-title mt-4">Antes de ligar a operação.</h2><div className="mt-9"><FaqAccordion /></div></section>
+                <section id="faq" className="home-section mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 lg:py-24"><p className="home-section-index">DÚVIDAS</p><h2 className="home-section-title mt-4">Antes de ligar a operação.</h2><div className="mt-9"><FaqAccordion /></div></section>
             </main>
             <PublicFooter isAuthenticated={!!user} />
         </div>
