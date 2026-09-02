@@ -1659,3 +1659,37 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus, selec
     .sales-section-heading { align-items: flex-start; flex-direction: column; }
     .sales-section-heading > span { text-align: left; }
 }
+
+
+/* Passe de clareza: os elementos Ease/Promisse permanecem, mas sem competir entre si. */
+body {
+    background-image: linear-gradient(180deg, #0b0b0d 0%, #0a0a0c 52%, #09090b 100%);
+    background-attachment: initial;
+}
+.zuros-backdrop {
+    opacity: .55;
+    background: radial-gradient(ellipse 56% 34% at 88% -8%, rgba(59,130,246,.075), transparent 70%), linear-gradient(to bottom, transparent, var(--background));
+}
+.zuros-grid { opacity: .1; }
+.zuros-card {
+    border-color: rgba(255,255,255,.075);
+    border-radius: .75rem;
+    background: #151517;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: 0 1px 0 rgba(255,255,255,.025) inset;
+}
+.zuros-card-lit::before { display: none; }
+.zuros-lift { transition: border-color 180ms ease, background-color 180ms ease; }
+.zuros-lift:hover { transform: none; border-color: rgba(59,130,246,.4); box-shadow: 0 1px 0 rgba(255,255,255,.025) inset; }
+.home-orbit { display: none; }
+.home-signal-panel { box-shadow: 0 24px 55px -38px rgba(0,0,0,.9); }
+.home-feature-grid { gap: 1rem; }
+.home-feature-card { background: #151517; box-shadow: none; }
+.home-section { scroll-margin-top: 6rem; }
+.home-manifesto { box-shadow: none; }
+.public-nav { box-shadow: 0 15px 35px -30px rgba(0,0,0,.95); }
+.dashboard-content, .sales-page { isolation: isolate; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
