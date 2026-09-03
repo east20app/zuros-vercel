@@ -383,9 +383,11 @@ export function Sidebar({
           ]
         : selectedBotId
         ? [
-              { icon: "left", label: "Meus Bots", href: "/dashboard", exact: true, section: "Meus Bots" },
-              { icon: "settings", label: "Abrir controles completos", href: `/dashboard/${selectedBotId}?tab=controles`, exact: true },
-              { icon: "dashboard", label: "Visão Geral", href: `/dashboard/${selectedBotId}`, exact: true, section: "Principal" },
+                  { icon: "left", label: "Minhas aplicações", href: "/dashboard", exact: true, section: "ZUROS" },
+                  { icon: "affiliate", label: "Adquirir aplicação", href: "/planos", exact: true, section: "App e Vendas" },
+                  { icon: "left", label: "Trocar aplicação", href: "/dashboard", exact: true },
+                  { icon: "settings", label: "Abrir controles completos", href: `/dashboard/${selectedBotId}?tab=controles`, exact: true },
+                  { icon: "dashboard", label: "Visão Geral", href: `/dashboard/${selectedBotId}`, exact: true, section: "Principal" },
               { icon: "admin", label: "Servidores", href: `/dashboard/${selectedBotId}/servidores`, exact: true, section: "Gerenciamento" },
               { icon: "invoice", label: "Pedidos", href: `/dashboard/${selectedBotId}/vendas/pedidos`, exact: true },
               { icon: "user", label: "Clientes", href: `/dashboard/${selectedBotId}/vendas/clientes`, exact: true },
