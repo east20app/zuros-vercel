@@ -1843,18 +1843,26 @@ body, .reference-home, .reference-plans, .reference-public-page { background: #0
   .zuros-sidebar-panel {
     width: 240px !important;
     min-width: 240px !important;
-    padding: 10px 7px !important;
-    background: #080809 !important;
+    padding: 16px 12px !important;
+    background: #0b0d0e !important;
     border-right: 1px solid #202024 !important;
   }
   .zuros-sidebar-panel > button[title="Recolher menu"] { display: none !important; }
   .zuros-sidebar-panel > div:first-of-type a { height: 28px !important; padding: 0 !important; justify-content: flex-start !important; }
   .zuros-sidebar-panel > div:first-of-type svg { width: 94px !important; height: 24px !important; }
-  .zuros-sidebar-panel > div:nth-of-type(2) { margin-top: 8px !important; display: block !important; padding: 5px 6px !important; border-radius: 8px !important; background: #111114 !important; border: 1px solid #29292d !important; }
+  .zuros-sidebar-panel > div:nth-of-type(2) { margin-top: 12px !important; display: block !important; padding: 8px 9px !important; border-radius: 3px !important; background: #15191a !important; border: 1px solid #292e2f !important; }
   .zuros-sidebar-panel > div:nth-of-type(2) a { display: none !important; }
   .zuros-sidebar-panel > div:nth-of-type(2) a:first-child { display: block !important; background: transparent !important; text-align: left !important; padding: 0 !important; font-size: 10px !important; font-weight: 600 !important; color: #e4e4e7 !important; }
   .zuros-sidebar-panel > div:nth-of-type(2) a:first-child::after { content: "Vendas"; display: block; font-size: 8px; font-weight: 400; color: #71717a; }
-  .zuros-sidebar-panel .sidebar-scrollbar { margin-top: 10px !important; padding-right: 0 !important; }
+  .zuros-sidebar-panel .sidebar-scrollbar { margin-top: 16px !important; padding-right: 2px !important; }
+  .zuros-sidebar-panel a { border-radius: 3px !important; font-size: 13px !important; line-height: 1.25 !important; }
+  .zuros-sidebar-panel .sidebar-scrollbar a { min-height: 30px !important; padding: 6px 9px !important; gap: 9px !important; }
+  .zuros-sidebar-panel .sidebar-scrollbar svg { width: 14px !important; height: 14px !important; }
+  .zuros-sidebar-panel p[class*="text-[10px]"] { font-size: 10px !important; letter-spacing: .12em !important; }
+  .zuros-sidebar-panel > aside { border-radius: 0 !important; }
+  .zuros-sidebar-panel [class*="rounded-xl"], .zuros-sidebar-panel [class*="rounded-2xl"] { border-radius: 3px !important; }
+  .zuros-sidebar-panel [class*="bg-black/70"] { background: #0b0d0e !important; backdrop-filter: none !important; }
+
   .zuros-sidebar-panel .sidebar-scrollbar > p { margin: 8px 4px 3px !important; padding: 0 !important; font-size: 7px !important; letter-spacing: .12em !important; color: #5c5c63 !important; }
   .zuros-sidebar-panel nav { gap: 1px !important; }
   .zuros-sidebar-panel nav > div > p { margin: 8px 4px 3px !important; padding: 0 !important; font-size: 7px !important; letter-spacing: .1em !important; color: #5c5c63 !important; }
