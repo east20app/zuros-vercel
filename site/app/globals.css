@@ -1889,3 +1889,20 @@ body, .reference-home, .reference-plans, .reference-public-page { background: #0
   .zuros-sidebar-panel > button[title="Sair da conta"] svg { width: 10px !important; height: 10px !important; }
   .zuros-sidebar-panel > button[title="Sair da conta"] img, .zuros-sidebar-panel > button[title="Sair da conta"] > span:first-child { width: 20px !important; height: 20px !important; }
 }
+
+
+.login-simple-shell { min-height: 100svh; display: grid; place-items: center; background: #0B0D0E; padding: 24px; }
+.login-simple-panel { width: min(100%, 390px); border: 1px solid #2a2f30; border-radius: 14px; background: #15191A; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.24); }
+.login-simple-logo { display: inline-flex; margin-bottom: 52px; }
+.login-simple-heading { margin-bottom: 24px; }
+.login-simple-eyebrow { color: #717a7c; font-size: 10px; font-weight: 700; letter-spacing: .14em; }
+.login-simple-heading h1 { margin: 8px 0 6px; color: #f4f5f5; font-size: 28px; font-weight: 650; letter-spacing: -.03em; }
+.login-simple-heading p, .login-simple-note { color: #899294; font-size: 13px; line-height: 1.55; }
+.login-simple-loading { display: grid; min-height: 46px; place-items: center; }
+.login-simple-note { margin: 16px 0 0; text-align: center; font-size: 11px; }
+.login-simple-back { display: block; margin-top: 24px; color: #899294; font-size: 12px; text-align: center; transition: color .18s ease; }
+.login-simple-back:hover { color: #D6FF63; }
+.login-simple-panel .login-discord-button { display: flex; min-height: 46px; width: 100%; align-items: center; gap: 10px; border: 1px solid #3b4244; border-radius: 8px; background: #1C2223; padding: 0 14px; color: #f4f5f5; font-size: 13px; font-weight: 600; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.login-simple-panel .login-discord-button:hover { border-color: #5B9CFF; background: #20282a; }
+.login-simple-panel .login-discord-button:active { transform: scale(.98); }
+@media (max-width: 430px) { .login-simple-shell { padding: 16px; } .login-simple-panel { padding: 22px; } .login-simple-logo { margin-bottom: 38px; } }
