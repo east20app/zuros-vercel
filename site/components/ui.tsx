@@ -431,3 +431,35 @@ export function ConfirmDialog({
         </Modal>
     );
 }
+
+
+/** Status compacto para listas operacionais e tabelas. */
+export function StatusChip({ status, label }: { status: string | null | undefined; label?: string }) {
+    const tone = getStatusTone(status);
+    const tones: Record<string, string> = {
+        green: "border-[#23a559]/30 bg-[#23a559]/10 text-[#58d68d]",
+        red: "border-[#f23f43]/30 bg-[#f23f43]/10 text-[#ff8a8d]",
+        amber: "border-[#f0b232]/30 bg-[#f0b232]/10 text-[#f8c25c]",
+        blue: "border-[#5B9CFF]/30 bg-[#5B9CFF]/10 text-[#8bb9ff]",
+        zinc: "border-white/[.10] bg-white/[.04] text-[#a1a1aa]",
+    };
+    return <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium ${tones[tone] || tones.zinc}`}><i className="h-1.5 w-1.5 rounded-full bg-current" />{label || getStatusLabel(status)}</span>;
+}
+
+export function MetricStrip({ items, className = "" }: { items: Array<{ label: string; value: ReactNode; detail?: ReactNode; tone?: "neutral" | "success" | "warning" | "danger" }>; className?: string }) {
+    const tones = { neutral: "text-white", success: "text-[#58d68d]", warning: "text-[#f8c25c]", danger: "text-[#ff8a8d]" };
+    return <div className={`grid overflow-hidden rounded-xl border border-white/[.08] bg-[#15191A] sm:grid-cols-2 xl:grid-cols-4 ${className}`}>{items.map((item) => <div key={item.label} className="min-w-0 border-b border-white/[.07] px-4 py-3 last:border-0 sm:nth-[2n]:border-b-0 xl:border-b-0 xl:border-r xl:last:border-r-0"><span className="block truncate text-[10px] font-medium uppercase tracking-[.12em] text-[#71717a]">{item.label}</span><strong className={`mt-1 block truncate text-xl font-semibold tracking-tight ${tones[item.tone || "neutral"]}`}>{item.value}</strong>{item.detail && <span className="mt-0.5 block truncate text-[11px] text-[#71717a]">{item.detail}</span>}</div>)}</div>;
+}
+
+export function DataToolbar({ search, onSearch, placeholder = "Buscar...", filters, actions }: { search?: string; onSearch?: (value: string) => void; placeholder?: string; filters?: ReactNode; actions?: ReactNode }) {
+    return <div className="flex flex-col gap-2 rounded-xl border border-white/[.08] bg-[#15191A] p-2 sm:flex-row sm:items-center"><div className="relative min-w-0 flex-1"><input aria-label={placeholder} value={search ?? ""} onChange={(event) => onSearch?.(event.target.value)} placeholder={placeholder} className={`${inputClass} h-9 border-transparent bg-[#0f1112] py-2 text-xs focus:border-[#5B9CFF] focus:bg-[#0f1112]`} /></div>{filters && <div className="flex flex-wrap items-center gap-2">{filters}</div>}{actions && <div className="flex items-center gap-2 sm:ml-auto">{actions}</div>}</div>;
+}
+
+export function ResourceRow({ icon, title, description, meta, status, actions, href }: { icon?: ReactNode; title: string; description?: ReactNode; meta?: ReactNode; status?: ReactNode; actions?: ReactNode; href?: string }) {
+    const content = <><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/[.08] bg-[#1C2223] text-[#a1a1aa]">{icon || <Icon name="dashboard" className="h-4 w-4" />}</span><span className="min-w-0 flex-1"><strong className="block truncate text-sm font-medium text-[#f4f4f5]">{title}</strong>{description && <span className="mt-0.5 block truncate text-xs text-[#71717a]">{description}</span>}</span>{status && <span className="shrink-0">{status}</span>}{meta && <span className="hidden shrink-0 text-xs text-[#71717a] md:block">{meta}</span>}{actions && <span className="shrink-0">{actions}</span>}</>;
+    return href ? <Link href={href} className="group flex min-w-0 items-center gap-3 border-b border-white/[.07] px-3 py-3 transition-colors last:border-0 hover:bg-white/[.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B9CFF]">{content}</Link> : <div className="group flex min-w-0 items-center gap-3 border-b border-white/[.07] px-3 py-3 last:border-0">{content}</div>;
+}
+
+export function EntityList({ children, className = "" }: { children: ReactNode; className?: string }) {
+    return <div className={`overflow-hidden rounded-xl border border-white/[.08] bg-[#15191A] ${className}`}>{children}</div>;
+}
