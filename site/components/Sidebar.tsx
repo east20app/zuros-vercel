@@ -454,7 +454,7 @@ export function Sidebar({
                         onClick={() => setOpen(false)}
                         href={link.href}
                         className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
-                            (link.exact ? pathname === link.href : routeIsActive(pathname, link.href)) ? "border-violet-500/25 bg-violet-500/10 text-violet-100 shadow-inner" : "border-transparent text-zinc-400 hover:bg-zinc-900/50 hover:text-white"
+                            (link.exact ? pathname === link.href : routeIsActive(pathname, link.href)) ? "border-[var(--accent)]/20 bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "border-transparent text-zinc-400 hover:bg-white/[.04] hover:text-white"
                         }`}
                     >
                         <span className="grid h-5 w-5 shrink-0 place-items-center text-zinc-400">

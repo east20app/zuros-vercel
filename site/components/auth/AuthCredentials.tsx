@@ -87,7 +87,7 @@ export default function AuthCredentials({ licenseId }: AuthCredentialsProps) {
         <button
           onClick={handleRotate}
           disabled={isRotating}
-          className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+          className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
         >
           {isRotating ? "Rotating..." : "Rotate Key"}
         </button>

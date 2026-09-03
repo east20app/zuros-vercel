@@ -55,7 +55,7 @@ export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
                     const href = option.path ? `/dashboard/${appId}/${option.path}` : `/dashboard/${appId}/config/${option.module}`;
                     const state = option.module ? status[option.module] : "Abrir rendimentos";
                     return (
-                        <Link key={option.label} href={href} className="group flex min-w-0 items-center gap-3 rounded-xl border border-white/[.055] bg-white/[.025] p-4 transition hover:-translate-y-px hover:border-violet-500/35 hover:bg-violet-500/[.055] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
+                        <Link key={option.label} href={href} className="group flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:-translate-y-px hover:border-[var(--accent)]/25 hover:bg-[var(--accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
                             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#7c3aed]/15 text-[#949cf7] transition group-hover:bg-[#7c3aed] group-hover:text-white"><Icon name={option.icon} /></span>
                             <span className="min-w-0 flex-1">
                                 <span className="block truncate text-sm font-semibold text-[#f2f3f5]">{option.label}</span>

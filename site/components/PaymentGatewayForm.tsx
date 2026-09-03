@@ -121,7 +121,7 @@ export function PaymentGatewayForm({
             )}
 
             {gateway === "promisse" && allowedGateways.includes("promisse") && (
-                <div className="space-y-3 rounded-xl border border-violet-500/15 bg-violet-500/[.045] p-4">
+                <div className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--accent-soft)] p-4">
                     <Field label="API Key PromissePay" hint="Chave secreta com os escopos payments.create e payments.read. Ela fica protegida e nunca é enviada ao navegador depois de salva.">
                         <SecretInput value={promisseApiKey} onChange={setPromisseApiKey} placeholder="sk_live_..." />
                     </Field>
@@ -131,7 +131,7 @@ export function PaymentGatewayForm({
             )}
 
             {gateway === "sharpify" && allowedGateways.includes("sharpify") && (
-                <div className="space-y-3 rounded-xl border border-violet-500/15 bg-violet-500/[.045] p-4">
+                <div className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--accent-soft)] p-4">
                     <Field label="Client ID Sharpify" hint="Credencial privada com CREATE_PAYMENT_LINK e GET_PAYMENT_LINK.">
                         <SecretInput value={sharpifyClientId} onChange={setSharpifyClientId} placeholder="SHARPIFY_CLIENT_ID_..." />
                     </Field>

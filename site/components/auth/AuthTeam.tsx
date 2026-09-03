@@ -100,7 +100,7 @@ export default function AuthTeam({ licenseId }: AuthTeamProps) {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "admin":
-        return "bg-violet-500/15 border-violet-500/30 text-violet-300";
+        return "bg-[var(--accent-soft)] border-[var(--accent)]/30 text-[var(--accent)]";
       case "moderator":
         return "bg-amber-500/15 border-amber-500/30 text-amber-300";
       default:
@@ -126,12 +126,12 @@ export default function AuthTeam({ licenseId }: AuthTeamProps) {
             value={inviteId}
             onChange={(e) => setInviteId(e.target.value)}
             placeholder="Discord User ID"
-            className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           />
           <select
             value={inviteRole}
             onChange={(e) => setInviteRole(e.target.value)}
-            className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           >
             {roleOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -142,7 +142,7 @@ export default function AuthTeam({ licenseId }: AuthTeamProps) {
           <button
             onClick={handleInvite}
             disabled={isInviting || !inviteId.trim()}
-            className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+            className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
           >
             {isInviting ? "Inviting..." : "Invite"}
           </button>
@@ -184,7 +184,7 @@ export default function AuthTeam({ licenseId }: AuthTeamProps) {
                           className="h-7 w-7 rounded-full"
                         />
                       ) : (
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600/20 text-[10px] text-violet-300">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[10px] text-[var(--accent)]">
                           {member.username.charAt(0).toUpperCase()}
                         </div>
                       )}

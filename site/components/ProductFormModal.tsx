@@ -90,7 +90,7 @@ export function ProductFormModal({
                 <Field label="Tipo do produto">
                     <select className={inputClass} value={productType} onChange={(e) => setProductType(e.target.value as "bot" | "auth" | "complete")}><option value="bot">Bot Discord</option><option value="auth">ZUROS Auth</option><option value="complete">Bot + ZUROS Auth</option></select>
                 </Field>
-                {productType !== "bot" && <div className="grid gap-3 rounded-xl border border-violet-500/20 bg-violet-500/5 p-4 sm:grid-cols-3"><Field label="Plano Auth"><select className={inputClass} value={authPlan} onChange={(e) => setAuthPlan(e.target.value as "basic" | "cloud" | "pro")}><option value="basic">Auth</option><option value="cloud">Bot + Auth</option><option value="pro">Completo</option></select></Field><Field label="Servidores"><input className={inputClass} type="number" min="1" value={authServers} onChange={(e) => setAuthServers(e.target.value)} /></Field><Field label="Usuários verificados"><input className={inputClass} type="number" min="1" value={authUsers} onChange={(e) => setAuthUsers(e.target.value)} /></Field><Field label="Recursos Auth" hint="Um por linha"><textarea className={`${inputClass} min-h-24`} value={authFeatures} onChange={(e) => setAuthFeatures(e.target.value)} /></Field></div>}
+                {productType !== "bot" && <div className="grid gap-3 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent-soft)] p-4 sm:grid-cols-3"><Field label="Plano Auth"><select className={inputClass} value={authPlan} onChange={(e) => setAuthPlan(e.target.value as "basic" | "cloud" | "pro")}><option value="basic">Auth</option><option value="cloud">Bot + Auth</option><option value="pro">Completo</option></select></Field><Field label="Servidores"><input className={inputClass} type="number" min="1" value={authServers} onChange={(e) => setAuthServers(e.target.value)} /></Field><Field label="Usuários verificados"><input className={inputClass} type="number" min="1" value={authUsers} onChange={(e) => setAuthUsers(e.target.value)} /></Field><Field label="Recursos Auth" hint="Um por linha"><textarea className={`${inputClass} min-h-24`} value={authFeatures} onChange={(e) => setAuthFeatures(e.target.value)} /></Field></div>}
                 {productType !== "auth" && <>                <Field label="Runtime">
                     <select className={inputClass} value={runtime} onChange={(e) => setRuntime(e.target.value)}>
                         {VALID_RUNTIMES.map((r) => (
@@ -141,7 +141,7 @@ export function ProductFormModal({
                                 {banner && <Image unoptimized src={banner} width={640} height={160} alt={`Preview do banner de ${name || "produto"}`} className="mt-3 max-h-40 w-full rounded object-cover" />}
                                 {video && <p className="mt-2 truncate text-xs text-sky-400">🎬 {video}</p>}
                             </div>
-                            <button type="button" className="mt-2 rounded-lg bg-gradient-to-b from-indigo-400 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(99,102,241,.6)] transition hover:from-indigo-300 hover:to-indigo-500">{buttonName || "Comprar"}</button>
+                            <button type="button" className="mt-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[#091116] transition hover:bg-[var(--accent-strong)]">{buttonName || "Comprar"}</button>
                         </div>
                     </div>
                 </div>

@@ -80,7 +80,7 @@ export default function AuthVerified({ licenseId }: AuthVerifiedProps) {
             setPage(1);
           }}
           placeholder="Search by username or ID..."
-          className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+          className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
         />
         <select
           value={statusFilter}
@@ -88,7 +88,7 @@ export default function AuthVerified({ licenseId }: AuthVerifiedProps) {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+          className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
         >
           <option value="all">All Status</option>
           <option value="verified">Verified</option>
@@ -133,7 +133,7 @@ export default function AuthVerified({ licenseId }: AuthVerifiedProps) {
                             className="h-7 w-7 rounded-full"
                           />
                         ) : (
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600/20 text-[10px] text-violet-300">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[10px] text-[var(--accent)]">
                             {user.username.charAt(0).toUpperCase()}
                           </div>
                         )}

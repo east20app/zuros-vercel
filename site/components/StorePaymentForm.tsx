@@ -10,7 +10,7 @@ export function StorePaymentForm({ appId, settings }: { appId: string; settings:
         <div className="grid gap-4 lg:grid-cols-3">
             <Card className="flex flex-col gap-4 lg:col-span-2">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                    <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
+                    <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                     Gateway de pagamento
                 </h3>
                 <PaymentGatewayForm settings={settings} allowedGateways={["efi", "manual"]} onSave={async (gateway, credentials) => { await saveStorePaymentConfig(appId, gateway, credentials); }} />

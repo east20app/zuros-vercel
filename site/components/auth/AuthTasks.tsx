@@ -58,7 +58,7 @@ export default function AuthTasks({ licenseId }: AuthTasksProps) {
       case "failed":
         return "bg-red-500/15 border-red-500/30 text-red-300";
       case "queued":
-        return "bg-violet-500/15 border-violet-500/30 text-violet-300";
+        return "bg-[var(--accent-soft)] border-[var(--accent)]/30 text-[var(--accent)]";
       default:
         return "bg-zinc-500/15 border-zinc-500/30 text-zinc-400";
     }
@@ -115,7 +115,7 @@ export default function AuthTasks({ licenseId }: AuthTasksProps) {
                         ? "bg-red-500"
                         : task.status === "completed"
                         ? "bg-emerald-500"
-                        : "bg-violet-600"
+                        : "bg-[var(--accent)]"
                     }`}
                     style={{ width: `${progress}%` }}
                   />

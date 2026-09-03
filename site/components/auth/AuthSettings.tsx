@@ -173,7 +173,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
               setSettings((prev) => ({ ...prev, auth_name: e.target.value }))
             }
             placeholder="My Auth"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           />
         </div>
 
@@ -184,7 +184,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
             onChange={(e) =>
               setSettings((prev) => ({ ...prev, guild_id: e.target.value }))
             }
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           >
             <option value="">Select a guild</option>
             {guilds.map((g) => (
@@ -205,7 +205,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
                 setSettings((prev) => ({ ...prev, verified_role_id: e.target.value }))
               }
               placeholder="Role ID"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
 
@@ -218,7 +218,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
                 setSettings((prev) => ({ ...prev, autorole_id: e.target.value }))
               }
               placeholder="Role ID"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
 
@@ -231,7 +231,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
                 setSettings((prev) => ({ ...prev, log_channel_id: e.target.value }))
               }
               placeholder="Channel ID"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
           <button
             onClick={handleSaveSettings}
             disabled={isSavingSettings}
-            className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+            className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
           >
             {isSavingSettings ? "Salvando..." : "Salvar identidade"}
           </button>
@@ -265,7 +265,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
                 type="button"
                 onClick={() => toggleDef(def.key)}
                 className={`relative h-5 w-9 rounded-full transition-colors ${
-                  definitions[def.key] ? "bg-violet-600" : "bg-zinc-700"
+                  definitions[def.key] ? "bg-[var(--accent)]" : "bg-zinc-700"
                 }`}
               >
                 <div
@@ -293,7 +293,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
                 type="button"
                 onClick={() => toggleDef(def.key)}
                 className={`relative h-5 w-9 rounded-full transition-colors ${
-                  definitions[def.key] ? "bg-violet-600" : "bg-zinc-700"
+                  definitions[def.key] ? "bg-[var(--accent)]" : "bg-zinc-700"
                 }`}
               >
                 <div
@@ -321,7 +321,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
                 type="button"
                 onClick={() => toggleDef(def.key)}
                 className={`relative h-5 w-9 rounded-full transition-colors ${
-                  definitions[def.key] ? "bg-violet-600" : "bg-zinc-700"
+                  definitions[def.key] ? "bg-[var(--accent)]" : "bg-zinc-700"
                 }`}
               >
                 <div
@@ -338,7 +338,7 @@ export default function AuthSettings({ licenseId }: AuthSettingsProps) {
           <button
             onClick={handleSaveDefinitions}
             disabled={isSavingDefs}
-            className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+            className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
           >
             {isSavingDefs ? "Salvando..." : "Salvar políticas"}
           </button>

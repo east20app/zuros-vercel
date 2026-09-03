@@ -45,10 +45,10 @@ export function DeviceNotificationSettings() {
     return (
         <div className="grid gap-4 md:grid-cols-2">
             <Card className="flex flex-col">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-violet-500/15 text-violet-300"><Icon name="apps" /></span>
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><Icon name="apps" /></span>
                 <h2 className="mt-4 text-lg font-semibold text-white">Aplicativo ZUROS</h2>
                 <p className="mt-2 flex-1 text-sm leading-6 text-zinc-400">Instale o painel no celular para abrir em tela cheia, como um aplicativo.</p>
-                {standalone ? <p className="mt-5 text-sm font-medium text-emerald-400">✓ Aplicativo instalado neste aparelho</p> : installable ? <Button className="mt-5" onClick={() => void install()}>Instalar aplicativo</Button> : ios ? <div className="mt-5 rounded-xl border border-violet-500/20 bg-violet-500/[.06] p-3 text-sm text-zinc-300">No Safari, toque em Compartilhar e depois em <b>Adicionar à Tela de Início</b>.</div> : <p className="mt-5 text-xs text-zinc-500">Abra esta página no Chrome ou Edge para instalar.</p>}
+                {standalone ? <p className="mt-5 text-sm font-medium text-[var(--success)]">✓ Aplicativo instalado neste aparelho</p> : installable ? <Button className="mt-5" onClick={() => void install()}>Instalar aplicativo</Button> : ios ? <div className="mt-5 rounded-xl border border-[var(--accent)]/20 bg-[var(--accent-soft)] p-3 text-sm text-zinc-300">No Safari, toque em Compartilhar e depois em <b>Adicionar à Tela de Início</b>.</div> : <p className="mt-5 text-xs text-zinc-500">Abra esta página no Chrome ou Edge para instalar.</p>}
             </Card>
             <Card className="flex flex-col">
                 <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500/15 text-emerald-300"><Icon name="bell" /></span>

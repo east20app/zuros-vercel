@@ -14,7 +14,7 @@ export default function PaymentError({ error, reset }: { error: Error & { digest
             <h1 className="text-2xl font-semibold text-white">Não foi possível abrir o pagamento</h1>
             <p className="mt-3 max-w-md text-sm leading-6 text-zinc-400">O carrinho não pôde ser carregado. Tente novamente ou volte aos planos para criar um novo pagamento.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <button type="button" onClick={() => reset()} className="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-500">Tentar novamente</button>
+                <button type="button" onClick={() => reset()} className="rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[#091116] hover:bg-[var(--accent-strong)]">Tentar novamente</button>
                 <Link href="/planos" className="rounded-lg border border-white/15 px-4 py-2.5 text-sm font-medium text-zinc-200 hover:border-white/30">Voltar aos planos</Link>
             </div>
         </main>

@@ -41,7 +41,7 @@ export async function Navbar() {
                                         width={20}
                                         height={20}
                                         unoptimized
-                                        className="h-5 w-5 rounded-full ring-1 ring-violet-500/40"
+                                        className="h-5 w-5 rounded-full ring-1 ring-[var(--accent)]/40"
                                         referrerPolicy="no-referrer"
                                     />
                                 )}

@@ -84,7 +84,7 @@ export default function AuthLogs({ licenseId }: AuthLogsProps) {
             setPage(1);
           }}
           placeholder="Search by user, action, or ID..."
-          className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+          className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
         />
         <select
           value={categoryFilter}
@@ -92,7 +92,7 @@ export default function AuthLogs({ licenseId }: AuthLogsProps) {
             setCategoryFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+          className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
         >
           <option value="all">All Categories</option>
           {categories.map((cat) => (
@@ -107,7 +107,7 @@ export default function AuthLogs({ licenseId }: AuthLogsProps) {
             setResultFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+          className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
         >
           <option value="all">All Results</option>
           {results.map((res) => (

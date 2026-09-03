@@ -123,7 +123,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
             }
             className="sr-only peer"
           />
-          <div className="relative h-5 w-9 rounded-full bg-zinc-700 peer-checked:bg-violet-600 transition-colors">
+          <div className="relative h-5 w-9 rounded-full bg-zinc-700 peer-checked:bg-[var(--accent)] transition-colors">
             <div className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4" />
           </div>
           <span className="text-xs text-zinc-400">Enabled</span>
@@ -151,7 +151,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
           }
           rows={3}
           placeholder="Message content..."
-          className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500 resize-none"
+          className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)] resize-none"
         />
       </div>
 
@@ -166,7 +166,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
               value={message.embed.title}
               onChange={(e) => updateEmbed("title", e.target.value)}
               placeholder="Embed title"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
 
@@ -188,7 +188,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
             onChange={(e) => updateEmbed("description", e.target.value)}
             rows={3}
             placeholder="Embed description"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500 resize-none"
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)] resize-none"
           />
         </div>
 
@@ -200,7 +200,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
               value={message.embed.image_url}
               onChange={(e) => updateEmbed("image_url", e.target.value)}
               placeholder="https://..."
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
 
@@ -211,7 +211,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
               value={message.embed.thumbnail_url}
               onChange={(e) => updateEmbed("thumbnail_url", e.target.value)}
               placeholder="https://..."
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
             value={message.embed.footer_text}
             onChange={(e) => updateEmbed("footer_text", e.target.value)}
             placeholder="Footer text"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           />
         </div>
       </div>
@@ -239,7 +239,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
               value={message.button.label}
               onChange={(e) => updateButton("label", e.target.value)}
               placeholder="Verify"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
 
@@ -250,7 +250,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
               value={message.button.emoji}
               onChange={(e) => updateButton("emoji", e.target.value)}
               placeholder="✅"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
           </div>
 
@@ -259,7 +259,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
             <select
               value={message.button.style}
               onChange={(e) => updateButton("style", e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             >
               <option value="PRIMARY">Primary</option>
               <option value="SECONDARY">Secondary</option>
@@ -275,7 +275,7 @@ export default function AuthMessage({ licenseId }: AuthMessageProps) {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+          className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
         >
           {isSaving ? "Saving..." : "Save Message"}
         </button>

@@ -17,7 +17,7 @@ export default async function StoreExtractsPage({ params }: { params: Promise<{ 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <div className="flex items-center gap-2.5">
-                        <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
+                        <span className="h-6 w-1 rounded-full bg-[var(--accent)]" />
                         <h1 className="text-2xl font-bold tracking-tight text-white">Extrato</h1>
                     </div>
                     <p className="mt-1.5 text-sm text-zinc-500">Saldo e movimentações da loja.</p>
@@ -27,12 +27,12 @@ export default async function StoreExtractsPage({ params }: { params: Promise<{ 
 
             <div className="grid gap-6 lg:grid-cols-3">
                 <Card className="flex flex-col gap-4 lg:col-span-1">
-                    <h2 className="flex items-center gap-2 text-sm font-semibold text-white"><span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />Ajustar saldo</h2>
+                    <h2 className="flex items-center gap-2 text-sm font-semibold text-white"><span className="h-4 w-1 rounded-full bg-[var(--accent)]" />Ajustar saldo</h2>
                     <BalanceForm storeId={resolvedParams.storeId} />
                 </Card>
 
                 <Card className="flex flex-col gap-3 lg:col-span-2">
-                    <h2 className="flex items-center gap-2 text-sm font-semibold text-white"><span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />Movimentações</h2>
+                    <h2 className="flex items-center gap-2 text-sm font-semibold text-white"><span className="h-4 w-1 rounded-full bg-[var(--accent)]" />Movimentações</h2>
                     {extracts.length === 0 ? (
                         <Empty text="Nenhuma movimentação." />
                     ) : (
@@ -66,7 +66,7 @@ export default async function StoreExtractsPage({ params }: { params: Promise<{ 
             </div>
 
             <Card className="flex flex-col gap-3">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-white"><span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />Vendas recentes</h2>
+                <h2 className="flex items-center gap-2 text-sm font-semibold text-white"><span className="h-4 w-1 rounded-full bg-[var(--accent)]" />Vendas recentes</h2>
                 {sales.length === 0 ? (
                     <Empty text="Nenhuma venda registrada." />
                 ) : (

@@ -28,7 +28,7 @@ export function StoreCatalog({ stores }: { stores: StoreCatalogDTO[] }) {
         <div className="space-y-8">
             {stores.map((store) => (
                 <section key={store.id}>
-                    <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white"><i className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />{store.name}</h2>
+                    <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white"><i className="h-4 w-1 rounded-full bg-[var(--accent)]" />{store.name}</h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {store.products.filter((product) => product.prices.length > 0).map((product) => {
                             const plan = selected[product.id] || product.prices[0].plan;

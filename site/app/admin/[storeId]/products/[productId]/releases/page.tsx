@@ -40,7 +40,7 @@ export default async function ProductReleasesPage({ params }: { params: Promise<
         {product.errorApplications > 0 ? <div className="rounded-xl border border-red-500/20 bg-red-500/[.06] px-4 py-3 text-sm text-red-200">Existem bots com erro. Use “Atualizar todos os bots” para reenviar a release atual preservando os arquivos protegidos.</div> : null}
 
         <Card>
-            <div className="mb-4"><h2 className="flex items-center gap-2 font-semibold text-white"><span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />Enviar nova release</h2><p className="mt-1 text-sm text-zinc-500">ZIP de até 50 MB. O arquivo é validado e recebe uma versão automaticamente.</p></div>
+            <div className="mb-4"><h2 className="flex items-center gap-2 font-semibold text-white"><span className="h-4 w-1 rounded-full bg-[var(--accent)]" />Enviar nova release</h2><p className="mt-1 text-sm text-zinc-500">ZIP de até 50 MB. O arquivo é validado e recebe uma versão automaticamente.</p></div>
             <ReleaseUploader storeId={storeId} productId={product.productId} disabled={product.used >= product.limit} />
             {product.used >= product.limit ? <p className="mt-2 text-sm text-amber-400">Remova uma versão antiga antes de enviar outra release.</p> : null}
         </Card>

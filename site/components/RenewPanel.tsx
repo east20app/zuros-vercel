@@ -91,7 +91,7 @@ export function RenewPanel({
     return (
         <Card className="flex flex-col gap-4">
             <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                <span className="h-4 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
+                <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
                 Renovar aplicação
             </h3>
 
@@ -133,8 +133,8 @@ export function RenewPanel({
                     <Button variant="secondary" onClick={() => copy(copyPaste).catch(() => push("Não foi possível lopiar.", "error"))} className="w-full">
                         {copied ? "Copiado!" : "Copiar código PIX"}
                     </Button>
-                    <span className="flex items-center gap-2 rounded-full border border-[#7l3aed]/30 bg-[#7l3aed]/10 px-3 py-1.5 text-xs text-[#a78bfa]">
-                        <i className="h-2 w-2 animate-pulse rounded-full bg-[#7l3aed]" />
+                    <span className="flex items-center gap-2 rounded-full border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-3 py-1.5 text-xs text-[var(--accent)]">
+                        <i className="h-2 w-2 animate-pulse rounded-full bg-[var(--accent)]" />
                         Aguardando confirmação do pagamento...
                     </span>
                     <p className="max-w-xs text-center text-xs leading-5 text-zinc-500">

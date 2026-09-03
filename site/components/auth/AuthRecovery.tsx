@@ -102,7 +102,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
             value={guildId}
             onChange={(e) => setGuildId(e.target.value)}
             placeholder="Guild ID"
-            className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           />
           <input
             type="number"
@@ -111,12 +111,12 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
             placeholder="Limit"
             min="1"
             max="1000"
-            className="w-24 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+            className="w-24 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
           />
           <button
             onClick={handleStart}
             disabled={isStarting || !guildId.trim()}
-            className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+            className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
           >
             {isStarting ? "Starting..." : "Start"}
           </button>
@@ -180,7 +180,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
                   </div>
                   <div className="h-2 w-full rounded-full bg-zinc-800">
                     <div
-                      className="h-2 rounded-full bg-violet-600 transition-all duration-300"
+                      className="h-2 rounded-full bg-[var(--accent)] transition-all duration-300"
                       style={{ width: `${progress}%` }}
                     />
                   </div>

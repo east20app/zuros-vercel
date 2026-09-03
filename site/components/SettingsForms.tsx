@@ -67,7 +67,7 @@ export function CamposTokenForm({ configured, masked }: { configured: boolean; m
                 </div>
             </Field>
 
-            <div className="flex flex-col gap-3 rounded-xl border border-indigo-500/15 bg-indigo-500/[.05] p-4 text-xs leading-5 text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-xs leading-5 text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
                 <p>A chave nunca será exibida novamente. Depois de salvar uma chave válida, o worker poderá processar as atualizações pendentes.</p>
                 <Button type="submit" disabled={busy || !token.trim()}>
                     {busy ? <Spinner /> : null}

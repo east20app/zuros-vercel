@@ -101,7 +101,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
         <h2 className="text-lg font-semibold text-white">Auth Gifts</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500"
+          className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)]"
         >
           {showForm ? "Cancel" : "Create Gift"}
         </button>
@@ -122,19 +122,19 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               placeholder="Gift name"
-              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
             <input
               type="text"
               value={formRoleId}
               onChange={(e) => setFormRoleId(e.target.value)}
               placeholder="Role ID"
-              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
             <button
               onClick={handleCreate}
               disabled={isCreating || !formName.trim() || !formRoleId.trim()}
-              className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40"
+              className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
             >
               {isCreating ? "Creating..." : "Create"}
             </button>

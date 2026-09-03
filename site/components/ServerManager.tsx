@@ -33,7 +33,7 @@ export function ServerManager({ appId, botId, guilds }: { appId: string; botId: 
             <div className="min-w-0">
                 <label htmlFor="main-server" className="mb-2 block text-sm font-semibold text-white">Servidor principal</label>
                 <p className="mb-3 text-xs text-zinc-500">O painel, a loja e as automações usam somente o servidor principal selecionado.</p>
-                <select id="main-server" value={serverId} onChange={(event) => setServerId(event.target.value)} className="h-11 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 text-base text-zinc-200 outline-none focus:border-violet-500" disabled={!guilds.length}>
+                <select id="main-server" value={serverId} onChange={(event) => setServerId(event.target.value)} className="h-11 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 text-base text-zinc-200 outline-none focus:border-[var(--accent)]" disabled={!guilds.length}>
                     {!guilds.length ? <option value="">Adicione o bot a um servidor</option> : null}
                     {guilds.map((guild) => <option key={guild.id} value={guild.id}>{guild.name}</option>)}
                 </select>

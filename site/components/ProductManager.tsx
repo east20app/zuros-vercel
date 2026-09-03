@@ -18,7 +18,7 @@ export function ProductManager({ storeId, products }: { storeId: string; product
             <div className="flex items-center justify-between">
                 <div>
                     <div className="flex items-center gap-2.5">
-                        <span className="h-6 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600" />
+                        <span className="h-6 w-1 rounded-full bg-[var(--accent)]" />
                         <h1 className="text-2xl font-bold tracking-tight text-white">Produtos</h1>
                     </div>
                     <p className="mt-1.5 text-sm text-zinc-500">{products.length} produto(s)</p>

@@ -77,7 +77,7 @@ export default function AuthServers({ licenseId }: AuthServersProps) {
                 className="h-10 w-10 rounded-full"
               />
             ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600/20 text-sm font-bold text-violet-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent-soft)] text-sm font-bold text-[var(--accent)]">
                 {guild.name.charAt(0)}
               </div>
             )}
