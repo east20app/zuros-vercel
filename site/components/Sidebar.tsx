@@ -27,14 +27,14 @@ const routeIsActive = (pathname: string, href: string) =>
     pathname === href || (!exactRoutes.has(href) && pathname.startsWith(`${href}/`));
 
 const PANEL_RAIL_ITEMS = [
-    { module: "loja", label: "Configurar Loja" },
-    { module: "tickets", label: "Gerenciar Ticket" },
-    { module: "vendas", label: "Ver Rendimento" },
-    { module: "customizacao", label: "Personalização" },
+    { module: "loja", label: "Configurar loja" },
+    { module: "tickets", label: "Gerenciar tickets" },
+    { module: "vendas", label: "Vendas" },
+    { module: "customizacao", label: "Tokens e nome" },
     { module: "automacoes", label: "Automações" },
-    { module: "cloud", label: "DROX Cloud" },
-    { module: "mensagens", label: "Mensagens" },
-    { module: "protecao", label: "Proteção do Servidor" },
+    { module: "cloud", label: "PromisseCloud" },
+    { module: "mensagens", label: "Extensões" },
+    { module: "protecao", label: "Proteção do servidor" },
     { module: "giveaways", label: "Sorteios" },
     { module: "configuracoes", label: "Configurações" },
 ] as const;
