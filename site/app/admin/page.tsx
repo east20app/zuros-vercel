@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Empty, UserChip } from "@/components/ui";
+import { Empty, MetricStrip, PageHeader, UserChip } from "@/components/ui";
 import { PaymentActions } from "@/components/PaymentActions";
 import { getAdminOverview, listAdminStores, listPendingPayments } from "@/lib/actions/admin.actions";
 import { formatDate, formatMoney } from "@/lib/status";
@@ -23,7 +23,6 @@ export default async function AdminOverviewPage() {
     const pendingTotal = renew.length + buy.length;
     const totalApplications = overview.applicationsCount;
     const totalProducts = overview.productsCount;
-    const recentAdds = overview.recentExtracts.filter((entry) => entry.action === "add").length;
     const adminMetrics = [
         { label: "Lojas na operação", value: overview.storesCount, detail: "Ambientes conectados", tone: "lime", mark: "01" },
         { label: "Saldo consolidado", value: formatMoney(overview.balance), detail: "Disponível entre lojas", tone: "green", mark: "02" },
@@ -33,35 +32,8 @@ export default async function AdminOverviewPage() {
 
     return (
         <div className="admin-overview-v2">
-            <section className="admin-hero-v2">
-                <div>
-                    <p className="admin-kicker"><span />CONTROL ROOM / ADMIN</p>
-                    <h1>O negócio por<br /><span>trás da operação.</span></h1>
-                    <p className="admin-hero-copy">Uma leitura consolidada das suas lojas, pagamentos e movimentações. Entre em cada frente quando houver uma decisão para tomar.</p>
-                </div>
-                <div className="admin-hero-aside">
-                    <span className="admin-hero-aside-label">Ritmo do ambiente</span>
-                    <strong>{pendingTotal ? "Revisão pendente" : "Operação estável"}</strong>
-                    <small>{pendingTotal ? `${pendingTotal} ${pendingTotal === 1 ? "item pede" : "itens pedem"} uma decisão` : `${recentAdds} movimentações positivas recentes`}</small>
-                    <div className="admin-hero-bars" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
-                </div>
-                <div className="admin-hero-actions">
-                    {stores.length === 0 ? <CreateStoreButton /> : <Link className="admin-primary-action" href={`/admin/${stores[0].id}`}>Abrir primeira loja <span>↗</span></Link>}
-                    <Link className="admin-secondary-action" href="/admin/settings">Configurações <span>↗</span></Link>
-                </div>
-                <div className="admin-hero-foot"><span><i />Visão consolidada</span><span><i />Atualização em tempo real</span><span><i />Acesso restrito</span></div>
-            </section>
-
-            <section className="admin-metrics-v2" aria-label="Resumo administrativo">
-                {adminMetrics.map((metric) => (
-                    <article className={`admin-metric-v2 admin-metric-${metric.tone}`} key={metric.label}>
-                        <div className="admin-metric-top"><span>{metric.mark}</span><i /></div>
-                        <span className="admin-metric-label">{metric.label}</span>
-                        <strong>{metric.value}</strong>
-                        <small>{metric.detail}</small>
-                    </article>
-                ))}
-            </section>
+            <PageHeader title="Administração" subtitle="Lojas, pagamentos e movimentações em um só lugar." actions={<>{stores.length === 0 ? <CreateStoreButton /> : <Link className="admin-primary-action" href={`/admin/${stores[0].id}`}>Abrir loja <span>↗</span></Link>}<Link className="admin-secondary-action" href="/admin/settings">Configurações <span>↗</span></Link></>} />
+            <MetricStrip items={adminMetrics.map((metric) => ({ label: metric.label, value: metric.value, detail: metric.detail, tone: metric.tone === "coral" ? "danger" : metric.tone === "lime" ? "neutral" : metric.tone === "green" ? "success" : "warning" }))} />
 
             <section className="admin-focus-grid">
                 <article className="admin-focus-panel admin-payments-panel">

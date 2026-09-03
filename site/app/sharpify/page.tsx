@@ -1,4 +1,5 @@
 import { SharpifyDashboard } from "@/components/SharpifyDashboard";
+import { PageHeader } from "@/components/ui";
 import { getSharpifyDashboard } from "@/lib/actions/sharpify.actions";
 export const dynamic = "force-dynamic";
-export default async function SharpifyPage(){const data=await getSharpifyDashboard();return <div className="mx-auto flex max-w-7xl flex-col gap-6"><header><div className="flex items-center gap-2.5"><span className="h-7 w-1 rounded-full bg-gradient-to-b from-violet-400 to-purple-600"/><h1 className="text-3xl font-bold text-white">Sharpify Gateway</h1></div><p className="mt-2 text-sm text-zinc-500">Pagamentos, reembolsos, saques e webhooks da plataforma em um único lugar.</p></header><SharpifyDashboard data={data}/></div>}
+export default async function SharpifyPage(){const data=await getSharpifyDashboard();return <div className="mx-auto flex max-w-7xl flex-col gap-6"><PageHeader title="Sharpify Gateway" subtitle="Pagamentos, reembolsos, saques e webhooks em um único lugar." /><SharpifyDashboard data={data}/></div>}
