@@ -194,7 +194,11 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
         const campos = { ...asRecord(getPath(product, ["campos"])) };
         const finalId = campoId ?? str(campo.id, generateId());
         campos[finalId] = { ...campo, id: finalId };
-        replaceProduct(productId, { ...product, campos, info: { ...asRecord(getPath(product, ["info"])), updated_at: nowTs() } });
+        const nextProduct = { ...product, campos, info: { ...asRecord(getPath(product, ["info"])), updated_at: nowTs() } };
+        replaceProduct(productId, nextProduct);
+        // Mantém o modal do produto sincronizado; caso contrário, ao aplicar o
+        // produto depois de criar um campo, o snapshot antigo sobrescrevia o campo.
+        if (editingProduct?.id === productId) setEditingProduct({ ...editingProduct, raw: nextProduct });
         setEditingCampo(null);
     };
     const removeCampo = (productId: string, campoId: string) => {
@@ -202,7 +206,9 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
         const product = asRecord(productsDoc[productId]);
         const campos = { ...asRecord(getPath(product, ["campos"])) };
         delete campos[campoId];
-        replaceProduct(productId, { ...product, campos, info: { ...asRecord(getPath(product, ["info"])), updated_at: nowTs() } });
+        const nextProduct = { ...product, campos, info: { ...asRecord(getPath(product, ["info"])), updated_at: nowTs() } };
+        replaceProduct(productId, nextProduct);
+        if (editingProduct?.id === productId) setEditingProduct({ ...editingProduct, raw: nextProduct });
     };
 
     const couponsRaw = asRecord(doc("massCoupons").coupons);
