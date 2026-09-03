@@ -1841,8 +1841,8 @@ body, .reference-home, .reference-plans, .reference-public-page { background: #0
 /* Sidebar compacta inspirada na referência enviada. */
 @media (min-width: 1024px) {
   .zuros-sidebar-panel {
-    width: 132px !important;
-    min-width: 132px !important;
+    width: 240px !important;
+    min-width: 240px !important;
     padding: 10px 7px !important;
     background: #080809 !important;
     border-right: 1px solid #202024 !important;
