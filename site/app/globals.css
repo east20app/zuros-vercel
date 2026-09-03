@@ -1887,3 +1887,65 @@ body, .reference-home, .reference-plans, .reference-public-page { background: #0
 .login-simple-panel .login-discord-button:hover { border-color: #5B9CFF; background: #20282a; }
 .login-simple-panel .login-discord-button:active { transform: scale(.98); }
 @media (max-width: 430px) { .login-simple-shell { padding: 16px; } .login-simple-panel { padding: 22px; } .login-simple-logo { margin-bottom: 38px; } }
+
+/* Dashboard geral: composição operacional sem hero editorial. */
+.dashboard-home-clean .dashboard-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 8px 0 28px;
+  border-bottom: 1px solid var(--border);
+}
+.dashboard-home-clean .dashboard-page-header h1 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+}
+.dashboard-home-clean .dashboard-page-header p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.dashboard-apps-section-clean {
+  padding-top: 28px;
+}
+.dashboard-apps-section-clean .dashboard-apps-heading {
+  margin-bottom: 14px;
+}
+.dashboard-apps-section-clean .dashboard-apps-heading h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.dashboard-empty-clean {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 28px;
+}
+.dashboard-empty-clean h2 { margin: 0; color: var(--foreground); font-size: 1rem; font-weight: 600; }
+.dashboard-empty-clean p { margin: 8px 0 0; color: var(--muted); font-size: 0.82rem; }
+@media (max-width: 639px) {
+  .dashboard-home-clean .dashboard-page-header { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 20px; }
+  .dashboard-home-clean .dashboard-page-header .dashboard-action-primary { width: 100%; }
+  .dashboard-apps-section-clean { padding-top: 20px; }
+}
+@media (min-width: 1024px) {
+  .dashboard-home-clean { padding-top: 42px; }
+}
+
+/* A sidebar contextual não deve aparecer no dashboard geral. */
+.dashboard-general-only { display: block; }
+.dashboard-context-only { display: none; }
+[data-dashboard-context="application"] .dashboard-general-only { display: none; }
+[data-dashboard-context="application"] .dashboard-context-only { display: block; }
