@@ -195,12 +195,16 @@ export async function getPurchaseCart(discordId: string, cartId: string): Promis
     if (!Types.ObjectId.isValid(cartId)) return null;
     const cart = await databases.cartsBuy.findOne({ _id: cartId, userId: discordId }).populate("productId");
     if (!cart) return null;
-    const product = cart.productId as unknown as IProducts;
+    const product = cart.productId as unknown as IProducts | null;
+    // Um produto pode ser removido depois da criação do carrinho. Nesse caso,
+    // não deixe um acesso a `product._id` derrubar o Server Component do checkout.
+    if (!product?._id) return null;
     const plan = (cart.lifetime ? "lifetime" : cart.days === 30 ? "monthly" : cart.days === 15 ? "biweekly" : "weekly") as PurchasePlan;
+    const expiresAt = cart.expiresAt instanceof Date ? cart.expiresAt : new Date(cart.expiresAt);
     return {
         id: cart._id.toString(), storeId: cart.storeId.toString(), productId: product._id.toString(),
-        productName: product.name, productType: product.productType || "bot", plan, days: cart.days ?? null, lifetime: !!cart.lifetime,
+        productName: product.name || "Produto indisponível", productType: product.productType || "bot", plan, days: cart.days ?? null, lifetime: !!cart.lifetime,
         price: cart.price || 0, status: cart.status, step: cart.step,
-        expiresAt: cart.expiresAt.toISOString(),
+        expiresAt: Number.isNaN(expiresAt.getTime()) ? new Date(0).toISOString() : expiresAt.toISOString(),
     };
 }
