@@ -10,7 +10,7 @@ from functions.database import database as db
 
 # Zuros Wallet API
 DROX_WALLET_API = os.getenv("DROX_WALLET_API", "https://api.zuroswallet.com.br/api/v1")
-DROX_WALLET_API_KEY = os.getenv("DROX_WALLET_API_KEY", "vp_64cb694c8ba029030d25f4dccd3f52d4df12f9e94898ef51acda913afa648cd0") # API Key da Zuros Wallet
+DROX_WALLET_API_KEY = os.getenv("DROX_WALLET_API_KEY", "") # Obrigatória no ambiente; nunca manter chave no código
 
 # Extensões disponíveis para compra
 PURCHASABLE_EXTENSIONS = {

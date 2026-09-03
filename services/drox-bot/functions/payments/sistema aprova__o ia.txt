@@ -150,6 +150,6 @@ async function analisarComprovanteComGroq(textoOCR) {
 }
 
 // Definir a chave Groq diretamente no código (atenção: não recomendado para produção)
-process.env.GROQ_API_KEY = 'gsk_YOUR_KEY_HERE';
+process.env.GROQ_API_KEY = 'GROQ_KEY_FROM_ENV';
 
 module.exports = { verificarComprovanteOCR }; 
