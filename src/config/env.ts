@@ -30,6 +30,7 @@ const envSchema = z.object({
     PORT: z.coerce.number().int().positive().max(65535).default(3000),
     NEXTAUTH_URL: z.string().url("NEXTAUTH_URL deve ser uma URL HTTP/HTTPS válida").optional(),
     NEXTAUTH_SECRET: z.string().min(32, "NEXTAUTH_SECRET deve ter pelo menos 32 caracteres").optional(),
+    DATA_ENCRYPTION_KEY: z.string().min(32, "DATA_ENCRYPTION_KEY deve ter pelo menos 32 caracteres").optional(),
     EFI_WEBHOOK_SECRET: z.string().min(16, "EFI_WEBHOOK_SECRET deve ter pelo menos 16 caracteres").optional(),
     PROMISSEPAY_WEBHOOK_SECRET: z.string().min(16, "PROMISSEPAY_WEBHOOK_SECRET deve ter pelo menos 16 caracteres").optional(),
 });
