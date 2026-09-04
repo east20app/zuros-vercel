@@ -1957,3 +1957,44 @@ body, .reference-home, .reference-plans, .reference-public-page { background: #0
 .dashboard-context-only { display: none; }
 [data-dashboard-context="application"] .dashboard-general-only { display: none; }
 [data-dashboard-context="application"] .dashboard-context-only { display: block; }
+
+/* Padrão operacional final para todas as áreas internas. */
+.zuros-dashboard-stage,
+body:has(.zuros-sidebar-panel) {
+  --internal-radius: 3px;
+}
+.zuros-dashboard-stage [class*="rounded-2xl"],
+.zuros-dashboard-stage [class*="rounded-xl"],
+.zuros-dashboard-stage [class*="rounded-lg"],
+body:has(.zuros-sidebar-panel) [class*="rounded-2xl"],
+body:has(.zuros-sidebar-panel) [class*="rounded-xl"],
+body:has(.zuros-sidebar-panel) [class*="rounded-lg"] {
+  border-radius: var(--internal-radius) !important;
+}
+.zuros-dashboard-stage [class*="shadow-"],
+body:has(.zuros-sidebar-panel) [class*="shadow-"] {
+  box-shadow: none !important;
+}
+.zuros-dashboard-stage [class*="backdrop-blur"],
+body:has(.zuros-sidebar-panel) [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+}
+.zuros-dashboard-stage input,
+.zuros-dashboard-stage select,
+.zuros-dashboard-stage textarea,
+body:has(.zuros-sidebar-panel) input,
+body:has(.zuros-sidebar-panel) select,
+body:has(.zuros-sidebar-panel) textarea {
+  border-radius: 3px !important;
+}
+.zuros-dashboard-stage table,
+body:has(.zuros-sidebar-panel) table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.zuros-dashboard-stage th,
+.zuros-dashboard-stage td,
+body:has(.zuros-sidebar-panel) th,
+body:has(.zuros-sidebar-panel) td {
+  border-radius: 0 !important;
+}
