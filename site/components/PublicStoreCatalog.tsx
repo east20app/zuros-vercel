@@ -28,6 +28,11 @@ function isZurosBot(product: ProductCatalogDTO) {
     return normalizeName(product.name).includes("zuros bot") || product.productType === "bot";
 }
 
+function isZurosVerification(product: ProductCatalogDTO) {
+    const name = normalizeName(product.name);
+    return name.includes("verifica") || product.productType === "auth";
+}
+
 function defaultPlan(prices: ProductCatalogDTO["prices"]): PurchasePlan | null {
     const available = planOrder.filter((plan) => prices.some((price) => price.plan === plan));
     if (available.includes("monthly")) return "monthly";
@@ -154,7 +159,10 @@ export function PublicStoreCatalog({ stores, canPurchase = false }: { stores: St
         (a, b) => (a.product.sortOrder || 0) - (b.product.sortOrder || 0) || a.product.name.localeCompare(b.product.name, "pt-BR"),
     );
 
-    const featuredEntry = ordered.find(({ product }) => product.featured) || (ordered.length > 1 ? ordered.find(({ product }) => isZurosBot(product)) : undefined);
+    // Produtos marcados como destaque (ou o ZUROS Bot / verificação) ocupam a posição central.
+    const featuredEntry = ordered.find(({ product }) => product.featured)
+        || (ordered.length > 1 ? ordered.find(({ product }) => isZurosBot(product)) : undefined)
+        || (ordered.length > 1 ? ordered.find(({ product }) => isZurosVerification(product)) : undefined);
     const featuredIndex = Math.floor(ordered.length / 2);
     const finalEntries = featuredEntry
         ? [...ordered.filter((entry) => entry !== featuredEntry).slice(0, featuredIndex), featuredEntry, ...ordered.filter((entry) => entry !== featuredEntry).slice(featuredIndex)]
