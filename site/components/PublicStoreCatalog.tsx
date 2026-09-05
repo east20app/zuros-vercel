@@ -79,7 +79,7 @@ function ProductCard({ product, isFeatured, canPurchase, pending, onBuy }: {
             <ul>
                 {list.map((feature, i) => (
                     <li key={feature}>
-                        <FeatureMark plus={isFeatured && i === list.length - 1 && /\+|6|7|8/.test(feature)} />
+                        <FeatureMark plus={isFeatured && i === list.length - 1} />
                         {feature}
                     </li>
                 ))}
@@ -96,7 +96,6 @@ function ProductCard({ product, isFeatured, canPurchase, pending, onBuy }: {
             ) : (
                 <Link href="/login?callbackUrl=/planos" className="plans-product-action">Entrar para comprar</Link>
             )}
-            {isComingSoon && <span className="plans-card-store">Em breve</span>}
         </article>
     );
 }
@@ -128,7 +127,6 @@ export function PublicStoreCatalog({ stores, canPurchase = false }: { stores: St
             {finalEntries.map((entry) => (
                 <ProductCard
                     key={entry.product.id}
-                    store={entry.store}
                     product={entry.product}
                     isFeatured={entry === featuredEntry}
                     canPurchase={canPurchase}
