@@ -117,6 +117,12 @@ export async function publishProductRelease(args: {
     if (!userInfo) throw new Error("Usuario nao cadastrado.");
     const product = await databases.products.findOne({ _id: args.productId, storeId: args.storeId });
     if (!product) throw new Error("Produto nao encontrado.");
+    // Releases com status "failed" não consumem a vaga permanentemente: são
+    // removidas no próximo envio para liberar espaço sem exigir exclusão manual.
+    const failedCount = (product.releases || []).filter((release) => release.status === "failed").length;
+    if (failedCount) {
+        await databases.products.updateOne({ _id: product._id }, { $pull: { releases: { status: "failed" } } });
+    }
     if ((product.releases || []).length >= MAX_PRODUCT_RELEASES) {
         throw new Error(`O máximo de releases permitidas é ${MAX_PRODUCT_RELEASES}. Remova uma release antes de enviar outra.`);
     }

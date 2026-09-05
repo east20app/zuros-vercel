@@ -269,7 +269,9 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
             }
         }
         if (!uploaded) throw lastHostingError || new Error("Não foi possível criar a aplicação na hospedagem.");
-        hostedId = uploaded.data._id;
+        const hostedIdRaw = uploaded.data?._id;
+        if (!hostedIdRaw) throw new Error("A hospedagem não retornou o identificador da aplicação recém-criada.");
+        hostedId = hostedIdRaw;
         if (usedBootstrap) {
             console.info("[deliverPurchaseApplication] Aplicação reservada pelo fallback; enviando release.", { hostedId });
             const uploadResult = await uploaded.uploadFile({ file, path: "/" });

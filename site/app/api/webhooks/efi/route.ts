@@ -7,7 +7,8 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
     const requestId = crypto.randomUUID();
     const secret = new URL(request.url).searchParams.get("hmac");
-    if (!safeEqual(secret, process.env.EFI_WEBHOOK_URL_SECRET)) return NextResponse.json({ error: "unauthorized", requestId }, { status: 401 });
+    const efiSecret = process.env.EFI_WEBHOOK_SECRET || process.env.EFI_WEBHOOK_URL_SECRET;
+    if (!safeEqual(secret, efiSecret)) return NextResponse.json({ error: "unauthorized", requestId }, { status: 401 });
     try {
         const { payload } = await readLimitedJson(request);
         const paymentId = findPaymentId(payload);

@@ -62,6 +62,27 @@ asyncLoopingExec(15000, async () => {
         { type: "renew" as const, model: databases.cartsRenew },
     ];
     for (const target of targets) {
+        // Recupera carrinhos presos em "processing" por queda do processo no
+        // meio da confirmação (ledger idempotente faz a re-execução ser segura).
+        const stuckConfirm = await (target.model as any).find({
+            status: "processing", step: "waiting-payment",
+            updatedAt: { $lte: new Date(Date.now() - 2 * 60 * 1000) },
+        }, { _id: 1 });
+        for (const cart of stuckConfirm) {
+            await (target.model as any).updateOne({ _id: cart._id, status: "processing" }, { $set: { status: "opened", deliveryState: "retryable_error", nextPaymentCheckAt: now, paymentCheckAttempts: 0 } });
+        }
+        // Carrinhos presos já na fase de entrega (pagamento confirmado) voltam
+        // para o estado apto à entrega para o usuário refazer no painel.
+        if (target.type === "buy") {
+            const stuckDelivery = await databases.cartsBuy.find({
+                status: "processing", step: "payment-confirmed",
+                updatedAt: { $lte: new Date(Date.now() - 5 * 60 * 1000) },
+            }, { _id: 1 });
+            for (const cart of stuckDelivery) {
+                await databases.cartsBuy.updateOne({ _id: cart._id, status: "processing" }, { $set: { status: "opened", deliveryState: "retryable_error" } });
+            }
+        }
+
         const carts = await (target.model as any).find({ status: "opened", step: "waiting-payment", paymentId: { $exists: true, $ne: "" }, $or: [{ nextPaymentCheckAt: { $exists: false } }, { nextPaymentCheckAt: { $lte: now } }] }).sort({ nextPaymentCheckAt: 1 }).limit(50);
         for (const cart of carts) {
             const attempts = Math.max(0, Number(cart.paymentCheckAttempts || 0));
@@ -84,6 +105,25 @@ asyncLoopingExec(15000, async () => {
                 await (target.model as any).updateOne({ _id: cart._id, step: "waiting-payment" }, { $set: { lastPaymentCheckAt: now, nextPaymentCheckAt: new Date(Date.now() + delayMs) }, $inc: { paymentCheckAttempts: 1 } });
             } catch (error) {
                 console.error(`[PAYMENT_RECONCILIATION] cart=${cart._id} type=${target.type}`, error instanceof Error ? error.message : "unknown");
+            }
+        }
+
+        // Segurança financeira: carrinho já expirado pelo cron pode ter sido
+        // pago (webhook perdido, renovação na janela do provedor). Re-consulta
+        // o provedor algumas vezes para confirmar e não reter o dinheiro.
+        const expiredCarts = await (target.model as any).find({
+            status: "expired", step: "waiting-payment", paymentId: { $exists: true, $ne: "" }, paymentCheckAttempts: { $lt: 10 },
+            $or: [{ nextPaymentCheckAt: { $exists: false } }, { nextPaymentCheckAt: { $lte: now } }],
+        }).sort({ nextPaymentCheckAt: 1 }).limit(20);
+        for (const cart of expiredCarts) {
+            const attempts = Math.max(0, Number(cart.paymentCheckAttempts || 0));
+            try {
+                const result = await confirmCartPayment({ paymentId: String(cart.paymentId), type: target.type, source: "polling" });
+                if (result.status === "confirmed" || result.status === "already_confirmed") continue;
+                const delayMs = Math.min(180000, 15000 * 2 ** Math.min(attempts, 3));
+                await (target.model as any).updateOne({ _id: cart._id, status: "expired" }, { $set: { lastPaymentCheckAt: now, nextPaymentCheckAt: new Date(Date.now() + delayMs) }, $inc: { paymentCheckAttempts: 1 } });
+            } catch (error) {
+                console.error(`[PAYMENT_RECONCILIATION_EXPIRED] cart=${cart._id} type=${target.type}`, error instanceof Error ? error.message : "unknown");
             }
         }
     }

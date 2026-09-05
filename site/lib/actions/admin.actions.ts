@@ -22,6 +22,8 @@ import type { IProducts } from "@root/src/databases/schemas/products";
 import type { ISettings } from "@root/src/databases/schemas/user-settings";
 import { releaseExists } from "@root/src/functions/hosted-bot";
 import { processProductApplicationUpdates } from "@root/src/integration/application-updates";
+import { releaseCouponReservation } from "@root/src/integration/coupon-reservations";
+import { calculateCheckoutCents, fromCents } from "@root/src/integration/money";
 
 import type {
     AppSummary,
@@ -53,6 +55,27 @@ type CouponDoc = ICoupons & { _id: Types.ObjectId };
 type ExtractDoc = IExtracts & { _id: Types.ObjectId; createdAt: Date };
 type CartRenewDoc = ICartsRenew & { _id: Types.ObjectId };
 type CartBuyDoc = ICartsBuy & { _id: Types.ObjectId };
+interface ApprovalCartLike {
+    _id: Types.ObjectId;
+    storeId: unknown;
+    step: string;
+    status: string;
+    price: number;
+    couponDiscountSnapshot?: number;
+    couponReservationState?: string;
+    confirmedAt?: Date;
+    confirmedBy?: string;
+    paymentProvider?: string;
+    paymentSource?: string;
+    delivered?: boolean;
+    deliveryState?: string;
+    applicationId?: unknown;
+    days?: number;
+    lifetime?: boolean;
+    paymentId?: string;
+    save(): Promise<unknown>;
+}
+type ApprovalCart = ApprovalCartLike;
 type AppPopulated = AppDoc & { productId: ProductDoc };
 type CartRenewAppPopulated = CartRenewDoc & { applicationId: AppDoc; coupon: CouponDoc | null };
 type CartBuyProductPopulated = CartBuyDoc & { productId: ProductDoc };
@@ -458,7 +481,7 @@ export async function getProductReleases(storeId: string, productId: string) {
     return getProductReleasesDTO({ requesterId, storeId, productId });
 }
 
-export async function setCurrentProductRelease(productId: string, version: string): Promise<{ ok: true }> {
+export async function setCurrentProductRelease(productId: string, version: string): Promise<{ ok: true; warning?: string }> {
     const discordId = await requireSessionUser();
     const product = await databases.products.findById(productId);
     if (!product) throw new ActionError("Produto não encontrado.");
@@ -481,8 +504,20 @@ export async function setCurrentProductRelease(productId: string, version: strin
         { productId: product._id },
         { $set: { updateAttempts: 0, errorOnUpdate: false }, $unset: { errorOnUpdateMessage: "", updateLeaseUntil: "" } },
     );
-    if (queued.matchedCount > 0) await processProductApplicationUpdates(String(product._id));
-    return { ok: true };
+    let warning: string | undefined;
+    if (queued.matchedCount > 0) {
+        try {
+            await processProductApplicationUpdates(String(product._id));
+        } catch (error) {
+            // Erros de ambiente (SDK indisponível, arquivo sem legibilidade)
+            // não podem travar a troca de release para sempre: o cron continua
+            // tentando e o admin recebe um aviso claro em vez de um bloqueio mudo.
+            const detail = error instanceof Error ? error.message : "Falha ao iniciar a atualização automática.";
+            warning = `A release foi definida como atual, mas a atualização automática não pôde começar agora (${detail}). O sistema continuará tentando.`;
+            console.error("[setCurrentProductRelease] Atualização automática adiada:", detail);
+        }
+    }
+    return { ok: true, warning };
 }
 
 export async function retryProductUpdates(productId: string): Promise<{ count: number }> {
@@ -826,31 +861,45 @@ export async function listPendingPayments(storeId?: string): Promise<PendingPaym
 
 export async function approvePayment(args: { type: "renew" | "buy"; id: string; addBalance: boolean }): Promise<{ ok: true }> {
     const discordId = await requireSessionUser();
+    const cartType = args.type === "renew" ? "renew" : "buy";
 
-    if (args.type === "renew") {
-        const cart = await databases.cartsRenew.findById(args.id);
-        if (!cart) throw new ActionError("Carrinho não encontrado.");
-        await requireStoreAccess(discordId, String(cart.storeId));
+    const cart: ApprovalCart | null =
+        (cartType === "renew" ? await databases.cartsRenew.findById(args.id) : await databases.cartsBuy.findById(args.id)) as unknown as ApprovalCart | null;
+    if (!cart) throw new ActionError("Carrinho não encontrado.");
+    await requireStoreAccess(discordId, String(cart.storeId));
 
-        if (cart.step !== "waiting-payment") {
-            throw new ActionError("Para aprovar o carrinho, ele deve estar no passo de pagamento.");
+    if (cart.step !== "waiting-payment") {
+        throw new ActionError("Para aprovar o carrinho, ele deve estar no passo de pagamento.");
+    }
+    if (cart.status === "cancelled" || cart.status === "closed") {
+        throw new ActionError("Este carrinho não está disponível para aprovação.");
+    }
+
+    if (args.addBalance) {
+        // Considera o cupom já aplicado na reserva para não supercreditar o saldo.
+        const discount = Number(cart.couponDiscountSnapshot ?? 0);
+        const prices = calculateCheckoutCents(Number(cart.price || 0), discount, 1.2);
+        const operationKey = `sale:manual:${cartType}:${args.id}`;
+        const existingLedger = await databases.ledgerOperations.exists({ operationKey });
+        if (!existingLedger) {
+            await databases.stores.updateOne({ _id: cart.storeId, creditedOperationKeys: { $ne: operationKey } }, { $inc: { balance: fromCents(prices.netCents) }, $addToSet: { creditedOperationKeys: operationKey } });
+            await databases.ledgerOperations.updateOne({ operationKey }, { $setOnInsert: { operationKey, cartType, cartId: args.id, storeId: String(cart.storeId), externalPaymentId: String(cart.paymentId || `manual:${args.id}`), provider: "manual", amountCents: prices.netCents, state: "applied", appliedAt: new Date() } }, { upsert: true });
+            await databases.extracts.updateOne({ operationKey }, { $setOnInsert: { operationKey, origin: "sales", action: "add", amount: fromCents(prices.netCents), description: `${cartType === "renew" ? "Renovação" : "Carrinho"} aprovado pelo painel (${discordId})`, storeId: String(cart.storeId) } }, { upsert: true });
         }
+    }
 
-        if (args.addBalance) {
-            await changeBalance({
-                action: "add",
-                amount: cart.price || 0,
-                origin: "sales",
-                description: `Renovação aprovada pelo painel (${discordId})`,
-                storeId: String(cart.storeId),
-            });
-        }
+    cart.status = cartType === "renew" ? "closed" : "opened";
+    cart.step = "payment-confirmed";
+    cart.delivered = cartType === "renew";
+    if (cartType === "renew") cart.deliveryState = "delivered";
+    cart.confirmedAt = new Date();
+    cart.confirmedBy = `manual:${discordId}`;
+    cart.paymentProvider = "manual";
+    cart.paymentSource = "manual";
+    if (cart.couponReservationState === "reserved") cart.couponReservationState = "consumed";
+    await cart.save();
 
-        cart.delivered = true;
-        cart.status = "closed";
-        cart.step = "payment-confirmed";
-        await cart.save();
-
+    if (cartType === "renew") {
         const application = await databases.applications.findOne({ _id: cart.applicationId, storeId: cart.storeId });
         if (application) {
             if (cart.lifetime) {
@@ -862,50 +911,25 @@ export async function approvePayment(args: { type: "renew" | "buy"; id: string; 
             }
             await application.save();
         }
-        return { ok: true };
     }
-
-    const cart = await databases.cartsBuy.findById(args.id);
-    if (!cart) throw new ActionError("Carrinho não encontrado.");
-    await requireStoreAccess(discordId, String(cart.storeId));
-
-    if (cart.step !== "waiting-payment") {
-        throw new ActionError("Para aprovar o carrinho, ele deve estar no passo de pagamento.");
-    }
-
-    if (args.addBalance) {
-        await changeBalance({
-            action: "add",
-            amount: cart.price || 0,
-            origin: "sales",
-            description: `Carrinho aprovado pelo painel (${discordId})`,
-            storeId: String(cart.storeId),
-        });
-    }
-
-    cart.status = "opened";
-    cart.step = "payment-confirmed";
-    await cart.save();
-
     return { ok: true };
 }
 
 export async function rejectPayment(args: { type: "renew" | "buy"; id: string }): Promise<{ ok: true }> {
     const discordId = await requireSessionUser();
+    const cartType = args.type === "renew" ? "renew" : "buy";
 
-    if (args.type === "renew") {
-        const cart = await databases.cartsRenew.findById(args.id);
-        if (!cart) throw new ActionError("Carrinho não encontrado.");
-        await requireStoreAccess(discordId, String(cart.storeId));
-        cart.status = "cancelled";
-        await cart.save();
-        return { ok: true };
-    }
-
-    const cart = await databases.cartsBuy.findById(args.id);
+    const cart: ApprovalCart | null =
+        (cartType === "renew" ? await databases.cartsRenew.findById(args.id) : await databases.cartsBuy.findById(args.id)) as unknown as ApprovalCart | null;
     if (!cart) throw new ActionError("Carrinho não encontrado.");
     await requireStoreAccess(discordId, String(cart.storeId));
+    if (cart.status === "cancelled" || cart.status === "closed") throw new ActionError("Este carrinho já foi encerrado.");
+
+    // Devolve o uso do cupom reservado para não vazá-lo em rejeições.
+    const released = await releaseCouponReservation({ cartType, cartId: args.id }).catch(() => ({ released: false as const }));
     cart.status = "cancelled";
+    cart.deliveryState = "cancelled";
+    if (released.released) cart.couponReservationState = "released";
     await cart.save();
     return { ok: true };
 }

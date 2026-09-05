@@ -7,6 +7,7 @@ import sdkWrapper from "../functions/camposcloud-sdk";
 import { changeBalance } from "../functions/extracts";
 import type { IProducts } from "../databases/schemas/products";
 import { confirmPaymentByExternalId } from "./payment-confirmation";
+import { releaseCouponReservation } from "./coupon-reservations";
 import type { ProductCatalogDTO, PurchaseCartDTO, PurchasePlan, PurchasePriceDTO, StoreCatalogDTO } from "./dtos";
 
 export const PURCHASE_CART_EXPIRES_MINUTES = 30;
@@ -164,6 +165,13 @@ export async function createPurchaseCart(input: {
 
     // No painel o carrinho antigo não possui thread/canal ativo, então cancele-o
     // automaticamente e permita iniciar uma nova compra (equivalente ao fluxo do bot).
+    // Devolve qualquer reserva de cupom pendente para não queimar o uso dele.
+    const staleCarts = await databases.cartsBuy.find({ userId: input.discordId, status: "opened" }, { couponReservationState: 1 }).lean();
+    for (const stale of staleCarts) {
+        if (stale.couponReservationState === "reserved") {
+            await releaseCouponReservation({ cartType: "buy", cartId: String(stale._id) }).catch(() => undefined);
+        }
+    }
     await databases.cartsBuy.updateMany({ userId: input.discordId, status: "opened" }, { $set: { status: "cancelled" } });
 
     const id = new Types.ObjectId();

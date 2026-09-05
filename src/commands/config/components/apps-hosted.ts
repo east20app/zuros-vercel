@@ -18,7 +18,7 @@ new InteractionHandler({
         try {
 
             const page = _page ? Number(_page) : 1;
-            if (isNaN(page) || page < 0) {
+            if (isNaN(page) || page < 1) {
                 throw new Error("Número da página inválido.");
             }
     

@@ -90,8 +90,14 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<Confir
     if (!cart) return { status: "rejected", cartId: input.cartId, reason: "cart_not_found" };
     if (String(cart.paymentId || "") !== input.externalPaymentId) return { status: "rejected", cartId: input.cartId, reason: "payment_id_mismatch" };
     if (cart.step === "payment-confirmed" || cart.confirmedAt) return { status: "already_confirmed", cartId: input.cartId };
-    if (!["opened", "processing"].includes(String(cart.status)) || cart.step !== "waiting-payment") return { status: "rejected", cartId: input.cartId, reason: "invalid_cart_state" };
-    if (cart.expiresAt && new Date(cart.expiresAt).getTime() < Date.now() && input.source !== "manual") return { status: "rejected", cartId: input.cartId, reason: "cart_expired" };
+    if (cart.step !== "waiting-payment") return { status: "rejected", cartId: input.cartId, reason: "invalid_cart_state" };
+    // Um carrinho vencido pelo cron continua com `step: waiting-payment`.
+    // Não bloqueamos aqui porque o dinheiro pode ter sido pago dentro da
+    // janela do provedor (ex.: cobrança EFI de 60min com carrinho de 30min).
+    // A decisão final depende do status real da cobrança validada no provedor.
+    const cartExpired = !!cart.expiresAt && new Date(cart.expiresAt).getTime() < Date.now();
+    const statusAllowed = ["opened", "processing"].includes(String(cart.status)) || (String(cart.status) === "expired" && cartExpired);
+    if (!statusAllowed) return { status: "rejected", cartId: input.cartId, reason: "invalid_cart_state" };
 
     const store = await databases.stores.findById(cart.storeId).lean();
     if (!store) return { status: "rejected", cartId: input.cartId, reason: "store_not_found" };
@@ -113,7 +119,11 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<Confir
     const eventDocument = { eventKey, cartType: input.cartType, cartId: input.cartId, provider: input.provider, externalPaymentId: input.externalPaymentId, source: input.source, status: providerResult.status, amountCents: providerResult.amountCents, currency: providerResult.currency, payloadHash: eventHash(providerResult.sanitized), sanitizedPayload: providerResult.sanitized, requestId: input.requestId };
     await databases.paymentEvents.updateOne({ eventKey }, { $setOnInsert: eventDocument }, { upsert: true }).catch((error: any) => { if (error?.code !== 11000) throw error; });
     if (!providerResult.final) return { status: "pending", cartId: input.cartId };
-    if (!providerResult.paid) return { status: "rejected", cartId: input.cartId, reason: providerResult.status.toLowerCase() };
+    if (!providerResult.paid) {
+        // Cobrança final recusada/cancelada; no caso de carrinho vencido isso
+        // apenas confirma que não houve pagamento válido.
+        return cartExpired ? { status: "rejected", cartId: input.cartId, reason: "cart_expired" } : { status: "rejected", cartId: input.cartId, reason: providerResult.status.toLowerCase() };
+    }
     if (providerResult.currency !== "BRL" || providerResult.amountCents !== expectedCents) return { status: "rejected", cartId: input.cartId, reason: "amount_or_currency_mismatch" };
 
     const operationKey = `sale:${input.cartType}:${input.cartId}:${input.externalPaymentId}`;
@@ -121,7 +131,7 @@ export async function confirmPayment(input: ConfirmPaymentInput): Promise<Confir
     if (existingLedger?.state === "applied") return { status: "already_confirmed", cartId: input.cartId, operationKey };
     await databases.ledgerOperations.updateOne({ operationKey }, { $setOnInsert: { operationKey, cartType: input.cartType, cartId: input.cartId, storeId: String(cart.storeId), externalPaymentId: input.externalPaymentId, provider: input.provider, amountCents: prices.netCents, state: "pending" } }, { upsert: true });
 
-    const claimed = await model.updateOne({ _id: cart._id, status: "opened", step: "waiting-payment" }, { $set: { status: "processing", deliveryState: "payment_confirmed", grossPriceCents: prices.grossCents, discountCents: prices.discountCents, finalPriceCents: expectedCents, finalPrice: fromCents(expectedCents), couponCodeSnapshot: cart.couponCodeSnapshot || cart.coupon?.code, couponDiscountSnapshot: discount, paymentProvider: input.provider, paymentSource: input.source } });
+    const claimed = await model.updateOne({ _id: cart._id, status: { $in: ["opened", "expired"] }, step: "waiting-payment" }, { $set: { status: "processing", deliveryState: "payment_confirmed", grossPriceCents: prices.grossCents, discountCents: prices.discountCents, finalPriceCents: expectedCents, finalPrice: fromCents(expectedCents), couponCodeSnapshot: cart.couponCodeSnapshot || cart.coupon?.code, couponDiscountSnapshot: discount, paymentProvider: input.provider, paymentSource: input.source } });
     if (!claimed.modifiedCount) {
         const current = await model.findById(cart._id, { step: 1, confirmedAt: 1 }).lean() as any;
         if (current?.step === "payment-confirmed" || current?.confirmedAt) return { status: "already_confirmed", cartId: input.cartId, operationKey };
@@ -149,7 +159,7 @@ const confirmedAt = new Date();
                 if (!exists) { deliveryState = "partial_delivery"; delivered = false; }
             }
         }
-        await model.updateOne({ _id: cart._id, status: "processing" }, { $set: { step: "payment-confirmed", status: input.cartType === "renew" ? "closed" : "opened", confirmedAt, confirmedBy: input.manualApproval?.adminDiscordId || input.source, couponReservationState: cart.coupon ? "consumed" : undefined, deliveryState, delivered } });
+        await model.updateOne({ _id: cart._id, status: "processing" }, { $set: { step: "payment-confirmed", status: input.cartType === "renew" ? "closed" : "opened", confirmedAt, confirmedBy: input.manualApproval?.adminDiscordId || input.source, couponReservationState: cart.coupon ? (cart.couponReservationState === "released" ? "released" : "consumed") : undefined, deliveryState, delivered } });
         await databases.ledgerOperations.updateOne({ operationKey }, { $set: { state: "applied", appliedAt: confirmedAt }, $unset: { failureCode: 1 } });
         return { status: "confirmed", cartId: input.cartId, operationKey };
     } catch (error) {

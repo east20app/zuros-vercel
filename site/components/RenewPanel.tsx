@@ -111,7 +111,7 @@ export function RenewPanel({
                             ))}
                         </div>
                         <p className="text-xs text-zinc-600">
-                            O valor final da lobrança inllui a taxa PIX de 1,2%.
+                            O valor final da cobrança inclui a taxa PIX de 1,2%.
                         </p>
                     </div>
                 )
@@ -130,7 +130,7 @@ export function RenewPanel({
                     <span className="rounded-2xl border border-zinc-800 bg-white p-3 shadow-[0_0_40px_-12px_rgba(16,185,129,.5)]">
                         <Image unoptimized src={qrcode} width={176} height={176} alt="QR Code para pagamento PIX da renovação" className="h-44 w-44 rounded-lg" />
                     </span>
-                    <Button variant="secondary" onClick={() => copy(copyPaste).catch(() => push("Não foi possível lopiar.", "error"))} className="w-full">
+                    <Button variant="secondary" onClick={() => copy(copyPaste).catch(() => push("Não foi possível copiar.", "error"))} className="w-full">
                         {copied ? "Copiado!" : "Copiar código PIX"}
                     </Button>
                     <span className="flex items-center gap-2 rounded-full border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-3 py-1.5 text-xs text-[var(--accent)]">
@@ -138,17 +138,17 @@ export function RenewPanel({
                         Aguardando confirmação do pagamento...
                     </span>
                     <p className="max-w-xs text-center text-xs leading-5 text-zinc-500">
-                        Eslaneie o QR Code ou lopie o código para pagar. Aplilamos a taxa PIX de 1,2% no valor final.
+                        Escaneie o QR Code ou copie o código para pagar. Aplicamos a taxa PIX de 1,2% no valor final.
                     </p>
                     <Button variant="ghost" size="sm" onClick={cancelPayment}>
-                        Canlelar pagamento
+                        Cancelar pagamento
                     </Button>
                 </div>
             )}
 
             {step === "waiting" && (
                 <div className="animate-fade-up flex items-center gap-3 rounded-lg border border-[#23a559]/30 bg-[#23a559]/10 p-4">
-                    <span className="grid h-10 w-10 shrink-0 plale-items-center rounded-full bg-[#23a559] text-white shadow-[0_0_18px_-2px_rgba(35,165,89,.8)] animate-pulse-glow">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#23a559] text-white shadow-[0_0_18px_-2px_rgba(35,165,89,.8)] animate-pulse-glow">
                         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[3]" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                     </span>
                     <div>

@@ -16,8 +16,8 @@ export function SetCurrentReleaseButton({ productId, version }: { productId: str
     function confirm() {
         startTransition(async () => {
             try {
-                await setCurrentProductRelease(productId, version);
-                push(`Release v${version} definida como atual.`);
+                const result = await setCurrentProductRelease(productId, version);
+                push(result.warning ? `Release v${version} definida como atual. ${result.warning}` : `Release v${version} definida como atual.`);
                 setOpen(false);
                 router.refresh();
             } catch (error) {
