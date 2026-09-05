@@ -169,6 +169,15 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     automations_disparador_dm: { ativado: false, tokens: [], mensagem: {} },
     automations_forms: { ativado: false, forms: {} },
 
+    // --- Extensões ---
+    extensions_config: {},
+    extensions_droxgen: {},
+    extensions_boost_data: {},
+    extensions_boost_stock: { tokens: [] },
+    extensions_subscriptions: {},
+    extensions_pending_payments: {},
+    extensions_payment_history: {},
+
     // --- Customização ---
     custom_colors: { primary: "#ffffff", secondary: "#6c757d", success: "#28a745", danger: "#dc3545", warning: "#ffc107" },
     custom_status: { type: "online", names: ["Powered by Drox"] },

@@ -22,30 +22,30 @@ class BoostExtension(commands.Cog):
 
     def _get_boost_data(self) -> dict:
         """Obtém dados do boost"""
-        data = db.obter("database/extensions/data.json")
+        data = db.get_document("extensions_boost_data")
         if "boost" not in data:
             data["boost"] = {
                 "total_accounts": 0,
                 "total_boosts_sent": 0,
                 "orders": {}
             }
-            db.salvar("database/extensions/data.json", data)
+            db.save_document("extensions_boost_data", data)
         return data["boost"]
 
     def _save_boost_data(self, boost_data: dict):
         """Salva dados do boost"""
-        data = db.obter("database/extensions/data.json")
+        data = db.get_document("extensions_boost_data")
         data["boost"] = boost_data
-        db.salvar("database/extensions/data.json", data)
+        db.save_document("extensions_boost_data", data)
 
     def _get_stock(self) -> list:
         """Obtém estoque de tokens"""
-        stock = db.obter("database/extensions/stock.json")
+        stock = db.get_document("extensions_boost_stock")
         return stock.get("tokens", [])
 
     def _save_stock(self, tokens: list):
         """Salva estoque de tokens"""
-        db.salvar("database/extensions/stock.json", {"tokens": tokens})
+        db.save_document("extensions_boost_stock", {"tokens": tokens})
 
     async def display_boost_panel(self, inter: disnake.MessageInteraction):
         """Exibe o painel principal de boost"""

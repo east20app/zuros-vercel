@@ -446,6 +446,13 @@
   "loja_saldo_deposits": {
     "deposits": {}
   },
+  "extensions_config": {},
+  "extensions_droxgen": {},
+  "extensions_boost_data": {},
+  "extensions_boost_stock": {},
+  "extensions_subscriptions": {},
+  "extensions_pending_payments": {},
+  "extensions_payment_history": {},
   "loja_products": {},
   "products": {},
   "products_preferences": {

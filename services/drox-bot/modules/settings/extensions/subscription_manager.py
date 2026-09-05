@@ -24,20 +24,18 @@ PURCHASABLE_EXTENSIONS = {
 
 
 def _get_db_path(extension_id: str = None) -> str:
-    """Retorna o caminho do banco de dados baseado na extensão"""
-    if extension_id == "boost":
-        return "database/extensions/zurosboost/subscriptions.json"
-    return "database/extensions/subscriptions.json"
+    """Retorna o documento Mongo usado pelas assinaturas de extensões"""
+    return "extensions_subscriptions"
 
 
 def get_subscriptions(extension_id: str = None) -> dict:
-    """Obtém todas as assinaturas ativas do arquivo apropriado"""
-    return db.obter(_get_db_path(extension_id))
+    """Obtém todas as assinaturas ativas do documento Mongo apropriado"""
+    return db.get_document(_get_db_path(extension_id))
 
 
 def save_subscriptions(data: dict, extension_id: str = None):
-    """Salva dados de assinaturas no arquivo apropriado"""
-    db.salvar(_get_db_path(extension_id), data)
+    """Salva dados de assinaturas no documento Mongo apropriado"""
+    db.save_document(_get_db_path(extension_id), data)
 
 
 def get_extension_subscription(extension_id: str) -> dict:
@@ -125,9 +123,9 @@ def activate_extension(extension_id: str, payment_id: str):
     save_subscriptions(subs, extension_id)
     
     # Também ativar na config de extensões
-    config = db.obter("configs/config_extensions.json")
+    config = db.get_document("extensions_config")
     config[extension_id] = True
-    db.salvar("configs/config_extensions.json", config)
+    db.save_document("extensions_config", config)
     
     return expires_at
 
@@ -160,7 +158,7 @@ async def create_payment(extension_id: str, user_id: str) -> dict:
                     payment_data = data.get("data", {})
                     
                     # Salvar pagamento pendente
-                    pending = db.obter("database/extensions/pending_payments.json")
+                    pending = db.get_document("extensions_pending_payments")
                     pending[payment_data["id"]] = {
                         "extension_id": extension_id,
                         "user_id": user_id,
@@ -168,7 +166,7 @@ async def create_payment(extension_id: str, user_id: str) -> dict:
                         "created_at": datetime.now().isoformat(),
                         "status": "PENDING"
                     }
-                    db.salvar("database/extensions/pending_payments.json", pending)
+                    db.save_document("extensions_pending_payments", pending)
                     
                     return {
                         "success": True,
@@ -185,17 +183,17 @@ async def create_payment(extension_id: str, user_id: str) -> dict:
 
 def get_payment_history() -> dict:
     """Obtém histórico de pagamentos realizados"""
-    return db.obter("database/extensions/payment_history.json")
+    return db.get_document("extensions_payment_history")
 
 
 def save_payment_history(data: dict):
     """Salva histórico de pagamentos"""
-    db.salvar("database/extensions/payment_history.json", data)
+    db.save_document("extensions_payment_history", data)
 
 
 def get_user_payments(user_id: str) -> dict:
     """Retorna pagamentos pendentes e histórico do usuário"""
-    pending = db.obter("database/extensions/pending_payments.json")
+    pending = db.get_document("extensions_pending_payments")
     history = get_payment_history()
     
     user_pending = []
@@ -233,7 +231,7 @@ async def check_payment(payment_id: str) -> dict:
                     
                     # Se pagamento completado, ativar extensão
                     if status == "COMPLETED":
-                        pending = db.obter("database/extensions/pending_payments.json")
+                        pending = db.get_document("extensions_pending_payments")
                         if payment_id in pending:
                             payment_info = pending[payment_id]
                             extension_id = payment_info["extension_id"]
@@ -249,7 +247,7 @@ async def check_payment(payment_id: str) -> dict:
                             
                             # Remover dos pendentes
                             del pending[payment_id]
-                            db.salvar("database/extensions/pending_payments.json", pending)
+                            db.save_document("extensions_pending_payments", pending)
                             
                             return {
                                 "success": True,

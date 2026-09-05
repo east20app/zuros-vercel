@@ -19,7 +19,7 @@ class DroxGenConfig(commands.Cog):
 
     def _get_integration_status(self) -> dict:
         """Obtém status da integração"""
-        return db.obter("database/zurosgen.json")
+        return db.get_document("extensions_droxgen")
 
     async def display_panel(self, inter: disnake.MessageInteraction):
         # Auto-check for pending codes
@@ -37,7 +37,7 @@ class DroxGenConfig(commands.Cog):
 
     async def _check_pending_codes(self):
         """Verifica se há códigos pendentes que já foram resgatados"""
-        status_data = db.obter("database/zurosgen.json")
+        status_data = db.get_document("extensions_droxgen")
         pending_code = status_data.get("pending_code")
         
         if not pending_code:
@@ -63,7 +63,7 @@ class DroxGenConfig(commands.Cog):
                             status_data["integrated_user"] = username
                             status_data["integrated_user_id"] = user_id
                             status_data["pending_code"] = None  # Clear pending code
-                            db.salvar("database/zurosgen.json", status_data)
+                            db.save_document("extensions_droxgen", status_data)
         except Exception:
             pass  # Silently fail, we'll try again next time
 
@@ -236,9 +236,9 @@ class DroxGenConfig(commands.Cog):
                         code = data.get("code")
                         
                         # Save pending code for auto-check
-                        status_data = db.obter("database/zurosgen.json")
+                        status_data = db.get_document("extensions_droxgen")
                         status_data["pending_code"] = code
-                        db.salvar("database/zurosgen.json", status_data)
+                        db.save_document("extensions_droxgen", status_data)
                         
                         await inter.followup.send(content=f"Seu código de vinculação é: **{code}**\nInsira este código no painel para vincular o bot.", ephemeral=True)
                     else:
@@ -284,9 +284,9 @@ class DroxGenConfig(commands.Cog):
             val = inter.values[0]
             key = val.replace("proj_", "")
             
-            current_data = db.obter("database/zurosgen.json")
+            current_data = db.get_document("extensions_droxgen")
             current_data["project_key"] = key
-            db.salvar("database/zurosgen.json", current_data)
+            db.save_document("extensions_droxgen", current_data)
             
             await inter.response.send_message(f"Projeto selecionado com sucesso! Key: `{key}`", ephemeral=True) 
 
@@ -497,11 +497,11 @@ class DroxGenConfig(commands.Cog):
                                 user_id = data.get("redeemedBy")
                                 
                                 # Update database
-                                current_data = db.obter("database/zurosgen.json")
+                                current_data = db.get_document("extensions_droxgen")
                                 current_data["integrated_user"] = username
                                 current_data["integrated_user_id"] = user_id
                                 current_data["project_key"] = None
-                                db.salvar("database/zurosgen.json", current_data)
+                                db.save_document("extensions_droxgen", current_data)
                                 
                                 await inter.followup.send(f"Sucesso! Bot vinculado ao usuário: **{username}**", ephemeral=True)
                             else:
@@ -512,10 +512,10 @@ class DroxGenConfig(commands.Cog):
                 await inter.followup.send(f"Erro de conexão: {str(e)}", ephemeral=True)
 
         elif custom_id == "DroxGen_Toggle":
-            current_data = db.obter("database/zurosgen.json")
+            current_data = db.get_document("extensions_droxgen")
             is_enabled = current_data.get("enabled", True)
             current_data["enabled"] = not is_enabled
-            db.salvar("database/zurosgen.json", current_data)
+            db.save_document("extensions_droxgen", current_data)
             
             # Refresh panel
             await self.display_panel(inter)
@@ -584,7 +584,7 @@ class ServiceModal(disnake.ui.Modal):
                             category = child["values"][0]
         
         # Get Project Key
-        data = db.obter("database/zurosgen.json")
+        data = db.get_document("extensions_droxgen")
         project_key = data.get("project_key")
         
         if not project_key:

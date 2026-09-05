@@ -28,35 +28,35 @@ class BoostCommands(commands.Cog):
 
     def _check_extension_enabled(self) -> bool:
         """Verifica se a extensão boost está habilitada"""
-        config = db.obter("configs/config_extensions.json")
+        config = db.get_document("extensions_config")
         return config.get("boost", False)
 
     def _get_boost_data(self) -> dict:
         """Obtém dados do boost"""
-        data = db.obter("database/extensions/data.json")
+        data = db.get_document("extensions_boost_data")
         if "boost" not in data:
             data["boost"] = {
                 "total_accounts": 0,
                 "total_boosts_sent": 0,
                 "orders": {}
             }
-            db.salvar("database/extensions/data.json", data)
+            db.save_document("extensions_boost_data", data)
         return data["boost"]
 
     def _save_boost_data(self, boost_data: dict):
         """Salva dados do boost"""
-        data = db.obter("database/extensions/data.json")
+        data = db.get_document("extensions_boost_data")
         data["boost"] = boost_data
-        db.salvar("database/extensions/data.json", data)
+        db.save_document("extensions_boost_data", data)
 
     def _get_stock(self) -> list:
         """Obtém estoque de tokens"""
-        stock = db.obter("database/extensions/stock.json")
+        stock = db.get_document("extensions_boost_stock")
         return stock.get("tokens", [])
 
     def _save_stock(self, tokens: list):
         """Salva estoque de tokens"""
-        db.salvar("database/extensions/stock.json", {"tokens": tokens})
+        db.save_document("extensions_boost_stock", {"tokens": tokens})
 
     async def _send_boost_request(self, tokens: list, invite: str, name: str = None, bio: str = None, order_id: str = None) -> dict:
         """Envia requisição para API de boost"""

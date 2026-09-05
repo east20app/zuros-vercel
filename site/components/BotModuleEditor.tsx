@@ -124,6 +124,11 @@ const MODULE_SECTION_LABELS: Partial<Record<BotConfigModule, Record<string, stri
     giveaways: { config: "Sorteios e tarefas" },
     cloud: { config: "Credenciais e verificação", tasks: "Tarefas OAuth2", gifts: "Presentes" },
     mensagens: { announce: "Anúncios", templates: "Modelos de mensagens", directMessage: "Editor de mensagem direta" },
+    extensions: {
+        config: "Ativação de extensões", droxgen: "DROX Gen", boostData: "Zuros Boost · dados",
+        boostStock: "Zuros Boost · estoque", subscriptions: "Assinaturas pagas",
+        pendingPayments: "Pagamentos pendentes", paymentHistory: "Histórico de pagamentos",
+    },
 };
 
 function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { modulo: BotConfigModule; value: Record<string, unknown>; roles: DiscordGuildRole[]; channels: DiscordGuildChannel[]; onChange: (path: string[], value: unknown) => void }) {

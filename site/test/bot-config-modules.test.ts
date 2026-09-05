@@ -82,6 +82,17 @@ test("customizacao maps every real DROX customization document", () => {
         mode: "custom_mode",
     });
 });
+test("extensions maps every real DROX extension document", () => {
+    assert.deepEqual(BOT_CONFIG_MODULES.extensions, {
+        config: "extensions_config",
+        droxgen: "extensions_droxgen",
+        boostData: "extensions_boost_data",
+        boostStock: "extensions_boost_stock",
+        subscriptions: "extensions_subscriptions",
+        pendingPayments: "extensions_pending_payments",
+        paymentHistory: "extensions_payment_history",
+    });
+});
 
 test("allows every runtime document used by the current DROX build", () => {
     for (const id of ["antifake_logs", "automations_feedbacks_log", "bot_connection", "convites", "loja_stock_requests", "products", "tickets_calls", "tickets_data"]) {

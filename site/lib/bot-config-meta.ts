@@ -11,4 +11,5 @@ export const BOT_MODULE_META: Record<BotConfigModule, { icon: IconName; name: st
     cloud: { icon: "apps", name: "DROX Cloud", description: "OAuth2, verificação, tarefas e presentes" },
     mensagens: { icon: "bell", name: "Mensagens", description: "Anúncios, mensagens diretas e modelos" },
     configuracoes: { icon: "settings", name: "Configurações", description: "Cargos, canais, pagamentos, anti-fake e blacklist" },
+    extensions: { icon: "apps", name: "Extensões", description: "Ativação, DROX Gen, boost e assinaturas" },
 };

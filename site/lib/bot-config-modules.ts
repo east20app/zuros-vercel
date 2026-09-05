@@ -33,6 +33,11 @@ export const BOT_CONFIG_MODULES = {
     customizacao: { colors: "custom_colors", status: "custom_status", info: "custom_info", mode: "custom_mode" },
     cloud: { config: "cloud_data", tasks: "cloud_tasks" },
     mensagens: { announce: "messages_anunciar", templates: "messages_templates1", directMessage: "enviar_dm_editor" },
+    extensions: {
+        config: "extensions_config", droxgen: "extensions_droxgen", boostData: "extensions_boost_data",
+        boostStock: "extensions_boost_stock", subscriptions: "extensions_subscriptions",
+        pendingPayments: "extensions_pending_payments", paymentHistory: "extensions_payment_history",
+    },
     configuracoes: {
         cargos: "cargos", canais: "canais", pagamentos: "payment_configs", pagamentosStatus: "pagamentos", antifake: "antifake_config",
         notificacoes: "notifications_config", blacklist: "blacklist",

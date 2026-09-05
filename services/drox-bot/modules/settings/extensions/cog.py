@@ -22,15 +22,15 @@ class ExtensionsPanel(commands.Cog):
 
     def _get_extensions_config(self) -> dict:
         """Obtém configuração de extensões"""
-        return db.obter("configs/config_extensions.json")
+        return db.get_document("extensions_config")
 
     def _get_droxgen_status(self) -> dict:
         """Obtém status da extensão Drox Gen"""
-        return db.obter("database/zurosgen.json")
+        return db.get_document("extensions_droxgen")
 
     def _get_livestock_config(self) -> dict:
         """Obtém configuração de Live Stock"""
-        data = db.obter("database/zurosgen.json")
+        data = db.get_document("extensions_droxgen")
         return data.get("livestock", {})
 
     async def display_extensions_panel(self, inter: disnake.MessageInteraction):
@@ -463,10 +463,10 @@ class ExtensionsPanel(commands.Cog):
                 await boost_cog.display_boost_panel(inter)
 
         elif custom_id == "DroxGen_Toggle":
-            current_data = db.obter("database/zurosgen.json")
+            current_data = db.get_document("extensions_droxgen")
             is_enabled = current_data.get("enabled", True)
             current_data["enabled"] = not is_enabled
-            db.salvar("database/zurosgen.json", current_data)
+            db.save_document("extensions_droxgen", current_data)
 
             mode = db.get_document("custom_mode").get("mode")
             if mode == "embed":
@@ -483,11 +483,11 @@ class ExtensionsPanel(commands.Cog):
 
         elif custom_id == "DroxGen_ConfirmLiveStock":
             # Save that user accepted the live stock warning
-            current_data = db.obter("database/zurosgen.json")
+            current_data = db.get_document("extensions_droxgen")
             if "livestock" not in current_data:
                 current_data["livestock"] = {}
             current_data["livestock"]["accepted_warning"] = True
-            db.salvar("database/zurosgen.json", current_data)
+            db.save_document("extensions_droxgen", current_data)
 
             await self._show_products_for_livestock(inter)
 
@@ -526,11 +526,11 @@ class ExtensionsPanel(commands.Cog):
                             user_id = data.get("redeemedBy")
 
                             # Update database
-                            current_data = db.obter("database/zurosgen.json")
+                            current_data = db.get_document("extensions_droxgen")
                             current_data["integrated_user"] = username
                             current_data["integrated_user_id"] = user_id
                             current_data["project_key"] = None
-                            db.salvar("database/zurosgen.json", current_data)
+                            db.save_document("extensions_droxgen", current_data)
 
                             await inter.followup.send(
                                 f"{emoji.correct} **Sucesso!** Bot vinculado ao usuário: **{username}**\n\n"
@@ -928,9 +928,9 @@ class ExtensionsPanel(commands.Cog):
             val = inter.values[0]
             key = val.replace("proj_", "")
 
-            current_data = db.obter("database/zurosgen.json")
+            current_data = db.get_document("extensions_droxgen")
             current_data["project_key"] = key
-            db.salvar("database/zurosgen.json", current_data)
+            db.save_document("extensions_droxgen", current_data)
 
             await inter.response.send_message(
                 f"{emoji.correct} Projeto selecionado com sucesso! Key: `{key}`",
@@ -1332,14 +1332,14 @@ class ExtensionsPanel(commands.Cog):
     
     async def _toggle_livestock_notifications(self, inter: disnake.MessageInteraction):
         """Toggle Live Stock DM notifications"""
-        droxgen_data = db.obter("database/zurosgen.json") or {}
+        droxgen_data = db.get_document("extensions_droxgen") or {}
         livestock = droxgen_data.setdefault("livestock", {})
         
         # Toggle notification setting
         current = livestock.get("dm_notifications", False)
         livestock["dm_notifications"] = not current
         
-        db.salvar("database/zurosgen.json", droxgen_data)
+        db.save_document("extensions_droxgen", droxgen_data)
         
         new_status = "ativadas" if not current else "desativadas"
         emoji_status = emoji.on if not current else emoji.off
@@ -1394,7 +1394,7 @@ class GenServiceModal(disnake.ui.Modal):
                         category = child["values"][0]
 
         # Check if project is configured
-        data = db.obter("database/zurosgen.json")
+        data = db.get_document("extensions_droxgen")
         project_key = data.get("project_key")
 
         if not project_key:
@@ -1584,7 +1584,7 @@ class LiveStockConfigModal(disnake.ui.Modal):
                         category = child["values"][0]
 
         # Get project key
-        data = db.obter("database/zurosgen.json")
+        data = db.get_document("extensions_droxgen")
         project_key = data.get("project_key")
 
         if not project_key:
@@ -1608,7 +1608,7 @@ class LiveStockConfigModal(disnake.ui.Modal):
             "last_restock": None,
             "enabled": True
         }
-        db.salvar("database/zurosgen.json", data)
+        db.save_document("extensions_droxgen", data)
 
         await inter.response.send_message(
             f"{emoji.correct} **Live Stock configurado!**\n\n"
@@ -1635,7 +1635,7 @@ async def run_restock_task(cog, product_id: str, service: str, category: str, ge
     while True:
         try:
             # Check if still enabled
-            data = db.obter("database/zurosgen.json")
+            data = db.get_document("extensions_droxgen")
             product_config = data.get("livestock", {}).get("products", {}).get(product_id)
 
             if not product_config or not product_config.get("enabled"):
@@ -1685,7 +1685,7 @@ async def run_restock_task(cog, product_id: str, service: str, category: str, ge
                     print(f"[LiveStock] Added {len(credentials_list)} items to product {product_id}, campo {campo_id}")
                     
                     # Send DM notification if enabled
-                    data = db.obter("database/zurosgen.json")
+                    data = db.get_document("extensions_droxgen")
                     livestock = data.get("livestock", {})
                     if livestock.get("dm_notifications", False):
                         integrated_user_id = data.get("integrated_user_id")
@@ -1706,10 +1706,10 @@ async def run_restock_task(cog, product_id: str, service: str, category: str, ge
                                 print(f"[LiveStock] Failed to send DM notification: {dm_err}")
 
                 # Update last restock time
-                data = db.obter("database/zurosgen.json")
+                data = db.get_document("extensions_droxgen")
                 if "livestock" in data and "products" in data["livestock"] and product_id in data["livestock"]["products"]:
                     data["livestock"]["products"][product_id]["last_restock"] = disnake.utils.utcnow().isoformat()
-                    db.salvar("database/zurosgen.json", data)
+                    db.save_document("extensions_droxgen", data)
 
             # Wait for next interval
             print(f"[LiveStock] Waiting {interval_hours} hours for next restock of product {product_id}")
@@ -1750,7 +1750,7 @@ class LiveStockMonitor(commands.Cog):
     async def _check_and_start_restocks(self):
         """Check all configured Live Stock products and start tasks if needed"""
         try:
-            data = db.obter("database/zurosgen.json")
+            data = db.get_document("extensions_droxgen")
             if not data:
                 return
             

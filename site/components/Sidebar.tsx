@@ -33,10 +33,11 @@ const PANEL_RAIL_ITEMS = [
     { module: "customizacao", label: "Tokens e nome" },
     { module: "automacoes", label: "Automações" },
     { module: "cloud", label: "PromisseCloud" },
-    { module: "mensagens", label: "Extensões" },
+    { module: "mensagens", label: "Mensagens" },
     { module: "protecao", label: "Proteção do servidor" },
     { module: "giveaways", label: "Sorteios" },
     { module: "configuracoes", label: "Configurações" },
+    { module: "extensions", label: "Extensões" },
 ] as const;
 
 function SidebarIcon({
@@ -404,6 +405,7 @@ export function Sidebar({
               { icon: "admin", label: "Proteção do servidor", href: `/dashboard/${selectedBotId}/config/protecao`, exact: true },
               { icon: "affiliate", label: "Sorteios", href: `/dashboard/${selectedBotId}/config/giveaways`, exact: true },
               { icon: "settings", label: "Configurações", href: `/dashboard/${selectedBotId}/config/configuracoes`, exact: true },
+              { icon: "apps", label: "Extensões", href: `/dashboard/${selectedBotId}/config/extensions`, exact: true },
           ]
         : [
               { icon: "dashboard", label: "Dashboard", href: "/dashboard" },

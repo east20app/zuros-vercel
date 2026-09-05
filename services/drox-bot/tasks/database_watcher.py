@@ -41,6 +41,8 @@ EXTERNALLY_CONFIGURABLE_DOCUMENTS = {
     "automations", "automations_cont_vendas", "blacklist",
     "cloud_data", "cloud_tasks", "cloud_gifts", "custom_info",
     "enviar_dm_editor", "giveaways", "automations_disparador_dm", "automations_forms", "loja_mass_coupons", "loja_products",
+    "extensions_config", "extensions_droxgen", "extensions_boost_data", "extensions_boost_stock",
+    "extensions_subscriptions", "extensions_pending_payments", "extensions_payment_history",
     "loja_roles_temp", "loja_stock_requests", "messages_anunciar",
     "messages_templates1", "notifications_config", "products",
     "protection_privatizacoes_apps", "protection_privatizacoes_cargos",

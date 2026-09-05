@@ -42,6 +42,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
             { label: "Mensagens", suffix: "/config/mensagens", icon: "bell" },
             { label: "Personalização", suffix: "/config/customizacao", icon: "bot" },
             { label: "Configurações", suffix: "/config/configuracoes", icon: "settings" },
+            { label: "Extensões", suffix: "/config/extensions", icon: "apps" },
         ],
     },
 ];
