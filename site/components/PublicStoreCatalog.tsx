@@ -1,24 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import type { ProductCatalogDTO, PurchasePlan, StoreCatalogDTO } from "@root/src/integration";
-import { startPurchase } from "@/lib/actions/purchases.actions";
+import { useTransition } from "react";
+import type { ProductCatalogDTO, PurchasePlan, StoreCatalogDTO } from "@root/src/integration";import { startPurchase } from "@/lib/actions/purchases.actions";
 import { useToast } from "./Toast";
 import { Icon } from "./Icon";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
 const fallbackFeatures = ["Infraestrutura e gerenciamento integrados", "Atualizações e monitoramento pelo painel", "Suporte para configuração da aplicação"];
 
-const planOrder: PurchasePlan[] = ["weekly", "biweekly", "monthly", "lifetime"];
-const planTabs: Record<PurchasePlan, { label: string; short: string }> = {
-    weekly: { label: "Semanal", short: "7 dias" },
-    biweekly: { label: "Quinzenal", short: "15 dias" },
-    monthly: { label: "Mensal", short: "30 dias" },
-    lifetime: { label: "Vitalício", short: "Acesso total" },
-};
+function FeatureMark({ plus = false }: { plus?: boolean }) {
+    return (
+        <span className={`plans-feature-mark${plus ? " plus" : ""}`}>
+            {plus ? <b aria-hidden="true">+</b> : <Icon name="check" className="h-3 w-3" />}
+        </span>
+    );
+}
 
 function normalizeName(value: string) {
     return value.trim().toLocaleLowerCase("pt-BR");
@@ -33,114 +31,72 @@ function isZurosVerification(product: ProductCatalogDTO) {
     return name.includes("verifica") || product.productType === "auth";
 }
 
-function defaultPlan(prices: ProductCatalogDTO["prices"]): PurchasePlan | null {
-    const available = planOrder.filter((plan) => prices.some((price) => price.plan === plan));
-    if (available.includes("monthly")) return "monthly";
-    return available[0] || null;
+const planFallbackOrder: PurchasePlan[] = ["monthly", "lifetime", "weekly", "biweekly"];
+
+function defaultPrice(product: ProductCatalogDTO) {
+    return planFallbackOrder.map((plan) => product.prices.find((price) => price.plan === plan)).find(Boolean) ?? product.prices[0];
 }
 
-function ProductCard({ store, product, isFeatured, canPurchase, pending, onBuy }: {
-    store: StoreCatalogDTO;
+function planLabel(plan: PurchasePlan): string {
+    return plan === "lifetime" ? "acesso vitalício" : "por mês";
+}
+
+function ProductCard({ product, isFeatured, canPurchase, pending, onBuy }: {
     product: ProductCatalogDTO;
     isFeatured: boolean;
     canPurchase: boolean;
     pending: boolean;
     onBuy: (plan: PurchasePlan) => void;
 }) {
-    const [selected, setSelected] = useState<PurchasePlan>(defaultPlan(product.prices) || "monthly");
-    const current = product.prices.find((price) => price.plan === selected);
+    const current = defaultPrice(product);
     const productIsZurosBot = isZurosBot(product);
-    const features = product.description?.split(/\r?\n|[•;]/).map((item) => item.trim()).filter(Boolean).slice(0, 5) || fallbackFeatures.slice(0, 5);
+    const productIsVerification = isZurosVerification(product);
     const isComingSoon = !!product.comingSoon;
     const isPreparing = !isComingSoon && !product.available;
     const disabled = isComingSoon || isPreparing;
-    const title = productIsZurosBot ? "Zuros Bot" : product.name;
-    const overline = productIsZurosBot ? "O começo mais completo" : product.productType === "auth" ? "Camada de proteção" : "Para sua operação";
+    const title = productIsZurosBot ? "Prime" : productIsVerification ? "Verificação" : product.name;
+    const features = product.description?.split(/\r?\n|[•;]/).map((item) => item.trim()).filter(Boolean).slice(0, 5);
+    const list = features && features.length ? features : fallbackFeatures.slice(0, 5);
 
     return (
         <article className={`plans-product-card${isFeatured ? " is-featured" : ""}${isComingSoon ? " is-coming-soon" : ""}`}>
-            <div className="plans-product-glow" aria-hidden="true" />
-            <div className="plans-product-topline">
-                <span>{store.name}</span>
-                {isFeatured && <b>Mais escolhido</b>}
-                {isComingSoon && <b className="is-soon">Em breve</b>}
-            </div>
-            <div className="plans-product-heading">
-                <div>
-                    <p className="plans-product-overline">{overline}</p>
-                    <h2>{title}</h2>
-                    <p>{product.description?.split(/\r?\n|[•;]/)[0] || "Aplicação profissional integrada à plataforma ZUROS."}</p>
-                </div>
-                <span className="plans-product-symbol" aria-hidden="true">↗</span>
-            </div>
-            <div className="plans-product-visual">
-                {product.bannerUrl ? (
-                    <Image unoptimized src={product.bannerUrl} alt={`Banner de ${title}`} width={640} height={160} className="plans-product-banner-image" />
-                ) : (
+            {isFeatured && <span className="plans-card-badge-float">Popular</span>}
+            <h2 className="plans-card-title">{title}</h2>
+            <p className="plans-card-desc">{product.description?.split(/\r?\n|[•;]/)[0] || "Aplicação profissional integrada à plataforma ZUROS."}</p>
+            <div className="plans-card-price">
+                {current && !isComingSoon ? (
                     <>
-                        <span className="plans-product-visual-mark">{title.charAt(0).toUpperCase()}</span>
-                        <span className="plans-product-visual-line" />
-                        <span className="plans-product-visual-code">ZUROS / {product.productType.toUpperCase()}</span>
-                    </>
-                )}
-            </div>
-            <div className="plans-product-price" data-lifetime={selected === "lifetime"}>
-                {current ? (
-                    <>
-                        <span>R$</span>
-                        <strong key={selected}>{money.format(current.price).replace("R$", "").trim()}</strong>
-                        <small>{selected === "lifetime" ? "/ acesso vitalício" : "/ mês"}</small>
+                        <strong>{money.format(current.price).replace("R$", "").trim()}</strong>
+                        <small>/ {planLabel(current.plan)}</small>
                     </>
                 ) : isComingSoon ? (
-                    <>
-                        <strong className="plans-price-soon">Em breve</strong>
-                    </>
+                    <strong className="plans-price-soon">Em breve</strong>
                 ) : (
                     <strong>—</strong>
                 )}
             </div>
-            {!isComingSoon && product.prices.length > 1 && (
-                <div className="plans-plan-tabs" role="tablist" aria-label="Planos disponíveis">
-                    {planOrder.filter((plan) => product.prices.some((price) => price.plan === plan)).map((plan) => (
-                        <button
-                            key={plan}
-                            type="button"
-                            role="tab"
-                            aria-selected={selected === plan}
-                            className={`plans-plan-tab${selected === plan ? " is-active" : ""}`}
-                            onClick={() => setSelected(plan)}
-                        >
-                            <b>{planTabs[plan].label}</b>
-                            <span>{planTabs[plan].short}</span>
-                        </button>
-                    ))}
-                </div>
-            )}
-            <div className="plans-product-includes">
-                <span>Inclui na operação</span>
-                <span className="plans-product-rule" />
-            </div>
+            <div className="plans-card-rule" />
             <ul>
-                {features.map((feature) => (
+                {list.map((feature, i) => (
                     <li key={feature}>
-                        <span><Icon name="check" className="h-3 w-3" /></span>
+                        <FeatureMark plus={isFeatured && i === list.length - 1 && /\+|6|7|8/.test(feature)} />
                         {feature}
                     </li>
                 ))}
             </ul>
-            {disabled ? <button type="button" disabled className="plans-product-action is-disabled">{isComingSoon ? "Em breve" : "Em preparação"}<span aria-hidden>↗</span></button> : canPurchase && current ? (
+            {disabled ? <button type="button" disabled className="plans-product-action is-disabled">{isComingSoon ? "Em breve" : "Em preparação"}</button> : canPurchase && current ? (
                 <button
                     type="button"
-                    disabled={pending || !current}
-                    onClick={() => onBuy(selected)}
+                    disabled={pending}
+                    onClick={() => onBuy(current.plan)}
                     className="plans-product-action"
                 >
-                    {pending ? "Abrindo pagamento..." : `Comprar ${productIsZurosBot ? "Zuros Bot" : product.name}`}
-                    <span aria-hidden>↗</span>
+                    {pending ? "Abrindo pagamento..." : `Adquirir ${title}`}
                 </button>
             ) : (
-                <Link href="/login?callbackUrl=/planos" className="plans-product-action">Entrar para comprar<span aria-hidden>↗</span></Link>
+                <Link href="/login?callbackUrl=/planos" className="plans-product-action">Entrar para comprar</Link>
             )}
+            {isComingSoon && <span className="plans-card-store">Em breve</span>}
         </article>
     );
 }
@@ -159,7 +115,6 @@ export function PublicStoreCatalog({ stores, canPurchase = false }: { stores: St
         (a, b) => (a.product.sortOrder || 0) - (b.product.sortOrder || 0) || a.product.name.localeCompare(b.product.name, "pt-BR"),
     );
 
-    // Produtos marcados como destaque (ou o ZUROS Bot / verificação) ocupam a posição central.
     const featuredEntry = ordered.find(({ product }) => product.featured)
         || (ordered.length > 1 ? ordered.find(({ product }) => isZurosBot(product)) : undefined)
         || (ordered.length > 1 ? ordered.find(({ product }) => isZurosVerification(product)) : undefined);

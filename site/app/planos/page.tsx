@@ -19,10 +19,11 @@ export default async function PlansPage() {
 
     return <div className="reference-plans min-h-screen overflow-x-clip text-white"><AnnouncementBar /><PublicNavbar user={user} pendingCount={pendingCount} />
         <main>
-            <section className="reference-plans-intro mx-auto w-full max-w-6xl px-5 pb-12 pt-20 text-center sm:px-8 sm:pt-28">
-                <p className="home-kicker"><span className="home-kicker-mark" />ZUROS / PLANOS</p><h1>Escolha o plano ideal <span>para você</span></h1><p>Soluções flexíveis para negócios em crescimento e empresas em expansão.</p>
+            <section className="reference-plans-intro mx-auto w-full max-w-6xl px-5 pb-10 pt-20 text-center sm:px-8 sm:pt-24">
+                <h1>Busque um plano para potencializar seus projetos.</h1>
+                <p>De startups de estágio inicial a empresas em crescimento, a ZUROS tem planos para todos.</p>
             </section>
-            <section className="reference-plans-catalog mx-auto w-full max-w-6xl px-5 py-8 sm:px-8 lg:py-12"><div className="plans-catalog-heading"><div><p className="home-section-index">PLANOS</p><h2>Produtos disponíveis</h2></div></div>{catalogs.length ? <PublicStoreCatalog stores={catalogs} canPurchase={!!user} /> : <div className="zuros-card border-dashed py-16 text-center text-sm text-zinc-500">Nenhum produto mensal disponível no momento.</div>}<p className="plans-catalog-disclaimer">Os preços e a disponibilidade podem sofrer alterações sem aviso prévio.</p></section>
+            <section className="reference-plans-catalog mx-auto w-full max-w-6xl px-5 py-8 sm:px-8 lg:py-10">{catalogs.length ? <PublicStoreCatalog stores={catalogs} canPurchase={!!user} /> : <div className="zuros-card border-dashed py-16 text-center text-sm text-zinc-500">Nenhum produto disponível no momento.</div>}<p className="plans-catalog-disclaimer">Atenção: os preços acima estão sujeitos a alterações sem aviso prévio, assim como a disponibilidade das unidades.</p></section>
         </main>
         <PublicFooter isAuthenticated={!!user} />
     </div>;
