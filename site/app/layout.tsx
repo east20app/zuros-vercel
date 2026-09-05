@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "ZUROS APP",
     description: "Painel de gerenciamento de bots",
     manifest: "/manifest.webmanifest",
-    icons: { icon: "/brand-logo-transparent.png", shortcut: "/brand-logo-transparent.png", apple: "/brand-logo-transparent.png" },
+    icons: { icon: "/zuros-mark.png", shortcut: "/zuros-mark.png", apple: "/zuros-mark.png" },
     other: { "mobile-web-app-capable": "yes", "apple-mobile-web-app-status-bar-style": "black-translucent" },
 };
 

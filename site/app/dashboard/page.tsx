@@ -31,22 +31,20 @@ export default async function DashboardPage() {
     });
 
     return (
-        <main className="dashboard-home dashboard-home-v2 mx-auto min-w-0 max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
-            <section className="dashboard-command-hero dashboard-command-hero-simple">
-                <div className="dashboard-command-copy">
-                    <p className="home-kicker"><span className="home-kicker-mark" />PAINEL</p>
-                    <h1>Aplicações</h1>
-                    <p className="dashboard-command-lede">Escolha uma aplicação para continuar.</p>
+        <main className="dashboard-home dashboard-home-clean mx-auto min-w-0 max-w-6xl px-5 py-8 sm:px-8 lg:px-10">
+            <header className="dashboard-page-header">
+                <div>
+                    <h1>Minhas aplicações</h1>
+                    <p>Selecione uma aplicação para abrir o painel.</p>
                 </div>
-                <Button href="/planos" className="dashboard-action-primary">Adicionar aplicação <span aria-hidden="true">↗</span></Button>
-            </section>
+                <Button href="/planos" className="dashboard-action-primary">Adquirir aplicação</Button>
+            </header>
 
-            <section className="dashboard-apps-section" aria-labelledby="dashboard-apps-heading">
+            <section className="dashboard-apps-section dashboard-apps-section-clean" aria-labelledby="dashboard-apps-heading">
                 <div className="dashboard-apps-heading">
-                    <div><p className="home-section-index">APLICAÇÕES</p><h2 id="dashboard-apps-heading">Suas aplicações</h2></div>
-                    <div className="dashboard-apps-count"><strong>{String(apps.length).padStart(2, "0")}</strong><span>{apps.length === 1 ? "aplicação conectada" : "aplicações conectadas"}</span></div>
+                    <h2 id="dashboard-apps-heading">Aplicações</h2>
                 </div>
-                <div className="dashboard-apps-list">{sorted.length === 0 ? <div className="dashboard-empty dashboard-empty-v2"><div className="dashboard-empty-mark">+</div><p className="dashboard-eyebrow">PRIMEIRO MOVIMENTO</p><h2>Comece pelo que você quer colocar no ar.</h2><p>Escolha uma aplicação no catálogo e conecte sua primeira operação ao painel.</p><Button href="/planos" className="mt-5">Conhecer aplicações <span aria-hidden="true">↗</span></Button></div> : <DashboardAppsGrid apps={sorted} />}</div>
+                <div className="dashboard-apps-list">{sorted.length === 0 ? <div className="dashboard-empty dashboard-empty-clean"><h2>Nenhuma aplicação</h2><p>Adquira uma aplicação para começar.</p><Button href="/planos" className="mt-5">Adquirir aplicação</Button></div> : <DashboardAppsGrid apps={sorted} />}</div>
             </section>
         </main>
     );

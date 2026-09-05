@@ -3,7 +3,7 @@ import crypto from "crypto";
 const PREFIX = "enc:v1:";
 
 function encryptionKey(): Buffer {
-    const secret = process.env.DATA_ENCRYPTION_KEY || process.env.NEXTAUTH_SECRET;
+    const secret = process.env.DATA_ENCRYPTION_KEY;
     if (!secret) {
         throw new Error("DATA_ENCRYPTION_KEY não configurada.");
     }

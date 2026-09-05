@@ -10,6 +10,7 @@ Fluxo:
 
 import asyncio
 import logging
+import os
 
 import aiohttp
 
@@ -25,10 +26,8 @@ GETPROJECT_URL = (
     "https://getproject.online/api/unlimited-generate"
 )
 
-# KEY DIRETO NO CÓDIGO
-GETPROJECT_TOKEN = (
-    "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"
-)
+# Token fornecido exclusivamente pelo ambiente de execução.
+GETPROJECT_TOKEN = os.getenv("GETPROJECT_TOKEN", "")
 
 
 # ═════════════════════════════════════════════════════════════
@@ -39,11 +38,8 @@ GROQ_URL = (
     "https://api.groq.com/openai/v1/chat/completions"
 )
 
-# KEYS DIRETO NO CÓDIGO
-GROQ_API_KEYS = [
-    "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",
-    "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",
-]
+# Chaves separadas por vírgula no ambiente; sem fallback versionado.
+GROQ_API_KEYS = [key.strip() for key in os.getenv("GROQ_API_KEYS", "").split(",") if key.strip()]
 
 
 # Modelos em ordem de preferência / fallback
