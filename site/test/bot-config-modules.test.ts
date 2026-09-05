@@ -45,6 +45,7 @@ test("loja maps every real DROX shop document", () => {
         qrCustomization: "loja_qr_customization",
         productPreferences: "products_preferences",
         balanceConfig: "loja_saldo_config",
+        cashback: "loja_cashback_config",
     });
 });
 test("automacoes maps every real DROX automation document", () => {

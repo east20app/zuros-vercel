@@ -51,6 +51,12 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
         },
         deposit_settings: { min_deposit: 5, max_deposit: 1000, terms: null, notify_role_id: null },
     },
+    loja_cashback_config: {
+        enabled: false,
+        default_percentage: 5.0,
+        max_cashback: null,
+        rules: [],
+    },
 
     // --- Proteção geral ---
     protection_config: {},

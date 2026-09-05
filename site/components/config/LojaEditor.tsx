@@ -212,6 +212,7 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
     };
 
     const couponsRaw = asRecord(doc("massCoupons").coupons);
+    const cashbackRules = Array.isArray(doc("cashback").rules) ? (doc("cashback").rules as Doc[]) : [];
     const commitCoupon = () => {
         if (!editingCoupon || !editingCoupon.code) return;
         const coupons = { ...couponsRaw };
@@ -462,6 +463,32 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                         <Field label="Estilo do botão"><select className={inputClass} value={str(getPath(doc("balanceConfig"), ["deposit_panel", "button", "style"]), "green")} onChange={(e) => setDoc("balanceConfig", setPath(doc("balanceConfig"), ["deposit_panel", "button", "style"], e.target.value))}><option value="green">Verde</option><option value="blurple">Azul</option><option value="grey">Cinza</option><option value="red">Vermelho</option></select></Field>
                     </div>
                     <PanelPublisher appId={appId} panel="balance" channels={channels} initialChannelId={str(getPath(doc("balanceConfig"), ["deposit_panel", "channel_id"]))} label="Enviar ou atualizar painel de saldo" />
+                </div>
+            </Section>
+            <Section title="Cashback" subtitle="Percentual de volta por compra credenciado como saldo, mesmas regras do painel Discord">
+                <div className="grid gap-3 md:grid-cols-2">
+                    <ToggleRow label="Cashback ativado" hint="Exige o sistema de saldo ativado; devolve um percentual da compra como saldo" checked={bool(doc("cashback").enabled)} onChange={togglePersist("cashback", "enabled")} />
+                    <Field label="Percentual padrão (%)" hint="Aplicado a todos os membros; as regras por cargo multiplicam este valor"><input className={inputClass} type="number" min="0" max="100" step="0.1" value={Number(doc("cashback").default_percentage ?? 5)} onChange={(e) => setDoc("cashback", { ...doc("cashback"), default_percentage: Number(e.target.value) })} /></Field>
+                    <Field label="Cashback máximo (R$)" hint="0 significa sem limite por compra"><input className={inputClass} type="number" min="0" step="0.01" value={Number(doc("cashback").max_cashback ?? 0)} onChange={(e) => setDoc("cashback", { ...doc("cashback"), max_cashback: Number(e.target.value) > 0 ? Number(e.target.value) : null })} /></Field>
+                </div>
+                <div className="mt-4 rounded-xl border border-[#00CBA4]/20 bg-[#00CBA4]/[.04] p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h3 className="text-sm font-medium text-white">Regras por cargo</h3>
+                        <Button size="sm" onClick={() => setDoc("cashback", { ...doc("cashback"), rules: [...cashbackRules, { role_id: "", role_name: "", multiplier: 1.0 }] })}>Adicionar regra</Button>
+                    </div>
+                    {cashbackRules.length === 0 ? (
+                        <Empty text="Nenhuma regra por cargo. O percentual padrão será usado para todos os membros." />
+                    ) : (
+                        <div className="grid gap-2">
+                            {cashbackRules.map((rule, index) => (
+                                <div key={`${str(rule.role_id) || "novo"}-${index}`} className="grid items-end gap-2 rounded-lg border border-zinc-800 bg-black/25 p-3 md:grid-cols-[minmax(0,1fr)_140px_auto]">
+                                    <Field label="Cargo"><RoleSelect roles={roles} value={str(rule.role_id)} onChange={(roleId) => { const role = roles.find((r) => r.id === roleId); const next = [...cashbackRules]; next[index] = { ...rule, role_id: roleId, role_name: role?.name ?? "" }; setDoc("cashback", { ...doc("cashback"), rules: next }); }} /></Field>
+                                    <Field label="Multiplicador" hint={`Final: ${Number(Number(doc("cashback").default_percentage ?? 5) * Number(rule.multiplier ?? 1)).toFixed(1)}%`}><input className={inputClass} type="number" min="0" step="0.1" value={Number(rule.multiplier ?? 1)} onChange={(e) => { const next = [...cashbackRules]; next[index] = { ...rule, multiplier: Number(e.target.value) }; setDoc("cashback", { ...doc("cashback"), rules: next }); }} /></Field>
+                                    <button type="button" onClick={() => setDoc("cashback", { ...doc("cashback"), rules: cashbackRules.filter((_, i) => i !== index) })} className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10">Remover</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </Section>
             <Section title="Dados operacionais" subtitle="Atenção: edite com cuidado, são registros gerados pelo bot">

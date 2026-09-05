@@ -5,6 +5,7 @@ export const BOT_CONFIG_MODULES = {
         maintenance: "loja_maintenance", personalization: "loja_personalization", qrCustomization: "loja_qr_customization",
         productPreferences: "products_preferences",
         balanceConfig: "loja_saldo_config",
+        cashback: "loja_cashback_config",
     },
     protecao: {
         config: "protection_config", antifake: "antifake_config", authorized: "antifake_authorized",
