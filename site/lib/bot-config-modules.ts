@@ -28,6 +28,7 @@ export const BOT_CONFIG_MODULES = {
         inviteTracker: "automations_invite_tracker", lockUnlock: "automations_lock_unlock", autoMessage: "automations_msg_auto", nuke: "automations_nuke",
         reactions: "automations_reactions", repost: "automations_repost", autoResponse: "automations_response_auto",
         suggestions: "automations_suggestions", topics: "automations_topics",
+        disparadorDm: "automations_disparador_dm", forms: "automations_forms",
     },
     customizacao: { colors: "custom_colors", status: "custom_status", info: "custom_info", mode: "custom_mode" },
     cloud: { config: "cloud_data", tasks: "cloud_tasks" },

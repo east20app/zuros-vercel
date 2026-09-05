@@ -70,6 +70,8 @@ test("automacoes maps every real DROX automation document", () => {
         autoResponse: "automations_response_auto",
         suggestions: "automations_suggestions",
         topics: "automations_topics",
+        disparadorDm: "automations_disparador_dm",
+        forms: "automations_forms",
     });
 });
 test("customizacao maps every real DROX customization document", () => {

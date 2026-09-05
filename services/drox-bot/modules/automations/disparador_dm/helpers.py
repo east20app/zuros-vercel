@@ -6,7 +6,7 @@ from typing import Optional, List, Dict
 
 def carregar_config() -> dict:
     """Carrega a configuração do Disparador DM's."""
-    dados = db.obter("database/automations/disparador_dm.json") or {}
+    dados = db.get_document("automations_disparador_dm") or {}
     dados.setdefault("ativado", False)
     dados.setdefault("tokens", [])
     dados.setdefault("mensagem", {})
@@ -14,7 +14,7 @@ def carregar_config() -> dict:
 
 def salvar_config(data: dict) -> None:
     """Salva a configuração do Disparador DM's."""
-    db.salvar("database/automations/disparador_dm.json", data)
+    db.save_document("automations_disparador_dm", data)
 
 def carregar_temp_db() -> dict:
     """Carrega o banco de dados temporário."""

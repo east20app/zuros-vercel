@@ -40,7 +40,7 @@ EXTERNALLY_CONFIGURABLE_DOCUMENTS = {
     "antifake_config", "antifake_authorized", "protection_config",
     "automations", "automations_cont_vendas", "blacklist",
     "cloud_data", "cloud_tasks", "cloud_gifts", "custom_info",
-    "enviar_dm_editor", "giveaways", "loja_mass_coupons", "loja_products",
+    "enviar_dm_editor", "giveaways", "automations_disparador_dm", "automations_forms", "loja_mass_coupons", "loja_products",
     "loja_roles_temp", "loja_stock_requests", "messages_anunciar",
     "messages_templates1", "notifications_config", "products",
     "protection_privatizacoes_apps", "protection_privatizacoes_cargos",

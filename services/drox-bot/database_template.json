@@ -25,6 +25,15 @@
     "embed_thumb_url": null,
     "embed_cor": null
   },
+  "automations_disparador_dm": {
+    "ativado": false,
+    "tokens": [],
+    "mensagem": {}
+  },
+  "automations_forms": {
+    "ativado": false,
+    "forms": {}
+  },
   "automations_clean": {
     "ativado": false,
     "canais": {},

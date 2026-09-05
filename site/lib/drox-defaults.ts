@@ -166,6 +166,8 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
         auto_moderation: { enabled: false, mode: "porcentagem", approval_threshold: 60, rejection_threshold: 40, approval_delay_hours: 24 },
     },
     automations_topics: { ativado: false, topicos: [], immune_role_id: null },
+    automations_disparador_dm: { ativado: false, tokens: [], mensagem: {} },
+    automations_forms: { ativado: false, forms: {} },
 
     // --- Customização ---
     custom_colors: { primary: "#ffffff", secondary: "#6c757d", success: "#28a745", danger: "#dc3545", warning: "#ffc107" },
