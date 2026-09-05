@@ -110,6 +110,9 @@ export interface ProductView {
     };
     currentReleaseVersion: string | null;
     lastReleaseCreatedVersion: string;
+    sortOrder: number;
+    featured: boolean;
+    comingSoon: boolean;
     protectedFiles: string[];
     redeemSettings: { active: boolean; days?: number; webhook?: string };
     memoryMB: number;

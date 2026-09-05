@@ -32,6 +32,9 @@ export interface IProducts {
     memoryMB?: number;
     currentReleaseVersion?: string;
     lastReleaseCreatedVersion: string;
+    sortOrder?: number;
+    featured?: boolean;
+    comingSoon?: boolean;
     releases?: Array<
         {
             _id: ObjectId;
@@ -83,6 +86,9 @@ const productsSchema = new Schema<IProducts>({
     memoryMB: { type: Number, required: false, default: 256 },
     currentReleaseVersion: { type: String, required: false },
     lastReleaseCreatedVersion: { type: String, required: true, default: "0.0.0" },
+    sortOrder: { type: Number, required: false, min: 0 },
+    featured: { type: Boolean, required: false, default: false },
+    comingSoon: { type: Boolean, required: false, default: false },
     releases: [
         {
             _id: { type: Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },

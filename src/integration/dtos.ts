@@ -33,6 +33,9 @@ export interface ProductCatalogDTO {
     description: string | null;
     bannerUrl: string | null;
     available: boolean;
+    featured: boolean;
+    comingSoon: boolean;
+    sortOrder: number;
     prices: PurchasePriceDTO[];
 }
 

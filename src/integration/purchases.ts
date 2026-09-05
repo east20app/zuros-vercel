@@ -73,22 +73,29 @@ export async function listStoreProducts(storeId: string): Promise<ProductCatalog
     if (!Types.ObjectId.isValid(storeId)) return [];
     const products = await databases.products.find(
         { storeId },
-        { storeId: 1, name: 1, productType: 1, prices: 1, messageSettings: 1, currentReleaseVersion: 1 },
-    ).lean();
-    return products.flatMap((product) => {
+        { storeId: 1, name: 1, productType: 1, prices: 1, messageSettings: 1, currentReleaseVersion: 1, sortOrder: 1, featured: 1, comingSoon: 1 },
+    ).sort({ sortOrder: 1, name: 1 }).lean();
+    const catalogs: ProductCatalogDTO[] = [];
+    for (const product of products) {
         const prices = productPrices(product);
-        if (!prices.length) return [];
-        return [{
+        const base = {
             id: product._id.toString(),
             storeId: product.storeId.toString(),
             name: product.name,
             productType: product.productType || "bot",
             description: product.messageSettings?.description || null,
             bannerUrl: product.messageSettings?.banner || null,
-            available: product.productType === "auth" || Boolean(product.currentReleaseVersion),
+            sortOrder: product.sortOrder || 0,
             prices,
-        }];
-    });
+        };
+        // Produtos "Em Breve" aparecem no catálogo mesmo sem preço definido.
+        if (product.comingSoon) {
+            catalogs.push({ ...base, featured: !!product.featured, comingSoon: true, available: Boolean(product.currentReleaseVersion) });
+        } else if (prices.length) {
+            catalogs.push({ ...base, featured: !!product.featured, comingSoon: false, available: product.productType === "auth" || Boolean(product.currentReleaseVersion) });
+        }
+    }
+    return catalogs;
 }
 
 export async function listStoreCatalogs(): Promise<StoreCatalogDTO[]> {

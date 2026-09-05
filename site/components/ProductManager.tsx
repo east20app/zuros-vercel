@@ -8,6 +8,7 @@ import { ProductFormModal } from "./ProductFormModal";
 import { DeleteProductButton } from "./CouponFormModal";
 import { PublishProductButton } from "./PublishProductButton";
 import { ProductUpdateActions } from "./ProductUpdateActions";
+import { ProductStorefrontControls } from "./ProductStorefrontControls";
 
 export function ProductManager({ storeId, products }: { storeId: string; products: ProductView[] }) {
     const [modalOpen, setModalOpen] = useState(false);
@@ -37,13 +38,17 @@ export function ProductManager({ storeId, products }: { storeId: string; product
                 <Empty text="Nenhum produto cadastrado." />
             ) : (
                 <div className="grid gap-4 lg:grid-cols-2">
-                    {products.map((product) => (
-                        <Card key={product.id} className="flex flex-col gap-3 transition hover:border-emerald-500/25">
+                    {products.map((product, index) => (
+                        <Card key={product.id} className={`relative flex flex-col gap-3 transition hover:border-emerald-500/25 ${product.comingSoon ? "opacity-80" : ""}`}>
+                            {product.comingSoon && <span className="pointer-events-none absolute right-3 top-3 z-10 rotate-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">Em breve</span>}
                             <div className="flex items-start justify-between gap-2">
                                 <div className="flex items-start gap-3">
                                     <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-500/15 bg-gradient-to-br from-emerald-500/15 to-transparent text-sm font-bold text-emerald-400">{product.name.charAt(0).toUpperCase()}</span>
                                     <div>
-                                        <h2 className="font-semibold text-white">{product.name}</h2>
+                                        <div className="flex items-center gap-2">
+                                            <h2 className="font-semibold text-white">{product.name}</h2>
+                                            {product.featured && <Badge tone="blue">★ Destaque</Badge>}
+                                        </div>
                                         <p className="text-xs text-zinc-500">
                                             {product.runtimeEnvironment} · {product.runCommand}
                                         </p>
@@ -84,7 +89,17 @@ export function ProductManager({ storeId, products }: { storeId: string; product
                                 )}
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-white/[.04] bg-black/30 p-2">
+                                <ProductStorefrontControls
+                                    productId={product.id}
+                                    featured={product.featured}
+                                    comingSoon={product.comingSoon}
+                                    isFirst={index === 0}
+                                    isLast={index === products.length - 1}
+                                />
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 border-t border-white/[.04] pt-3">
                                 <Button size="sm" variant="outline" href={`/admin/${storeId}/products/${product.id}/releases`}>
                                     Releases
                                 </Button>

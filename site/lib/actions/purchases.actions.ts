@@ -188,11 +188,8 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
         if (!product?.currentReleaseVersion || !store) throw new Error("Produto indisponível. Entre em contato com o suporte.");
         if (!await releaseExists(String(product._id), String(product.currentReleaseVersion)).catch(() => false)) throw new Error("Arquivo da aplicação indisponível. Entre em contato com o suporte.");
 
-        const existingApp = await databases.applications.findOne({ ownerId: discordId, storeId: store._id, productId: product._id }).sort({ createdAt: -1 });
-        if (existingApp?.appId) {
-            await databases.cartsBuy.updateOne({ _id: cart._id }, { $set: { status: "closed", delivered: true, deliveryState: "delivered", applicationId: existingApp._id } });
-            return { ok: true, data: { applicationId: String(existingApp._id) } };
-        }
+        // Cada compra gera um novo bot: o usuário pode ter quantas aplicações quiser
+        // (inclusive repetidas) mesmo sem o custo adicional de manter a mesma infra.
 
         const botInfo = await axios.get("https://discord.com/api/v10/applications/@me", { headers: { Authorization: `Bot ${botToken}` }, timeout: 15_000 }).catch(() => null);
         if (!botInfo?.data?.id) throw new Error("O token informado não pertence a um bot Discord válido.");

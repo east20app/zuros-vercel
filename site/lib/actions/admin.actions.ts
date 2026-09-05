@@ -419,7 +419,7 @@ export async function getStoreProducts(storeId: string): Promise<ProductView[]> 
     const discordId = await requireSessionUser();
     await requireStoreAccess(discordId, storeId);
 
-    const products = await databases.products.find({ storeId });
+    const products = await databases.products.find({ storeId }).sort({ sortOrder: 1, name: 1 });
     const store = await databases.stores.findById(storeId, { name: 1 });
 
     const result: ProductView[] = [];
@@ -458,6 +458,9 @@ export async function getStoreProducts(storeId: string): Promise<ProductView[]> 
             },
             currentReleaseVersion: product.currentReleaseVersion || null,
             lastReleaseCreatedVersion: product.lastReleaseCreatedVersion || "0.0.0",
+            sortOrder: product.sortOrder || 0,
+            featured: !!product.featured,
+            comingSoon: !!product.comingSoon,
             protectedFiles: product.protectedFiles || [],
             redeemSettings: { active: !!product.redeemSettings?.active, days: product.redeemSettings?.days, webhook: product.redeemSettings?.webhook },
             memoryMB: product.memoryMB || 256,
@@ -559,6 +562,9 @@ export interface ProductInput {
     messageSettings?: ProductMessageDTO;
     protectedFiles?: string[];
     redeemSettings?: { active: boolean; days?: number; webhook?: string };
+    sortOrder?: number;
+    featured?: boolean;
+    comingSoon?: boolean;
 }
 
 export async function createProduct(storeId: string, input: ProductInput): Promise<{ id: string }> {
@@ -583,6 +589,9 @@ export async function createProduct(storeId: string, input: ProductInput): Promi
         messageSettings: input.messageSettings ? productMessageSchema.parse(input.messageSettings) : undefined,
         protectedFiles: input.protectedFiles || [],
         redeemSettings: input.redeemSettings,
+        sortOrder: input.sortOrder || 0,
+        featured: !!input.featured,
+        comingSoon: !!input.comingSoon,
     });
 
     return { id: String(product._id) };
@@ -614,8 +623,46 @@ export async function updateProduct(productId: string, input: Partial<ProductInp
     if (input.messageSettings !== undefined) product.messageSettings = productMessageSchema.parse(input.messageSettings);
     if (input.protectedFiles !== undefined) product.protectedFiles = input.protectedFiles.map((item) => item.trim()).filter(Boolean).slice(0, 100);
     if (input.redeemSettings !== undefined) product.redeemSettings = input.redeemSettings;
+    if (input.sortOrder !== undefined) product.sortOrder = Math.max(0, Math.floor(input.sortOrder));
+    if (input.featured !== undefined) product.featured = !!input.featured;
+    if (input.comingSoon !== undefined) product.comingSoon = !!input.comingSoon;
 
     await product.save();
+    return { ok: true };
+}
+
+export async function setProductStorefront(productId: string, patch: { featured?: boolean; comingSoon?: boolean }): Promise<{ ok: true }> {
+    const discordId = await requireSessionUser();
+    const product = await databases.products.findById(productId);
+    if (!product) throw new ActionError("Produto não encontrado.");
+    await requireStoreAccess(discordId, String(product.storeId));
+    if (patch.featured !== undefined) product.featured = !!patch.featured;
+    if (patch.comingSoon !== undefined) product.comingSoon = !!patch.comingSoon;
+    await product.save();
+    return { ok: true };
+}
+
+export async function reorderProduct(productId: string, direction: "up" | "down"): Promise<{ ok: true }> {
+    const discordId = await requireSessionUser();
+    const product = await databases.products.findById(productId);
+    if (!product) throw new ActionError("Produto não encontrado.");
+    await requireStoreAccess(discordId, String(product.storeId));
+
+    // Lista ordenada pela posição atual (sortOrder + nome como desempate).
+    const all = await databases.products.find({ storeId: product.storeId }, { _id: 1, name: 1, sortOrder: 1 }).sort({ sortOrder: 1, name: 1 });
+    if (all.length < 2) return { ok: true };
+
+    const index = all.findIndex((item) => String(item._id) === productId);
+    if (index < 0) return { ok: true };
+    const swap = direction === "up" ? index - 1 : index + 1;
+    if (swap < 0 || swap >= all.length) return { ok: true };
+
+    // Normaliza a ordem baseada no índice para evitar colisões de sortOrder.
+    const positions = all.map((item, i) => ({ _id: item._id, sortOrder: (i + 1) * 10 }));
+    positions[index].sortOrder = (swap + 1) * 10;
+    positions[swap].sortOrder = (index + 1) * 10;
+
+    await Promise.all(positions.map((item) => databases.products.updateOne({ _id: item._id }, { $set: { sortOrder: item.sortOrder } })));
     return { ok: true };
 }
 
