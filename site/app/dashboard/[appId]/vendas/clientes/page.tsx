@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BotPageHero } from "@/components/BotPageHero";
-import { Card, Empty, TechnicalId, UserChip } from "@/components/ui";
+import { Card, Empty, Stat, TechnicalId, UserChip } from "@/components/ui";
 import { ActionError } from "@/lib/actions/context";
 import { getCustomers, getVendasContext } from "@/lib/actions/vendas.actions";
 import { requireUser } from "@/lib/require-admin";
@@ -34,6 +34,9 @@ export default async function ClientesPage({ params }: { params: Promise<{ appId
 
     const customers = await getCustomers(resolvedParams.appId);
     const totalSpent = customers.reduce((sum, customer) => sum + customer.totalSpent, 0);
+    const totalOrders = customers.reduce((sum, customer) => sum + customer.orders, 0);
+    const averageTicket = totalOrders ? totalSpent / totalOrders : 0;
+    const averagePerCustomer = customers.length ? totalSpent / customers.length : 0;
 
     return (
         <main className="mx-auto max-w-6xl px-5 py-8">
@@ -43,6 +46,13 @@ export default async function ClientesPage({ params }: { params: Promise<{ appId
                 description={`Bot ${ctx.botName} · ${customers.length} ${customers.length === 1 ? "cliente" : "clientes"} · ${formatMoney(totalSpent)} no total.`}
                 meta={<span className="bot-page-hero-meta"><span>Receita total</span><strong>{formatMoney(totalSpent)}</strong><small>{customers.length} cliente(s)</small></span>}
             />
+
+            <section aria-label="Resumo de clientes" className="sales-summary">
+                <Stat label="Receita total" value={formatMoney(totalSpent)} hint={`${customers.length} ${customers.length === 1 ? "cliente" : "clientes"} únicos`} />
+                <Stat label="Pedidos" value={totalOrders} hint="Compras confirmadas" />
+                <Stat label="Ticket médio" value={formatMoney(averageTicket)} hint="Valor médio por pedido" />
+                <Stat label="Cliente médio" value={formatMoney(averagePerCustomer)} hint="Receita média por cliente" />
+            </section>
 
             <div className="mt-6">{customers.length === 0 ? (
                 <Empty text="Nenhum cliente com compra confirmada ainda." />
