@@ -18,7 +18,7 @@ export interface SidebarUser {
     image?: string | null;
 }
 
-type SidebarIconName = "dashboard" | "invoice" | "settings" | "user" | "affiliate" | "bell" | "admin";
+type SidebarIconName = "dashboard" | "invoice" | "settings" | "user" | "affiliate" | "bell" | "admin" | "apps";
 type SidebarLink = { icon: SidebarIconName | "left" | "tutorial"; label: string; href: string; badge?: "soon" | number; exact?: boolean; section?: string };
 
 const exactRoutes = new Set(["/dashboard", "/dashboard/account", "/admin"]);
@@ -91,6 +91,14 @@ function SidebarIcon({
             <>
                 <path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" />
                 <path d="m9 12 2 2 4-4" />
+            </>
+        ),
+        apps: (
+            <>
+                <rect x="3" y="3" width="8" height="8" rx="2" />
+                <rect x="13" y="3" width="8" height="8" rx="2" />
+                <rect x="3" y="13" width="8" height="8" rx="2" />
+                <path d="M17 13v8M13 17h8" />
             </>
         ),
         menu: <path d="M4 6h16M4 12h16M4 18h16" />,
