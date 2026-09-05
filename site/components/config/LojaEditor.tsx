@@ -213,6 +213,14 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
 
     const couponsRaw = asRecord(doc("massCoupons").coupons);
     const cashbackRules = Array.isArray(doc("cashback").rules) ? (doc("cashback").rules as Doc[]) : [];
+    const customersDoc = doc("customers");
+    const customersSettings = asRecord(getPath(customersDoc, ["settings"]));
+    const decorationRoles = Array.isArray(getPath(customersDoc, ["decorations", "roles"])) ? (getPath(customersDoc, ["decorations", "roles"]) as Doc[]) : [];
+    const setCustomerDecoration = (index: number, next: Doc) => {
+        const roles = [...decorationRoles];
+        roles[index] = next;
+        setDoc("customers", { ...customersDoc, decorations: { roles: [...roles].sort((a, b) => Number(a.min_spent ?? 0) - Number(b.min_spent ?? 0)) } }, true);
+    };
     const commitCoupon = () => {
         if (!editingCoupon || !editingCoupon.code) return;
         const coupons = { ...couponsRaw };
@@ -485,6 +493,31 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                                     <Field label="Cargo"><RoleSelect roles={roles} value={str(rule.role_id)} onChange={(roleId) => { const role = roles.find((r) => r.id === roleId); const next = [...cashbackRules]; next[index] = { ...rule, role_id: roleId, role_name: role?.name ?? "" }; setDoc("cashback", { ...doc("cashback"), rules: next }); }} /></Field>
                                     <Field label="Multiplicador" hint={`Final: ${Number(Number(doc("cashback").default_percentage ?? 5) * Number(rule.multiplier ?? 1)).toFixed(1)}%`}><input className={inputClass} type="number" min="0" step="0.1" value={Number(rule.multiplier ?? 1)} onChange={(e) => { const next = [...cashbackRules]; next[index] = { ...rule, multiplier: Number(e.target.value) }; setDoc("cashback", { ...doc("cashback"), rules: next }); }} /></Field>
                                     <button type="button" onClick={() => setDoc("cashback", { ...doc("cashback"), rules: cashbackRules.filter((_, i) => i !== index) })} className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10">Remover</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </Section>
+            <Section title="Clientes" subtitle="Condecorações por gasto e auto-cargo exercidos pelo DROX no Discord">
+                <div className="grid gap-3 md:grid-cols-2">
+                    <ToggleRow label="Auto cargo de cliente" hint="Aplica automaticamente a condecoração conforme o gasto do cliente" checked={bool(customersSettings.auto_role)} onChange={(v) => setDoc("customers", { ...customersDoc, settings: { ...customersSettings, auto_role: v } }, true)} />
+                    <Field label="Cargo base do cliente" hint="Aplicado a todos os clientes que compraram"><RoleSelect roles={roles} value={str(customersSettings.base_role)} onChange={(next) => setDoc("customers", { ...customersDoc, settings: { ...customersSettings, base_role: next || null } }, true)} /></Field>
+                </div>
+                <div className="mt-4 rounded-xl border border-[#00CBA4]/20 bg-[#00CBA4]/[.04] p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h3 className="text-sm font-medium text-white">Condecorações ({decorationRoles.length}/5)</h3>
+                        <Button size="sm" disabled={decorationRoles.length >= 5} onClick={() => setCustomerDecoration(decorationRoles.length, { role_id: "", min_spent: 0, name: "", description: "" })}>Adicionar condecoração</Button>
+                    </div>
+                    {decorationRoles.length === 0 ? <Empty text="Nenhuma condecoração. Todas as vendas valem apenas para o cargo base." /> : (
+                        <div className="grid gap-2">
+                            {decorationRoles.map((rule, index) => (
+                                <div key={`${str(rule.role_id) || "novo"}-${index}`} className="grid items-end gap-2 rounded-lg border border-zinc-800 bg-black/25 p-3 md:grid-cols-[minmax(0,1fr)_140px_180px_auto]">
+                                    <Field label="Cargo"><RoleSelect roles={roles} value={str(rule.role_id)} onChange={(roleId) => setCustomerDecoration(index, { ...rule, role_id: roleId })} /></Field>
+                                    <Field label="Gasto mínimo (R$)" hint="Ordenadas do menor para o maior"><input className={inputClass} type="number" step="0.01" min="0" value={Number(rule.min_spent ?? 0)} onChange={(e) => setCustomerDecoration(index, { ...rule, min_spent: Number(e.target.value) })} /></Field>
+                                    <Field label="Nome do selo"><input className={inputClass} value={str(rule.name)} onChange={(e) => setCustomerDecoration(index, { ...rule, name: e.target.value })} /></Field>
+                                    <button type="button" onClick={() => setDoc("customers", { ...customersDoc, decorations: { roles: decorationRoles.filter((_, i) => i !== index) } }, true)} className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10">Remover</button>
+                                    <Field label="Descrição"><input className={inputClass} value={str(rule.description)} onChange={(e) => setCustomerDecoration(index, { ...rule, description: e.target.value })} /></Field>
                                 </div>
                             ))}
                         </div>
