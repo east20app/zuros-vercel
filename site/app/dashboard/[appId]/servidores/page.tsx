@@ -30,26 +30,57 @@ export default async function BotServersPage({ params }: { params: Promise<{ app
                 description={`${bot.name} está presente em ${guilds.length} servidor(es).`}
                 meta={<span className="bot-page-hero-meta"><span>Servidores</span><strong>{guilds.length}</strong><small>Autorizados pelo Discord</small></span>}
             />
-            <div className="mt-6"><ServerManager appId={resolvedParams.appId} botId={bot.botId} guilds={guilds} /></div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {guilds.map((guild) => (
-                    <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#7c3aed]/40">
-                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#7c3aed]/15 text-[#949cf7]">
-                            <Icon name="apps" />
-                        </span>
-                        <span className="min-w-0">
-                            <b className="block truncate text-sm text-white">{guild.name}</b>
-                            <code className="mt-1 block truncate text-xs text-zinc-500">{guild.id}</code>
-                        </span>
-                    </Card>
-                ))}
+            <div className="sales-status-strip">
+                <div className="sales-status-main">
+                    <span className="sales-status-dot" />
+                    <div>
+                        <strong>Presença sincronizada</strong>
+                        <small>{bot.name} está presente em {guilds.length} servidor(es) · Autorizados pelo Discord.</small>
+                    </div>
+                </div>
+                <span className="sales-status-chip"><i /> Tudo em ordem</span>
             </div>
-            {guilds.length === 0 ? (
-                <Card className="mt-6 border-dashed py-12 text-center">
-                    <p className="text-sm font-medium text-zinc-300">Nenhum servidor encontrado</p>
-                    <p className="mt-1 text-xs text-zinc-500">Adicione o bot a um servidor e atualize esta página.</p>
-                </Card>
-            ) : null}
+
+            <div className="sales-chart-wrap">
+                <div className="sales-section-heading">
+                    <div>
+                        <p className="home-section-index">01 / SERVIDOR PRINCIPAL</p>
+                        <h2>Para onde o painel envia as configurações.</h2>
+                    </div>
+                    <span>Loja, automações e configurações avançadas</span>
+                </div>
+                <ServerManager appId={resolvedParams.appId} botId={bot.botId} guilds={guilds} />
+            </div>
+
+            <div className="sales-chart-wrap">
+                <div className="sales-section-heading">
+                    <div>
+                        <p className="home-section-index">02 / PRESENÇA</p>
+                        <h2>Servidores onde o bot está presente.</h2>
+                    </div>
+                    <span>{guilds.length} servidor(es)</span>
+                </div>
+                {guilds.length === 0 ? (
+                    <Card className="border-dashed py-12 text-center">
+                        <p className="text-sm font-medium text-zinc-300">Nenhum servidor encontrado</p>
+                        <p className="mt-1 text-xs text-zinc-500">Adicione o bot a um servidor e atualize esta página.</p>
+                    </Card>
+                ) : (
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        {guilds.map((guild) => (
+                            <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#7c3aed]/40">
+                                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#7c3aed]/15 text-[#949cf7]">
+                                    <Icon name="apps" />
+                                </span>
+                                <span className="min-w-0">
+                                    <b className="block truncate text-sm text-white">{guild.name}</b>
+                                    <code className="mt-1 block truncate text-xs text-zinc-500">{guild.id}</code>
+                                </span>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
         </main>
     );
 }

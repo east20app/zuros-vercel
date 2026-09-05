@@ -39,7 +39,27 @@ export default async function ProdutosPage({ params }: { params: Promise<{ appId
                 description={`Bot ${ctx.botName} · Vitrine DROX`}
             />
 
-            <div className="mt-6"><BotModuleEditor storeId={resolvedParams.appId} modulo="loja" productsOnly /></div>
+            <div className="sales-status-strip">
+                <div className="sales-status-main">
+                    <span className="sales-status-dot" />
+                    <div>
+                        <strong>Vitrine ativa</strong>
+                        <small>Confira os produtos e os preços exibidos na loja do {ctx.botName}.</small>
+                    </div>
+                </div>
+                <span className="sales-status-chip"><i /> Publicado</span>
+            </div>
+
+            <div className="sales-chart-wrap">
+                <div className="sales-section-heading">
+                    <div>
+                        <p className="home-section-index">01 / VITRINE</p>
+                        <h2>Produtos disponíveis na loja.</h2>
+                    </div>
+                    <span>Gerencie nomes, preços e duração</span>
+                </div>
+                <div className="mt-6"><BotModuleEditor storeId={resolvedParams.appId} modulo="loja" productsOnly /></div>
+            </div>
         </main>
     );
 }
