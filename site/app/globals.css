@@ -1622,6 +1622,26 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus, selec
 }
 
 
+/* Home do bot: resumo operacional premium acima da gestão. */
+.bot-home-resumo { display: flex; flex-direction: column; gap: 1.15rem; }
+.bot-home-resumo .sales-status-strip,
+.bot-home-resumo .sales-summary,
+.bot-home-resumo .sales-chart-wrap { margin-top: 0; }
+.sales-status-dot.is-offline { background: #ef4444; box-shadow: 0 0 0 .22rem rgba(239,68,68,.12), 0 0 14px rgba(239,68,68,.55); }
+.bot-power-controls { display: flex; align-items: center; flex-shrink: 0; }
+.bot-power-controls > div { min-width: 14.5rem; }
+.bot-home-divider { margin: 1.9rem 0 1.25rem; border: 0; border-top: 1px solid #232326; }
+.bot-home-manage-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
+.bot-home-manage-heading h2 { margin-top: .35rem; color: #fafafa; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; font-size: 1.2rem; letter-spacing: -.04em; }
+.bot-home-manage-heading > span { color: #71717a; font-size: .65rem; }
+@media (max-width: 640px) {
+    .bot-power-controls { width: 100%; }
+    .bot-power-controls > div { min-width: 0; width: 100%; }
+    .bot-home-manage-heading { align-items: flex-start; flex-direction: column; }
+    .bot-home-manage-heading > span { text-align: left; }
+}
+
+
 /* Passe de clareza: os elementos Ease/Promisse permanecem, mas sem competir entre si. */
 body {
     background-image: linear-gradient(180deg, #0b0b0d 0%, #0a0a0c 52%, #09090b 100%);

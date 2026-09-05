@@ -7,8 +7,10 @@ import { BotConfigHeader } from "@/components/BotConfigHeader";
 import { BotConfigIndex } from "@/components/BotConfigIndex";
 import { BotPageHero } from "@/components/BotPageHero";
 import { CopyButton } from "@/components/CopyButton";
-import { Badge, Button, Card, Empty } from "@/components/ui";
+import { SalesDashboard } from "@/components/SalesDashboard";
+import { Badge, Button, Card, Empty, Stat } from "@/components/ui";
 import { getAppDetail, listAppExtracts } from "@/lib/actions/apps.actions";
+import { getSalesOverview } from "@/lib/actions/vendas.actions";
 import { ActionError } from "@/lib/actions/context";
 import { formatDate, formatMoney, formatUptime, getRemainingLabel, getRemainingTone } from "@/lib/status";
 import { requireUser } from "@/lib/require-admin";
@@ -42,6 +44,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
     }
 
     const extracts = await listAppExtracts(resolvedParams.appId);
+    const overview = await getSalesOverview(resolvedParams.appId, "7d");
     const routeId = app.botId || app.id;
     const tone = getRemainingTone(app.expiresAt, app.lifetime);
 
@@ -184,10 +187,10 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
                 </Link>
                 <div className="mt-4">
                     <BotPageHero
-                        eyebrow="PAINEL / APLICAÇÃO"
+                        eyebrow="PAINEL / VISÃO GERAL"
                         title={app.name}
                         description={`${app.productName} · v${app.version}`}
-                        actions={<Button href={`/dashboard/${routeId}/vendas`}>Vendas</Button>}
+                        actions={<Button href={`/dashboard/${routeId}/vendas`}>Painel de vendas</Button>}
                     />
                 </div>
             </div>
@@ -198,6 +201,90 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
                     {app.errorOnUpdateMessage || "Não foi possível aplicar a última atualização automaticamente."}
                 </div>
             )}
+
+            <section className="bot-home-resumo" aria-label="Resumo operacional do bot">
+                <div className="sales-status-strip">
+                    <div className="sales-status-main">
+                        <span className={`sales-status-dot ${app.online ? "" : "is-offline"}`} />
+                        <div>
+                            <strong>{app.online ? "Bot online" : "Bot offline"}</strong>
+                            <small>Controle a energia da sua aplicação · {app.name}</small>
+                        </div>
+                    </div>
+                    <div className="bot-power-controls">
+                        <AppControls appId={app.id} botId={app.botId} status={app.status} online={app.online} variant="quick" />
+                    </div>
+                </div>
+
+                <div className="sales-summary">
+                    <Stat label="Receita · 7 dias" value={formatMoney(overview.total)} hint={`${overview.ordersCount} ${overview.ordersCount === 1 ? "pedido" : "pedidos"}`} />
+                    <Stat label="Ticket médio" value={formatMoney(overview.averageTicket)} />
+                    <Stat label="Hoje" value={formatMoney(overview.today)} hint={overview.todayCount ? `${overview.todayCount} venda(s)` : "Sem vendas hoje"} />
+                    <article className="sales-pending-stat">
+                        <span>AGUARDANDO PAGAMENTO</span>
+                        <strong>{overview.pendingCount}</strong>
+                        <small>Pedidos em aberto</small>
+                    </article>
+                </div>
+
+                <div className="sales-chart-wrap">
+                    <div className="sales-section-heading">
+                        <div>
+                            <p className="home-section-index">01 / OPERAÇÃO</p>
+                            <h2>O que está acontecendo agora.</h2>
+                        </div>
+                        <span>Atualização sob demanda no seletor de período</span>
+                    </div>
+                    <SalesDashboard appId={resolvedParams.appId} productName={app.productName} initial={overview} />
+                </div>
+
+                {overview.recent.length > 0 && (
+                    <Card className="sales-recent-card flex flex-col gap-3">
+                        <div className="sales-section-title">
+                            <div>
+                                <p>02 / ATIVIDADE</p>
+                                <h2>Últimas vendas</h2>
+                            </div>
+                            <span>{overview.recent.length} registros</span>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-white/[.05]">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-zinc-800 bg-zinc-950/60 text-left text-xs uppercase tracking-wide text-zinc-500">
+                                        <th className="py-3 pl-4 pr-4">Data</th>
+                                        <th className="py-3 pr-4">Tipo</th>
+                                        <th className="py-3 pr-4">Item</th>
+                                        <th className="py-3 pr-4">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {overview.recent.map((sale) => (
+                                        <tr key={`${sale.type}-${sale.id}`} className="border-b border-zinc-900 text-zinc-300 transition last:border-0 hover:bg-zinc-900/40">
+                                            <td className="whitespace-nowrap py-3 pl-4 pr-4">{new Date(sale.createdAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
+                                            <td className="py-3 pr-4"><span className={`sales-type-badge ${sale.type === "renew" ? "is-renew" : "is-purchase"}`}>{sale.type === "renew" ? "Renovação" : "Compra"}</span></td>
+                                            <td className="py-3 pr-4">{sale.itemName}</td>
+                                            <td className="py-3 pr-4 font-medium text-[var(--accent)]">{formatMoney(sale.finalPrice)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="flex justify-end">
+                            <Button href={`/dashboard/${routeId}/vendas/pedidos`} variant="secondary" size="sm">Ver todos os pedidos</Button>
+                        </div>
+                    </Card>
+                )}
+            </section>
+
+            <hr className="bot-home-divider" />
+
+            <div className="bot-home-manage-heading">
+                <div>
+                    <p className="home-section-index">02 / GESTÃO DA APLICAÇÃO</p>
+                    <h2>Informações, controles e configuração do bot.</h2>
+                </div>
+                <span>Renovação, energia e configurações avançadas</span>
+            </div>
 
             <AppTabs
                 tabs={[
