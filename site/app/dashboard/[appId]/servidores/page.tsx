@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
-import { BotConfigHeader } from "@/components/BotConfigHeader";
 import { BotPageHero } from "@/components/BotPageHero";
 import { Card } from "@/components/ui";
 import { ServerManager } from "@/components/ServerManager";
@@ -25,7 +24,6 @@ export default async function BotServersPage({ params }: { params: Promise<{ app
 
     return (
         <main className="mx-auto min-w-0 max-w-6xl px-5 py-8 sm:px-8">
-            <BotConfigHeader appId={resolvedParams.appId} />
             <BotPageHero
                 eyebrow="GERENCIAMENTO / PRESENÇA"
                 title="Servidores"
