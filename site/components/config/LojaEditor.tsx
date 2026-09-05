@@ -588,6 +588,7 @@ function ProductModalBody({ productId, raw, onChange, onOpenCampo, onRemoveCampo
     const set = (path: (string | number)[], next: unknown) => onChange(setPath(raw, path, next));
     const campos = asRecord(getPath(raw, ["campos"]));
     const categorias = asRecord(getPath(raw, ["categorias"]));
+    const cupons = asRecord(getPath(raw, ["cupons"]));
     const info = asRecord(getPath(raw, ["info"]));
     const display = asRecord(getPath(info, ["display_preferences"]));
     const buyButton = asRecord(getPath(info, ["buy_button"]));
@@ -645,7 +646,7 @@ function ProductModalBody({ productId, raw, onChange, onOpenCampo, onRemoveCampo
                                         <tr key={campoId} className="border-b border-zinc-900 transition last:border-0 hover:bg-zinc-900/40">
                                             <td className="py-3 pl-4 font-medium text-white">{str(campo.name, "Sem nome")}</td>
                                             <td className="py-3 text-zinc-400">{formatBRL(campo.price)}</td>
-                                            <td className="py-3 text-zinc-400">{stockCount(campo.stock)}</td>
+                                            <td className="py-3 text-zinc-400">{bool(getPath(campo, ["infinite_stock", "enabled"])) ? "∞ Infinito" : stockCount(campo.stock)}</td>
                                             <td className="space-x-2 py-3 pr-4 text-right">
                                                 <button onClick={() => onOpenCampo(campoId, structuredClone(campo))} className="rounded-md px-2 py-1 text-emerald-400 transition hover:bg-emerald-500/10">Editar</button>
                                                 <button onClick={() => onRemoveCampo(productId, campoId)} className="rounded-md px-2 py-1 text-red-400 transition hover:bg-red-500/10">Excluir</button>
@@ -657,6 +658,26 @@ function ProductModalBody({ productId, raw, onChange, onOpenCampo, onRemoveCampo
                         </table>
                     </div>
                 )}
+            </div>
+
+            <div>
+                <div className="mb-4 w-full rounded-xl border border-zinc-800 bg-black/20 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <div><h3 className="text-sm font-medium text-zinc-200">Cupons do produto ({Object.keys(cupons).length})</h3><p className="mt-1 text-xs text-zinc-500">Aplicados somente neste produto, mesmo comportamento do painel Discord.</p></div>
+                        <Button size="sm" onClick={() => { const id = generateId(); const now = nowTs(); set(["cupons"], { ...cupons, [id]: { id, name: "Novo cupom", percent: 0, active: true, created_at: now, updated_at: now, expires_at: null, uses_count: 0, max_uses: null, min_cart: null, max_cart: null } }); }}>Novo cupom</Button>
+                    </div>
+                    {Object.keys(cupons).length === 0 ? <Empty text="Nenhum cupom para este produto." /> : <div className="space-y-3">{Object.entries(cupons).map(([couponId, rawCoupon]) => { const coupon = asRecord(rawCoupon); const updateCoupon = (key: string, next: unknown) => set(["cupons"], { ...cupons, [couponId]: { ...coupon, id: couponId, [key]: next } }); return <div key={couponId} className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-950/50 p-3 md:grid-cols-2">
+                        <Field label="Nome do cupom"><input className={inputClass} value={str(coupon.name)} onChange={(e) => updateCoupon("name", e.target.value)} /></Field>
+                        <Field label="Desconto (%)" hint="0 a 100"><input className={inputClass} type="number" min="0" max="100" value={Number(coupon.percent ?? 0)} onChange={(e) => updateCoupon("percent", Math.max(0, Math.min(100, Number(e.target.value))))} /></Field>
+                        <ToggleRow label="Cupom ativo" checked={bool(coupon.active)} onChange={(v) => updateCoupon("active", v)} />
+                        <Field label="Expiração"><input className={inputClass} type="datetime-local" value={tsToDateLocal(coupon.expires_at)} onChange={(e) => updateCoupon("expires_at", dateLocalToTs(e.target.value))} /></Field>
+                        <Field label="Máximo de usos" hint="0 = ilimitado"><input className={inputClass} type="number" min="0" value={Number(coupon.max_uses ?? 0)} onChange={(e) => updateCoupon("max_uses", Number(e.target.value) > 0 ? Number(e.target.value) : null)} /></Field>
+                        <Field label="Mínimo no carrinho (R$)" hint="Aplicar somente acima deste valor"><input className={inputClass} type="number" step="0.01" min="0" value={Number(coupon.min_cart ?? 0)} onChange={(e) => updateCoupon("min_cart", e.target.value ? Number(e.target.value) : null)} /></Field>
+                        <Field label="Máximo no carrinho (R$)" hint="0 = sem limite"><input className={inputClass} type="number" step="0.01" min="0" value={Number(coupon.max_cart ?? 0)} onChange={(e) => updateCoupon("max_cart", e.target.value ? Number(e.target.value) : null)} /></Field>
+                        <Field label="Usos (somente leitura)"><input className={inputClass} disabled value={String(Number(coupon.uses_count ?? 0))} /></Field>
+                        <button type="button" className="text-left text-xs text-red-400" onClick={() => set(["cupons"], Object.fromEntries(Object.entries(cupons).filter(([id]) => id !== couponId)))}>Excluir cupom</button>
+                    </div>; })}</div>}
+                </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
@@ -679,6 +700,20 @@ function CampoModalBody({ campo, roles, categories, onChange, onCommit, onCancel
     const cargos = asRecord(getPath(campo, ["cargos"]));
     const condicoes = asRecord(getPath(campo, ["condicoes"]));
     const stock = campo.stock ?? [];
+    const infiniteStock = asRecord(getPath(campo, ["infinite_stock"]));
+    const isInfinite = bool(getPath(infiniteStock, ["enabled"]));
+    const stockInfo = asRecord(getPath(campo, ["stock_info"]));
+    const toggleInfinite = (infinite: boolean) => {
+        const next = structuredClone(campo);
+        next.stock_info = { ...stockInfo, is_infinite: infinite };
+        if (infinite) {
+            next.infinite_stock = { enabled: true, value: str(getPath(infiniteStock, ["value"])), configured_at: nowTs() };
+            delete next.stock;
+        } else {
+            next.infinite_stock = { enabled: false, disabled_at: nowTs() };
+        }
+        onChange(next);
+    };
     return (
         <div className="space-y-5">
             <div className="grid gap-3 md:grid-cols-2">
@@ -711,9 +746,21 @@ function CampoModalBody({ campo, roles, categories, onChange, onCommit, onCancel
                 </div>
             </div>
 
-            <Field label="Estoque" hint="Coloque um item por linha. Cada venda consome um item da lista.">
-                {Array.isArray(stock) ? <textarea className={`${inputClass} min-h-36 font-mono text-xs`} value={stock.map(String).join("\n")} placeholder={"email:senha\nchave-de-licença\noutro item"} onChange={(event) => set(["stock"], event.target.value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean))} /> : <VisualObjectEditor value={asRecord(stock)} onChange={(next) => set(["stock"], next)} />}
-            </Field>
+            <div className="rounded-xl border border-zinc-800 bg-black/20 p-4">
+                <h3 className="mb-3 text-sm font-medium text-zinc-200">Estoque</h3>
+                <ToggleRow label="Estoque infinito" hint="Entrega sempre este conteúdo em cada venda, sem consumir itens da lista" checked={isInfinite} onChange={toggleInfinite} />
+                {isInfinite ? (
+                    <div className="mt-3">
+                        <Field label="Conteúdo entregue" hint="Código de ativação, link de acesso, instruções etc."><textarea className={`${inputClass} min-h-24 font-mono text-xs`} rows={4} value={str(getPath(infiniteStock, ["value"]))} placeholder="Código de ativação, link de acesso, instruções..." onChange={(e) => set(["infinite_stock", "value"], e.target.value)} /></Field>
+                    </div>
+                ) : (
+                    <div className="mt-3">
+                        <Field label="Itens do estoque" hint="Coloque um item por linha. Cada venda consome um item da lista.">
+                            {Array.isArray(stock) ? <textarea className={`${inputClass} min-h-36 font-mono text-xs`} value={stock.map(String).join("\n")} placeholder={"email:senha\nchave-de-licença\noutro item"} onChange={(event) => set(["stock"], event.target.value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean))} /> : <VisualObjectEditor value={asRecord(stock)} onChange={(next) => set(["stock"], next)} />}
+                        </Field>
+                    </div>
+                )}
+            </div>
             <Field label="Opções avançadas do campo" hint="Configure cada opção em campos separados, sem editar JSON."><VisualObjectEditor value={asRecord(campo.advanced)} onChange={(next) => set(["advanced"], next)} /></Field>
 
             <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
