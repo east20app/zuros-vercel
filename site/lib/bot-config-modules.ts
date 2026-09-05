@@ -5,6 +5,7 @@ export const BOT_CONFIG_MODULES = {
         maintenance: "loja_maintenance", personalization: "loja_personalization", qrCustomization: "loja_qr_customization",
         productPreferences: "products_preferences",
         balanceConfig: "loja_saldo_config",
+        saldoUsers: "loja_saldo_users",
         cashback: "loja_cashback_config",
         customers: "loja_customers",
     },

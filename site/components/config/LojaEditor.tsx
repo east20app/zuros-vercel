@@ -524,6 +524,7 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                     )}
                 </div>
             </Section>
+            <SaldoSection value={doc("saldoUsers")} onChange={(next) => setDoc("saldoUsers", next, true)} />
             <Section title="Dados operacionais" subtitle="Atenção: edite com cuidado, são registros gerados pelo bot">
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Cargos temporários (loja_roles_temp)" hint="Chave = ID do usuário; lista de cargos com expiração"><JsonEditor value={doc("temporaryRoles")} onChange={(v) => setDoc("temporaryRoles", asRecord(v))} /></Field>
@@ -850,5 +851,139 @@ function CouponModalBody({ coupon, code, roles, onChange, onCodeChange, onCommit
                 <Button onClick={onCommit}>Aplicar</Button>
             </div>
         </div>
+    );
+}
+
+function SaldoSection({ value, onChange }: { value: Doc; onChange: (next: Doc) => void }) {
+    const usersRaw = asRecord(getPath(value, ["users"]));
+    const users = Object.entries(usersRaw)
+        .map(([id, raw]) => ({ id, user: asRecord(raw) }))
+        .sort((a, b) => Number(b.user.balance ?? 0) - Number(a.user.balance ?? 0));
+    const [query, setQuery] = useState("");
+    const [expanded, setExpanded] = useState<Set<string>>(new Set());
+    const [credits, setCredits] = useState<Record<string, string>>({});
+    const [debits, setDebits] = useState<Record<string, string>>({});
+    const [message, setMessage] = useState<string | null>(null);
+
+    const commitUser = (id: string, nextUser: Doc) => onChange({ ...value, users: { ...usersRaw, [id]: nextUser } });
+    const credit = (id: string, rawAmount: string) => {
+        const amount = Number((rawAmount || "").replace(",", "."));
+        if (!Number.isFinite(amount) || amount <= 0) return setMessage("Valor inválido para crédito.");
+        const user = asRecord(usersRaw[id]);
+        const deposits = Array.isArray(user.deposits) ? (user.deposits as Doc[]) : [];
+        const transactions = Array.isArray(user.transactions) ? (user.transactions as Doc[]) : [];
+        const ts = nowTs();
+        commitUser(id, {
+            ...user,
+            balance: Number(user.balance ?? 0) + amount,
+            total_deposited: Number(user.total_deposited ?? 0) + amount,
+            deposits: [...deposits, { id: "admin_add", amount, bonus: 0, total_credit: amount, payment_method: "pix", timestamp: ts }],
+            transactions: [...transactions, { type: "deposit", amount, deposit_amount: amount, bonus: 0, reference_id: "admin_add", description: "Depósito via PIX", timestamp: ts }],
+        });
+        setCredits({ ...credits, [id]: "" });
+        setMessage(`${formatBRL(amount)} creditados para ${id}.`);
+    };
+    const debit = (id: string, rawAmount: string) => {
+        const amount = Number((rawAmount || "").replace(",", "."));
+        if (!Number.isFinite(amount) || amount <= 0) return setMessage("Valor inválido para débito.");
+        const user = asRecord(usersRaw[id]);
+        const balance = Number(user.balance ?? 0);
+        if (balance < amount) return setMessage(`Saldo insuficiente: disponível ${formatBRL(balance)}.`);
+        const transactions = Array.isArray(user.transactions) ? (user.transactions as Doc[]) : [];
+        commitUser(id, {
+            ...user,
+            balance: balance - amount,
+            total_used: Number(user.total_used ?? 0) + amount,
+            transactions: [...transactions, { type: "usage", amount: -amount, reference_id: "admin_remove", description: "Remoção manual pelo admin", timestamp: nowTs() }],
+        });
+        setDebits({ ...debits, [id]: "" });
+        setMessage(`${formatBRL(amount)} debitados de ${id}.`);
+    };
+    const toggleExpand = (id: string) => {
+        const next = new Set(expanded);
+        if (next.has(id)) next.delete(id); else next.add(id);
+        setExpanded(next);
+    };
+
+    const stats = users.reduce((acc, { user }) => ({
+        users: acc.users + 1,
+        balance: acc.balance + Number(user.balance ?? 0),
+        deposited: acc.deposited + Number(user.total_deposited ?? 0),
+        used: acc.used + Number(user.total_used ?? 0),
+    }), { users: 0, balance: 0, deposited: 0, used: 0 });
+
+    const filtered = query.trim() ? users.filter(({ id }) => id.includes(query.trim())) : users;
+
+    return (
+        <Section title="Saldo dos usuários" subtitle="Saldos e movimentações de cada membro (loja_saldo_users), mesmas regras do comando de admin do DROX">
+            <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+                <div className="rounded-xl border border-zinc-800 bg-black/30 p-3"><p className="text-xs text-zinc-500">Usuários com saldo</p><p className="mt-0.5 text-lg font-semibold text-white">{stats.users}</p></div>
+                <div className="rounded-xl border border-zinc-800 bg-black/30 p-3"><p className="text-xs text-zinc-500">Saldo total</p><p className="mt-0.5 text-lg font-semibold text-emerald-300">{formatBRL(stats.balance)}</p></div>
+                <div className="rounded-xl border border-zinc-800 bg-black/30 p-3"><p className="text-xs text-zinc-500">Total depositado</p><p className="mt-0.5 text-lg font-semibold text-white">{formatBRL(stats.deposited)}</p></div>
+                <div className="rounded-xl border border-zinc-800 bg-black/30 p-3"><p className="text-xs text-zinc-500">Total usado</p><p className="mt-0.5 text-lg font-semibold text-white">{formatBRL(stats.used)}</p></div>
+            </div>
+            {message && <p className="mb-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-300">{message}</p>}
+            <Field label="Buscar usuário"><input className={inputClass} placeholder="ID do Discord (ex: 123456789012345678)" value={query} onChange={(e) => setQuery(e.target.value)} /></Field>
+            <div className="mt-3 grid gap-2">
+                {filtered.length === 0 ? (
+                    <Empty text="Nenhum usuário com saldo ainda. Depósitos aprovados e créditos manuais criam um registro por usuário." />
+                ) : filtered.map(({ id, user }) => {
+                    const deposits = Array.isArray(user.deposits) ? (user.deposits as Doc[]) : [];
+                    const transactions = Array.isArray(user.transactions) ? (user.transactions as Doc[]) : [];
+                    const isOpen = expanded.has(id);
+                    return (
+                        <div key={id} className="rounded-lg border border-zinc-800 bg-black/25 p-3">
+                            <div className="grid items-center gap-2 md:grid-cols-[minmax(0,1fr)_130px_120px_120px_auto]">
+                                <button type="button" onClick={() => toggleExpand(id)} className="min-w-0 text-left font-mono text-xs text-zinc-200 transition hover:text-emerald-300">{id}</button>
+                                <p className="text-sm font-semibold text-emerald-300">Saldo: {formatBRL(user.balance)}</p>
+                                <p className="text-xs text-zinc-500">Depositado: {formatBRL(user.total_deposited)}</p>
+                                <p className="text-xs text-zinc-500">Usado: {formatBRL(user.total_used)}</p>
+                                <button type="button" onClick={() => toggleExpand(id)} className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800">{isOpen ? "Ocultar" : "Histórico"}</button>
+                            </div>
+                            <div className="mt-2 grid items-center gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+                                <Field label="Valor (R$)">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input className={inputClass} type="number" min="0" step="0.01" placeholder="Creditar" value={str(credits[id])} onChange={(e) => setCredits({ ...credits, [id]: e.target.value })} />
+                                        <input className={inputClass} type="number" min="0" step="0.01" placeholder="Debitar" value={str(debits[id])} onChange={(e) => setDebits({ ...debits, [id]: e.target.value })} />
+                                    </div>
+                                </Field>
+                                <Button size="sm" onClick={() => credit(id, str(credits[id]))}>Creditar</Button>
+                                <Button size="sm" variant="ghost" onClick={() => debit(id, str(debits[id]))}>Debitar</Button>
+                            </div>
+                            {isOpen && (
+                                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-lg border border-zinc-800 bg-black/20 p-3">
+                                        <h3 className="mb-2 text-xs font-medium text-zinc-400">Depósitos ({deposits.length})</h3>
+                                        {deposits.length === 0 ? <p className="text-xs text-zinc-600">Nenhum depósito.</p> : (
+                                            <ul className="space-y-1">
+                                                {[...deposits].sort((a, b) => Number(b.timestamp ?? 0) - Number(a.timestamp ?? 0)).slice(0, 8).map((dep, i) => (
+                                                    <li key={i} className="flex items-center justify-between gap-2 text-xs">
+                                                        <span className="text-zinc-400">{tsToDateLocal(dep.timestamp)} · {str(dep.payment_method, "pix").toUpperCase()}</span>
+                                                        <span className="font-mono text-emerald-300">{formatBRL(dep.amount)}{Number(dep.bonus ?? 0) > 0 ? ` +${formatBRL(dep.bonus)}` : ""}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                    <div className="rounded-lg border border-zinc-800 bg-black/20 p-3">
+                                        <h3 className="mb-2 text-xs font-medium text-zinc-400">Transações ({transactions.length})</h3>
+                                        {transactions.length === 0 ? <p className="text-xs text-zinc-600">Nenhuma transação.</p> : (
+                                            <ul className="space-y-1">
+                                                {[...transactions].sort((a, b) => Number(b.timestamp ?? 0) - Number(a.timestamp ?? 0)).slice(0, 8).map((tx, i) => (
+                                                    <li key={i} className="flex items-center justify-between gap-2 text-xs">
+                                                        <span className="text-zinc-400">{tsToDateLocal(tx.timestamp)} · {str(tx.type)} · {str(tx.description)}</span>
+                                                        <span className={`font-mono ${Number(tx.amount ?? 0) < 0 ? "text-red-300" : "text-emerald-300"}`}>{Number(tx.amount ?? 0) < 0 ? "- " : "+ "}{formatBRL(Math.abs(Number(tx.amount ?? 0)))}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </Section>
     );
 }
