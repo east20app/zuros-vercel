@@ -12,7 +12,7 @@ async def monitor_giveaways_task(bot: disnake.Client):
     await bot.wait_until_ready()
     
     try:
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
     except Exception as e:
         print(f"Error reading giveaways data: {e}")
         return
@@ -79,13 +79,13 @@ async def monitor_giveaways_task(bot: disnake.Client):
                 await asyncio.sleep(1)
 
             if participants_to_remove:
-                live_config = db.obter("database/giveaways/giveaways_data.json")
+                live_config = db.get_document("giveaways")
                 live_giveaway = live_config.get(giveaway_id, {})
                 live_task = next((t for t in live_giveaway.get("tasks", []) if t.get("id") == task.get("id")), None)
                 
                 if live_task and 'participants' in live_task:
                     live_task['participants'] = [p for p in live_task['participants'] if p not in participants_to_remove]
-                    db.salvar("database/giveaways/giveaways_data.json", live_config)
+                    db.save_document("giveaways", live_config)
 
                     try:
                         message_to_edit = await channel.fetch_message(live_task["message_id"])

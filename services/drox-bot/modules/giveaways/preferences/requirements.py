@@ -251,14 +251,14 @@ class RequirementModal(disnake.ui.Modal):
 
         # Se o valor estiver vazio, desativar o requisito
         if not value:
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(self.giveaway_id, {})
             requirements = giveaway.setdefault("requirements", {})
             req_data = requirements.setdefault(self.requirement_key, {})
 
             req_data["enabled"] = False
             req_data.pop("value", None)  # Remove o valor se existir
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await inter.response.defer(ephemeral=True)
             await inter.followup.send(f"{emoji.delete} Requisito **{REQUIREMENTS_CONFIG[self.requirement_key]['label']}** desativado com sucesso.", ephemeral=True)
@@ -295,14 +295,14 @@ class RequirementModal(disnake.ui.Modal):
                 await inter.response.send_message(f"{emoji.wrong} O valor para **{REQUIREMENTS_CONFIG[self.requirement_key]['label']}** deve ser um número.", ephemeral=True)
                 return
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id, {})
         requirements = giveaway.setdefault("requirements", {})
         req_data = requirements.setdefault(self.requirement_key, {})
 
         req_data["enabled"] = True
         req_data["value"] = value if self.requirement_key not in numeric_fields else int(value)
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         await inter.response.defer(ephemeral=True)
         await inter.followup.send(f"{emoji.correct} Requisito **{REQUIREMENTS_CONFIG[self.requirement_key]['label']}** definido para: `{value}`.", ephemeral=True)

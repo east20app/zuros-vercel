@@ -238,7 +238,7 @@ class BonusEntriesModal(disnake.ui.Modal):
         super().__init__(title="Definir Entradas Bônus", components=components)
 
     async def callback(self, inter: disnake.ModalInteraction):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id, {})
         giveaway_name = giveaway.get("name", "N/A")
         
@@ -252,7 +252,7 @@ class BonusEntriesModal(disnake.ui.Modal):
             giveaway["bonus_roles"] = {}
         
         giveaway["bonus_roles"][self.role_id] = entries
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         role = inter.guild.get_role(int(self.role_id))
         from tasks.giveaways.logger_giveaways import log_giveaway_event

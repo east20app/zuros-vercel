@@ -3,7 +3,7 @@ from functions.database import database as db
 from events._common import criar_container_log, criar_embed_log
 
 async def log_giveaway_event(bot: disnake.Client, giveaway_id: str, title: str, lines: list[str]):
-    config = db.obter("database/giveaways/giveaways_data.json")
+    config = db.get_document("giveaways")
     giveaway_data = config.get(giveaway_id, {})
     
     log_channel_id = giveaway_data.get("log_channel_id")

@@ -11,7 +11,7 @@ from functions.emoji import emoji
 
 def create_giveaway_autocomplete(status_filter: tuple):
     async def autocomplete(inter: disnake.ApplicationCommandInteraction, user_input: str):
-        giveaways = db.obter("database/giveaways/giveaways_data.json") or {}
+        giveaways = db.get_document("giveaways") or {}
         choices = {}
         
         for giveaway_id, giveaway in giveaways.items():
@@ -92,7 +92,7 @@ class GiveawayCommands(commands.Cog):
 
         await inter.response.defer(ephemeral=True)
         
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(giveaway_id)
         task = next((t for t in giveaway.get("tasks", []) if t.get("id") == task_id), None)
         
@@ -117,7 +117,7 @@ class GiveawayCommands(commands.Cog):
             await inter.edit_original_message(content=f"{emoji.wrong} O módulo de sorteios parece estar desativado.")
             return
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(giveaway_id)
         task = next((t for t in giveaway.get("tasks", []) if t.get("id") == task_id), None)
 

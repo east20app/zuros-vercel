@@ -60,7 +60,7 @@ class CreateGiveawayModal(disnake.ui.Modal):
         giveaway_id = utils.gerar_id()
         giveaway_name = inter.text_values["giveaway_name"]
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         if not config:
             config = {}
             
@@ -70,7 +70,7 @@ class CreateGiveawayModal(disnake.ui.Modal):
             "author_id": inter.author.id,
             "created_at": int(disnake.utils.utcnow().timestamp())
         }
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
         
         mode = db.get_document("custom_mode").get("mode")
 
@@ -82,7 +82,7 @@ class CreateGiveawayModal(disnake.ui.Modal):
             await inter.edit_original_message(content=None, embed=embed, components=components)
 
 def get_giveaways():
-    return db.obter("database/giveaways/giveaways_data.json") or {}
+    return db.get_document("giveaways") or {}
 
 class SelectGiveawayToEdit(disnake.ui.StringSelect):
     def __init__(self, giveaways_chunk: list[tuple[str, dict]], chunk_index: int, total_giveaways: int):

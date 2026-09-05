@@ -24,7 +24,7 @@ class KeywordModal(disnake.ui.Modal):
     async def callback(self, inter: disnake.ModalInteraction) -> None:
         keyword = inter.text_values["keyword"]
         
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id)
         if not giveaway:
             await inter.response.send_message(f"{emoji.wrong} Erro: Sorteio não encontrado.", ephemeral=True)
@@ -37,7 +37,7 @@ class KeywordModal(disnake.ui.Modal):
 
         task["participation_mode"] = "keyword"
         task["keyword"] = keyword
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
         
         from tasks.giveaways.logger_giveaways import log_giveaway_event
         await log_giveaway_event(

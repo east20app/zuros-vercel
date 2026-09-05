@@ -25,14 +25,14 @@ class PrizeContentModal(disnake.ui.Modal):
     async def callback(self, inter: disnake.ModalInteraction):
         content = inter.text_values["prize_content"]
         
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id, {})
         
         if "prize" not in giveaway:
             giveaway["prize"] = {}
             
         giveaway["prize"]["content"] = content
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
         
         await log_giveaway_event(
             bot=inter.bot,

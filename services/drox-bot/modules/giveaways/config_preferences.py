@@ -3,7 +3,7 @@ from functions.database import database as db
 from functions.emoji import emoji
 
 def get_giveaway_data(giveaway_id: str):
-    config = db.obter("database/giveaways/giveaways_data.json")
+    config = db.get_document("giveaways")
     return config.get(giveaway_id, {})
 
 def PreferencesView_components(inter: disnake.Interaction, giveaway_id: str) -> list[disnake.ui.Container]:

@@ -60,7 +60,7 @@ class Giveaways(commands.Cog):
     def GiveawaysComponents(self, inter: disnake.MessageInteraction) -> list[disnake.ui.Container]:
         colors = db.get_document("custom_colors")
         primary_color_hex = colors.get("primary")
-        giveaways = db.obter("database/giveaways/giveaways_data.json") or {}
+        giveaways = db.get_document("giveaways") or {}
         num_giveaways = len(giveaways)
 
         container_kwargs = {}
@@ -89,7 +89,7 @@ class Giveaways(commands.Cog):
     def GiveawaysEmbed(self, inter: disnake.MessageInteraction):
         colors = db.get_document("custom_colors")
         primary_color_hex = colors.get("primary")
-        giveaways = db.obter("database/giveaways/giveaways_data.json") or {}
+        giveaways = db.get_document("giveaways") or {}
         num_giveaways = len(giveaways)
 
         embed = disnake.Embed(
@@ -206,7 +206,7 @@ class Giveaways(commands.Cog):
                 await inter.followup.send("Interação inválida ou botão desatualizado. Atualize o painel do sorteio!", ephemeral=True)
                 return
             _, _, giveaway_id, task_id = parts
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id)
             task = next((t for t in giveaway.get("tasks", []) if t.get("id") == task_id), None)
             if not giveaway or not task:
@@ -263,10 +263,10 @@ class Giveaways(commands.Cog):
             giveaway_id = custom_id.split("_")[-1]
             selected_users = [int(u) for u in inter.values]
             
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             giveaway["winner_users"] = selected_users
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await log_giveaway_event(
                 bot=self.bot, giveaway_id=giveaway_id, title="Sorteios - Ganhadores Alterados",
@@ -289,10 +289,10 @@ class Giveaways(commands.Cog):
             giveaway_id = custom_id.split("_")[-1]
             selected_roles = [int(r) for r in inter.values]
             
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             giveaway["winner_roles"] = selected_roles
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await log_giveaway_event(
                 bot=self.bot, giveaway_id=giveaway_id, title="Sorteios - Ganhadores Alterados",
@@ -319,11 +319,11 @@ class Giveaways(commands.Cog):
                 await inter.response.send_message(f"{emoji.wrong} A premiação por produto da loja ainda não está disponível.", ephemeral=True)
                 return
             
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             if "prize" not in giveaway: giveaway["prize"] = {}
             giveaway["prize"]["type"] = prize_type
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             type_names = {"none": "Nada será entregue", "content": "Conteúdo na DM"}
             await log_giveaway_event(
@@ -348,12 +348,12 @@ class Giveaways(commands.Cog):
             selection = inter.values[0]
 
             if selection == "change_mode":
-                config = db.obter("database/giveaways/giveaways_data.json")
+                config = db.get_document("giveaways")
                 if giveaway_id in config:
                     current_mode = config[giveaway_id].get("mode", "real")
                     new_mode = "falso" if current_mode == "real" else "real"
                     config[giveaway_id]["mode"] = new_mode
-                    db.salvar("database/giveaways/giveaways_data.json", config)
+                    db.save_document("giveaways", config)
                     await log_giveaway_event(
                         bot=self.bot,
                         giveaway_id=giveaway_id,
@@ -374,12 +374,12 @@ class Giveaways(commands.Cog):
                     await inter.edit_original_message(content=None, embed=embed, components=components)
 
             elif selection == "config_monitor":
-                config = db.obter("database/giveaways/giveaways_data.json")
+                config = db.get_document("giveaways")
                 if giveaway_id in config:
                     current_status = config[giveaway_id].get("monitor_enabled", False)
                     new_status = not current_status
                     config[giveaway_id]["monitor_enabled"] = new_status
-                    db.salvar("database/giveaways/giveaways_data.json", config)
+                    db.save_document("giveaways", config)
                     await log_giveaway_event(
                         bot=self.bot,
                         giveaway_id=giveaway_id,
@@ -421,7 +421,7 @@ class Giveaways(commands.Cog):
             giveaway_id = custom_id.split("_")[-1]
             selection = inter.values[0]
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             giveaway_name = giveaway.get("name", "N/A")
 
@@ -434,7 +434,7 @@ class Giveaways(commands.Cog):
                 req_data = requirements.setdefault(selection, {})
                 new_status = not req_data.get("enabled", False)
                 req_data["enabled"] = new_status
-                db.salvar("database/giveaways/giveaways_data.json", config)
+                db.save_document("giveaways", config)
 
                 await log_giveaway_event(
                     bot=self.bot,
@@ -465,7 +465,7 @@ class Giveaways(commands.Cog):
             giveaway_id = parts[2]
             req_key = parts[3]
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             requirements = giveaway.setdefault("requirements", {})
             req_data = requirements.setdefault(req_key, {})
@@ -476,7 +476,7 @@ class Giveaways(commands.Cog):
                 req_data["value"] = [int(v) for v in inter.values]
 
             req_data["enabled"] = bool(req_data.get("value"))
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await inter.followup.send("Requisito atualizado com sucesso!", ephemeral=True)
 
@@ -504,13 +504,13 @@ class Giveaways(commands.Cog):
             giveaway_id = parts[2]
             selected_roles = [int(r) for r in (inter.values or [])]
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             giveaway_name = giveaway.get("name", "N/A")
 
             giveaway["forbidden_roles"] = selected_roles
             config[giveaway_id] = giveaway
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
             
             await log_giveaway_event(
                 bot=self.bot,
@@ -539,13 +539,13 @@ class Giveaways(commands.Cog):
             giveaway_id = parts[2]
             selected_roles = [int(r) for r in (inter.values or [])]
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             giveaway_name = giveaway.get("name", "N/A")
 
             giveaway["allowed_roles"] = selected_roles
             config[giveaway_id] = giveaway
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await log_giveaway_event(
                 bot=self.bot,
@@ -573,7 +573,7 @@ class Giveaways(commands.Cog):
             giveaway_id = parts[2]
             role_id = inter.values[0]
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
 
             current_entries = str(giveaway.get("bonus_roles", {}).get(role_id, "1"))
@@ -585,14 +585,14 @@ class Giveaways(commands.Cog):
             giveaway_id = parts[2]
             roles_to_remove = inter.values
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
 
             if "bonus_roles" in giveaway:
                 for role_id in roles_to_remove:
                     giveaway["bonus_roles"].pop(role_id, None)
 
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await log_giveaway_event(
                 bot=self.bot,
@@ -621,11 +621,11 @@ class Giveaways(commands.Cog):
             task_id = parts[3]
             channel_id = int(inter.values[0])
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             task = next((t for t in config[giveaway_id].get("tasks", []) if t["id"] == task_id), None)
             if task:
                 task["channel_id"] = channel_id
-                db.salvar("database/giveaways/giveaways_data.json", config)
+                db.save_document("giveaways", config)
 
             await self._mode_aware_wait(inter)
             mode = db.get_document("custom_mode").get("mode")
@@ -644,11 +644,11 @@ class Giveaways(commands.Cog):
             if selected_mode == "keyword":
                 await inter.response.send_modal(KeywordModal(inter, giveaway_id, task_id))
             else:
-                config = db.obter("database/giveaways/giveaways_data.json")
+                config = db.get_document("giveaways")
                 task = next((t for t in config[giveaway_id].get("tasks", []) if t["id"] == task_id), None)
                 if task:
                     task["participation_mode"] = selected_mode
-                    db.salvar("database/giveaways/giveaways_data.json", config)
+                    db.save_document("giveaways", config)
 
                 await self._mode_aware_wait(inter)
                 mode = db.get_document("custom_mode").get("mode")
@@ -662,10 +662,10 @@ class Giveaways(commands.Cog):
             giveaway_id = custom_id.split("_")[-1]
             new_channel_id = int(inter.values[0])
 
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             if giveaway_id in config:
                 config[giveaway_id]["log_channel_id"] = new_channel_id
-                db.salvar("database/giveaways/giveaways_data.json", config)
+                db.save_document("giveaways", config)
                 await log_giveaway_event(
                     bot=self.bot,
                     giveaway_id=giveaway_id,
@@ -723,10 +723,10 @@ class Giveaways(commands.Cog):
                 await inter.edit_original_message(content=None, embed=embed, components=components)
 
         elif action == "Delete":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             if giveaway_id in config:
                 del config[giveaway_id]
-                db.salvar("database/giveaways/giveaways_data.json", config)
+                db.save_document("giveaways", config)
                 # Note: Logging will fail here as the giveaway data is deleted before logging can fetch the log channel.
                 # This is a limitation for now. A possible fix is to pass the log channel ID to the log function.
                 # For now, we accept that delete actions are not logged.
@@ -756,7 +756,7 @@ class Giveaways(commands.Cog):
                 await inter.edit_original_message(content=None, embed=embed, components=components)
 
         elif action == "SetDuration":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway_data = config.get(giveaway_id, {})
             task_data = next((t for t in giveaway_data.get("tasks", []) if t.get("id") == task_id), {})
             await inter.response.send_modal(DurationModal(inter, giveaway_id, task_id, task_data))
@@ -810,7 +810,7 @@ class Giveaways(commands.Cog):
             await self._send_giveaway_message(inter, giveaway_id, task_id)
 
         elif action == "ResendMessage":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway_data = config.get(giveaway_id, {})
             task = next((t for t in giveaway_data.get("tasks", []) if t.get("id") == task_id), None)
 
@@ -842,10 +842,10 @@ class Giveaways(commands.Cog):
             await self.process_repost(inter, giveaway_id, task_id, clear_previous_winners)
 
         elif action == "Delete":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             if giveaway_id in config and "tasks" in config[giveaway_id]:
                 config[giveaway_id]["tasks"] = [t for t in config[giveaway_id]["tasks"] if t["id"] != task_id]
-                db.salvar("database/giveaways/giveaways_data.json", config)
+                db.save_document("giveaways", config)
 
             if mode == "components":
                 await inter.edit_original_message(components=ManageTasksView_components(inter, giveaway_id))
@@ -873,13 +873,13 @@ class Giveaways(commands.Cog):
         giveaway_id = parts[2]
 
         if action == "ToggleDmNotify":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             if "prize" not in giveaway: giveaway["prize"] = {}
             current_status = giveaway["prize"].get("dm_notify", True)
             new_status = not current_status
             giveaway["prize"]["dm_notify"] = new_status
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await log_giveaway_event(
                 bot=self.bot, giveaway_id=giveaway_id, title="Sorteios - Premiação Alterada",
@@ -891,7 +891,7 @@ class Giveaways(commands.Cog):
             )
 
         elif action == "SetContent":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway = config.get(giveaway_id, {})
             current_content = giveaway.get("prize", {}).get("content", "")
             await inter.response.send_modal(PrizeContentModal(inter, giveaway_id, current_content))
@@ -911,7 +911,7 @@ class Giveaways(commands.Cog):
         giveaway_id = parts[2]
         task_id = parts[3]
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway_data = config.get(giveaway_id, {})
         task_data = next((t for t in giveaway_data.get("tasks", []) if t.get("id") == task_id), {})
 
@@ -931,7 +931,7 @@ class Giveaways(commands.Cog):
                 return
 
             task_data["participants"] = []
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             await log_giveaway_event(
                 bot=self.bot,
@@ -1015,7 +1015,7 @@ class Giveaways(commands.Cog):
         giveaway_id = parts[2]
         mode = db.get_document("custom_mode").get("mode")
 
-        giveaways = db.obter("database/giveaways/giveaways_data.json") or {}
+        giveaways = db.get_document("giveaways") or {}
         giveaway_data = giveaways.get(giveaway_id, {})
         giveaway_name = giveaway_data.get("name", "N/A")
 
@@ -1065,7 +1065,7 @@ class Giveaways(commands.Cog):
         if not is_resend and not inter.response.is_done():
             await inter.response.defer(ephemeral=True)
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway_data = config.get(giveaway_id, {})
         task = next((t for t in giveaway_data.get("tasks", []) if t.get("id") == task_id), None)
 
@@ -1137,7 +1137,7 @@ class Giveaways(commands.Cog):
                 sent_message = await channel.send(**send_kwargs)
                 task["message_id"] = sent_message.id
                 task["status"] = "running"
-                db.salvar("database/giveaways/giveaways_data.json", config)
+                db.save_document("giveaways", config)
                 await inter.followup.send(f"Mensagem do sorteio enviada para {channel.mention}!", ephemeral=True)
             except disnake.Forbidden:
                 await inter.followup.send("Eu não tenho permissão para enviar mensagens nesse canal.", ephemeral=True)
@@ -1182,7 +1182,7 @@ class Giveaways(commands.Cog):
             sent_message = await channel.send(**send_kwargs)
             task["message_id"] = sent_message.id
             task["status"] = "running"
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
             await inter.followup.send(f"Mensagem do sorteio enviada para {channel.mention}!", ephemeral=True)
         except disnake.Forbidden:
             await inter.followup.send("Eu não tenho permissão para enviar mensagens nesse canal.", ephemeral=True)
@@ -1210,14 +1210,14 @@ class Giveaways(commands.Cog):
                 await inter.edit_original_message(content=None, embed=embed, components=components)
             return
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         if giveaway_id not in config:
             return
 
         if action == "SetMode":
             giveaway_mode = custom_id.split("_")[3]
             config[giveaway_id]["mode"] = giveaway_mode
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
 
             if mode == "components":
                 await inter.edit_original_message(components=SpecificGiveawayView_components(inter, giveaway_id))
@@ -1238,7 +1238,7 @@ class Giveaways(commands.Cog):
         giveaway_id = parts[2] if len(parts) > 2 else None
 
         if action == "CycleStyle":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway_data = config.get(giveaway_id, {})
             if not giveaway_data: return
 
@@ -1251,18 +1251,18 @@ class Giveaways(commands.Cog):
                 new_style = "embed"
 
             giveaway_data["message_style"] = new_style
-            db.salvar("database/giveaways/giveaways_data.json", config)
+            db.save_document("giveaways", config)
             await self._mode_aware_wait(inter)
             await config_message.show_panel(inter, giveaway_id)
 
         elif action == "EditButton":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway_data = config.get(giveaway_id, {})
             button_data = giveaway_data.get("button", {})
             await inter.response.send_modal(config_message.EditButtonModal(giveaway_id=giveaway_id, data=button_data))
 
         elif action == "EditContent":
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway_data = config.get(giveaway_id, {})
             style = giveaway_data.get("message_style", "embed")
 
@@ -1278,7 +1278,7 @@ class Giveaways(commands.Cog):
 
         elif action == "Preview":
             await inter.response.defer(ephemeral=True)
-            config = db.obter("database/giveaways/giveaways_data.json")
+            config = db.get_document("giveaways")
             giveaway_data = config.get(giveaway_id, {})
             style = giveaway_data.get("message_style", "embed")
 
@@ -1333,7 +1333,7 @@ class Giveaways(commands.Cog):
             await inter.followup.send(**send_kwargs, ephemeral=True)
 
     def find_task_by_message_id(self, message_id):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         for giveaway_id, giveaway in config.items():
             for task in giveaway.get("tasks", []):
                 if str(task.get("message_id")) == str(message_id):
@@ -1509,7 +1509,7 @@ class Giveaways(commands.Cog):
             await inter.followup.send("Ocorreu um erro ao processar sua participação (ID inválido).", ephemeral=True)
             return
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(giveaway_id)
         if not giveaway:
             await inter.followup.send("Este sorteio não foi encontrado.", ephemeral=True)
@@ -1596,7 +1596,7 @@ class Giveaways(commands.Cog):
                 ]
             )
 
-        db.salvar("database/giveaways/giveaways_data.json", config) 
+        db.save_document("giveaways", config) 
         await inter.followup.send(feedback_message, ephemeral=True)
 
         # Update the message button
@@ -1641,7 +1641,7 @@ class Giveaways(commands.Cog):
             pass # Silently fail if message cannot be edited.
 
     async def process_repost(self, inter: disnake.MessageInteraction, giveaway_id: str, task_id: str, clear_previous_winners: bool):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway_data = config.get(giveaway_id, {})
         task = next((t for t in giveaway_data.get("tasks", []) if t.get("id") == task_id), None)
 
@@ -1673,7 +1673,7 @@ class Giveaways(commands.Cog):
                 pass # Ignore if message is already gone
 
         # Save changes before sending new message
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         await self._send_giveaway_message(inter, giveaway_id, task_id, is_resend=True)
 

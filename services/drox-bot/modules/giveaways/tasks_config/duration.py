@@ -71,7 +71,7 @@ class DurationModal(disnake.ui.Modal):
             await inter.followup.send(f"{emoji.wrong} Formato de data ou hora inválido. Use DD/MM/YYYY e HH:MM.", ephemeral=True)
             return
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id, {})
         if not giveaway:
             await inter.followup.send(f"{emoji.wrong} Erro: Sorteio não encontrado.", ephemeral=True)
@@ -84,7 +84,7 @@ class DurationModal(disnake.ui.Modal):
 
         task["start_time"] = start_timestamp
         task["end_time"] = end_timestamp
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         from tasks.giveaways.logger_giveaways import log_giveaway_event
         await log_giveaway_event(

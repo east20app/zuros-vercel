@@ -24,7 +24,7 @@ class EditButtonModal(disnake.ui.Modal):
         super().__init__(title="Editar Botão de Participação", components=components)
 
     async def callback(self, inter: disnake.ModalInteraction):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id)
         if not giveaway:
             return
@@ -51,7 +51,7 @@ class EditButtonModal(disnake.ui.Modal):
         giveaway["button"]["label"] = inter.text_values["label"]
         giveaway["button"]["emoji"] = option_emoji
         giveaway["button"]["style"] = style_en
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         mode = db.get_document("custom_mode").get("mode")
         if mode == "components":
@@ -73,7 +73,7 @@ class EditEmbedModal(disnake.ui.Modal):
         super().__init__(title="Editar Conteúdo: Embed", components=components)
 
     async def callback(self, inter: disnake.ModalInteraction):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id)
         if not giveaway: return
 
@@ -88,7 +88,7 @@ class EditEmbedModal(disnake.ui.Modal):
                 del new_data[key]
 
         giveaway["embed"].update(new_data)
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         mode = db.get_document("custom_mode").get("mode")
         if mode == "components":
@@ -107,7 +107,7 @@ class EditContentModal(disnake.ui.Modal):
         super().__init__(title="Editar Conteúdo: Texto Simples", components=components)
 
     async def callback(self, inter: disnake.ModalInteraction):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id, {})
         if not giveaway: return
 
@@ -121,7 +121,7 @@ class EditContentModal(disnake.ui.Modal):
                 del new_data[key]
 
         giveaway["content"].update(new_data)
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
         
         mode = db.get_document("custom_mode").get("mode")
         if mode == "components":
@@ -142,7 +142,7 @@ class EditContainerModal(disnake.ui.Modal):
         super().__init__(title="Editar Conteúdo: Container", components=components)
 
     async def callback(self, inter: disnake.ModalInteraction):
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         giveaway = config.get(self.giveaway_id, {})
         if not giveaway: return
 
@@ -157,7 +157,7 @@ class EditContainerModal(disnake.ui.Modal):
                 del new_data[key]
 
         giveaway["container"].update(new_data)
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         mode = db.get_document("custom_mode").get("mode")
         if mode == "components":
@@ -169,7 +169,7 @@ class EditContainerModal(disnake.ui.Modal):
 # --- Views ---
 
 def MessageEditView_components(inter: disnake.Interaction, giveaway_id: str) -> list:
-    config = db.obter("database/giveaways/giveaways_data.json")
+    config = db.get_document("giveaways")
     giveaway_data = config.get(giveaway_id, {})
     
     primary_color_hex = db.get_document("custom_colors").get("primary")
@@ -224,7 +224,7 @@ def MessageEditView_components(inter: disnake.Interaction, giveaway_id: str) -> 
     return [container, buttons]
 
 def MessageEditView_embed(inter: disnake.Interaction, giveaway_id: str):
-    config = db.obter("database/giveaways/giveaways_data.json")
+    config = db.get_document("giveaways")
     giveaway_data = config.get(giveaway_id, {})
 
     primary_color_hex = db.get_document("custom_colors").get("primary")

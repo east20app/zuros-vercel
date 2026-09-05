@@ -29,7 +29,7 @@ class CreateTaskModal(disnake.ui.Modal):
             await message.wait(inter, send=False)
         task_name = inter.text_values["task_name"]
 
-        config = db.obter("database/giveaways/giveaways_data.json")
+        config = db.get_document("giveaways")
         if self.giveaway_id not in config:
             await inter.followup.send("Sorteio não encontrado.", ephemeral=True)
             return
@@ -46,7 +46,7 @@ class CreateTaskModal(disnake.ui.Modal):
             "created_at": int(disnake.utils.utcnow().timestamp())
         }
         config[self.giveaway_id]["tasks"].append(new_task)
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
 
         from tasks.giveaways.logger_giveaways import log_giveaway_event
         await log_giveaway_event(

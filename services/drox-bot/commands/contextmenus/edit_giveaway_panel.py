@@ -23,7 +23,7 @@ class EditGiveawayPanelContextMenu(commands.Cog):
 
         target_message_id = inter.target.id
 
-        config = db.get_document("giveaways_data") or {}
+        config = db.get_document("giveaways") or {}
         
         giveaway_id_found = None
         

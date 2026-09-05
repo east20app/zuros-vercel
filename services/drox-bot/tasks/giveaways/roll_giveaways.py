@@ -148,7 +148,7 @@ async def deliver_prizes(bot: disnake.Client, giveaway_data: dict, winners: list
             print(f"Error sending prize DM to {winner_id}: {e}")
 
 async def process_giveaway_roll(bot: disnake.Client, giveaway_id: str, task_id: str, is_reroll: bool = False):
-    config = db.obter("database/giveaways/giveaways_data.json")
+    config = db.get_document("giveaways")
     giveaway_data = config.get(giveaway_id, {})
     task = next((t for t in giveaway_data.get("tasks", []) if t.get("id") == task_id), None)
 
@@ -186,7 +186,7 @@ async def process_giveaway_roll(bot: disnake.Client, giveaway_id: str, task_id: 
             ]
         )
         task['status'] = 'error'
-        db.salvar("database/giveaways/giveaways_data.json", config)
+        db.save_document("giveaways", config)
         return
 
     if "draws" not in task:
@@ -210,7 +210,7 @@ async def process_giveaway_roll(bot: disnake.Client, giveaway_id: str, task_id: 
     
     task["status"] = "finished"
     task["rolled"] = True  # Marca o sorteio como encerrado para bloquear novas participações
-    db.salvar("database/giveaways/giveaways_data.json", config)
+    db.save_document("giveaways", config)
 
     await log_giveaway_event(
         bot=bot,
@@ -227,7 +227,7 @@ async def process_giveaway_roll(bot: disnake.Client, giveaway_id: str, task_id: 
 @tasks.loop(seconds=15)
 async def roll_giveaways_task(bot: disnake.Client):
     await bot.wait_until_ready()
-    config = db.obter("database/giveaways/giveaways_data.json")
+    config = db.get_document("giveaways")
     if not isinstance(config, dict):
         return
 
