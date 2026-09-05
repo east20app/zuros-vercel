@@ -19,7 +19,28 @@ export default async function InvoicesPage() {
     }))).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
     return <main className="mx-auto max-w-6xl px-5 py-10">
         <PageHeader title="Faturas" subtitle="Histórico unificado de compras e renovações da sua conta." />
-        <div className="mt-8"><RenewalAlerts entries={renewalEntries} /></div>
-        <section className="zuros-card zuros-card-lit p-5 sm:p-6"><InvoicesTable invoices={invoices} /></section>
+
+        <div className="sales-status-strip">
+            <div className="sales-status-main">
+                <span className={`sales-status-dot ${renewalEntries.length ? "is-offline" : ""}`} />
+                <div>
+                    <strong>{renewalEntries.length ? "Alguns planos precisam de renovação" : "Todas as faturas em dia"}</strong>
+                    <small>Renovações, compras e pagamentos da sua conta em um só lugar.</small>
+                </div>
+            </div>
+            <span className="sales-status-chip"><i /> {renewalEntries.length} em renovação</span>
+        </div>
+
+        <div className="sales-chart-wrap">
+            <div className="sales-section-heading">
+                <div>
+                    <p className="home-section-index">01 / FATURAMENTO</p>
+                    <h2>Histórico de pagamentos e renovações.</h2>
+                </div>
+                <span>{invoices.length} registro(s)</span>
+            </div>
+            <div className="mt-4"><RenewalAlerts entries={renewalEntries} /></div>
+            <section className="zuros-card zuros-card-lit mt-4 p-5 sm:p-6"><InvoicesTable invoices={invoices} /></section>
+        </div>
     </main>;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DashboardAppsGrid } from "@/components/DashboardAppsGrid";
+import { Stat } from "@/components/ui";
 import { Button } from "@/components/ui";
 import { listMyApps } from "@/lib/actions/apps.actions";
 import { requireUser } from "@/lib/require-admin";
@@ -39,6 +40,28 @@ export default async function DashboardPage() {
                 </div>
                 <Button href="/planos" className="dashboard-action-primary">Adquirir aplicação</Button>
             </header>
+
+            <div className="sales-status-strip">
+                <div className="sales-status-main">
+                    <span className={`sales-status-dot ${sorted.some((app) => app.errorOnUpdate) ? "is-offline" : ""}`} />
+                    <div>
+                        <strong>{sorted.some((app) => app.errorOnUpdate) ? "Atenção em alguma aplicação" : "Todas as aplicações em ordem"}</strong>
+                        <small>Status geral das suas aplicações · {apps.length} {apps.length === 1 ? "aplicação" : "aplicações"} vinculada(s).</small>
+                    </div>
+                </div>
+                <span className="sales-status-chip"><i /> {sorted.filter((app) => app.status === "active").length} ativa(s)</span>
+            </div>
+
+            <section aria-label="Resumo de aplicações" className="sales-summary">
+                <Stat label="Aplicações" value={apps.length} hint="Total vinculado à conta" />
+                <Stat label="Ativas" value={sorted.filter((app) => app.status === "active").length} hint="Em operação normal" />
+                <Stat label="Em carência" value={sorted.filter((app) => isExpiring(app.expiresAt, app.lifetime)).length} hint="Renovação próxima" />
+                <article className="sales-pending-stat">
+                    <span>COM ERRO</span>
+                    <strong>{sorted.filter((app) => app.errorOnUpdate).length}</strong>
+                    <small>Falha na atualização</small>
+                </article>
+            </section>
 
             <section className="dashboard-apps-section dashboard-apps-section-clean" aria-labelledby="dashboard-apps-heading">
                 <div className="dashboard-apps-heading">
