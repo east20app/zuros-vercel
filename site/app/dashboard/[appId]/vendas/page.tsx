@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SalesDashboard } from "@/components/SalesDashboard";
+import { BotPageHero } from "@/components/BotPageHero";
 import { Card, Stat } from "@/components/ui";
 import { ActionError } from "@/lib/actions/context";
 import { getSalesOverview, getVendasContext } from "@/lib/actions/vendas.actions";
@@ -34,7 +35,12 @@ export default async function VendasPage({ params }: { params: Promise<{ appId: 
     const overview = await getSalesOverview(resolvedParams.appId, "7d");
 
     return <main className="sales-page mx-auto max-w-6xl px-5 py-8">
-        <section className="sales-hero"><div><p className="home-kicker"><span className="home-kicker-mark" />VISÃO GERAL</p><h1>Visão geral</h1><p>Acompanhe vendas, conversão e a saúde do seu bot em tempo real.</p></div><div className="sales-hero-period"><span>JANELA ATIVA</span><strong>Últimos 7 dias</strong><small>Atualizado agora · {ctx.productName}</small></div></section>
+        <BotPageHero
+            eyebrow="VISÃO GERAL"
+            title="Visão geral"
+            description="Acompanhe vendas, conversão e a saúde do seu bot em tempo real."
+            meta={<span className="bot-page-hero-meta"><span>Janela ativa</span><strong>Últimos 7 dias</strong><small>Atualizado agora · {ctx.productName}</small></span>}
+        />
         <section className="sales-status-strip" aria-label="Status da operação"><div className="sales-status-main"><span className="sales-status-dot" /><div><strong>Bot online</strong><small>Controle a energia da sua aplicação · {ctx.botName}</small></div></div><span className="sales-status-chip"><i /> ao vivo</span></section>
         <section aria-label="Resumo de vendas" className="sales-summary"><Stat label="Receita · Hoje" value={formatMoney(overview.total)} /><Stat label="Pedidos · Hoje" value={overview.ordersCount} /><Stat label="Ticket médio" value={formatMoney(overview.averageTicket)} /><Stat label="Hoje" value={formatMoney(overview.today)} hint={overview.todayCount ? `${overview.todayCount} venda(s)` : "Sem vendas hoje"} /><article className="sales-pending-stat"><span>AGUARDANDO PAGAMENTO</span><strong>{overview.pendingCount}</strong><small>Pedidos em aberto</small></article></section>
         <div className="sales-chart-wrap"><div className="sales-section-heading"><div><p className="home-section-index">01 / OPERAÇÃO</p><h2>O que está acontecendo agora.</h2></div><span>Atualização sob demanda no seletor de período</span></div><SalesDashboard appId={resolvedParams.appId} productName={ctx.productName} initial={overview} /></div>

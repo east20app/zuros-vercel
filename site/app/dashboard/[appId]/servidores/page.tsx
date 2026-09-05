@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { BotConfigHeader } from "@/components/BotConfigHeader";
-import { Card, PageHeader } from "@/components/ui";
+import { BotPageHero } from "@/components/BotPageHero";
+import { Card } from "@/components/ui";
 import { ServerManager } from "@/components/ServerManager";
 import { getBotIdentity, listBotGuilds } from "@/lib/actions/apps.actions";
 import { ActionError } from "@/lib/actions/context";
@@ -25,8 +26,13 @@ export default async function BotServersPage({ params }: { params: Promise<{ app
     return (
         <main className="mx-auto min-w-0 max-w-6xl px-5 py-8 sm:px-8">
             <BotConfigHeader appId={resolvedParams.appId} />
-            <PageHeader title="Servidores" subtitle={`${bot.name} está presente em ${guilds.length} servidor(es).`} />
-            <ServerManager appId={resolvedParams.appId} botId={bot.botId} guilds={guilds} />
+            <BotPageHero
+                eyebrow="GERENCIAMENTO / PRESENÇA"
+                title="Servidores"
+                description={`${bot.name} está presente em ${guilds.length} servidor(es).`}
+                meta={<span className="bot-page-hero-meta"><span>Servidores</span><strong>{guilds.length}</strong><small>Autorizados pelo Discord</small></span>}
+            />
+            <div className="mt-6"><ServerManager appId={resolvedParams.appId} botId={bot.botId} guilds={guilds} /></div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {guilds.map((guild) => (
                     <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#7c3aed]/40">

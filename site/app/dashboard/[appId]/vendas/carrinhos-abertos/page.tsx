@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BotPageHero } from "@/components/BotPageHero";
 import { Card, Empty, StatusBadge, TechnicalId, UserChip } from "@/components/ui";
 import { ActionError } from "@/lib/actions/context";
 import { getOpenCarts, getVendasContext } from "@/lib/actions/vendas.actions";
@@ -36,17 +37,14 @@ export default async function CarrinhosPage({ params }: { params: Promise<{ appI
 
     return (
         <main className="mx-auto max-w-6xl px-5 py-8">
-            <div className="mb-6">
-                <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-[var(--accent)]" />
-                    <h1 className="text-2xl font-bold tracking-tight text-white">Carrinhos abertos</h1>
-                </div>
-                <p className="mt-1.5 text-sm text-zinc-500">
-                    Bot {ctx.botName} · {carts.length} {carts.length === 1 ? "carrinho em andamento" : "carrinhos em andamento"}.
-                </p>
-            </div>
+            <BotPageHero
+                eyebrow="VENDAS / CARRINHOS"
+                title="Carrinhos abertos"
+                description={`Bot ${ctx.botName} · ${carts.length} ${carts.length === 1 ? "carrinho em andamento" : "carrinhos em andamento"}.`}
+                meta={<span className="bot-page-hero-meta"><span>Em andamento</span><strong>{carts.length}</strong><small>Atualizado agora</small></span>}
+            />
 
-            {carts.length === 0 ? (
+            <div className="mt-6">{carts.length === 0 ? (
                 <Empty text="Nenhum carrinho aberto no momento." />
             ) : (
                 <Card className="overflow-hidden p-0">
@@ -91,6 +89,7 @@ export default async function CarrinhosPage({ params }: { params: Promise<{ appI
                     </div>
                 </Card>
             )}
+            </div>
         </main>
     );
 }

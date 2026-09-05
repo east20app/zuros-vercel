@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BotPageHero } from "@/components/BotPageHero";
 import { Card, Empty, TechnicalId, UserChip } from "@/components/ui";
 import { ActionError } from "@/lib/actions/context";
 import { getCustomers, getVendasContext } from "@/lib/actions/vendas.actions";
@@ -36,17 +37,14 @@ export default async function ClientesPage({ params }: { params: Promise<{ appId
 
     return (
         <main className="mx-auto max-w-6xl px-5 py-8">
-            <div className="mb-6">
-                <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-1 rounded-full bg-[var(--accent)]" />
-                    <h1 className="text-2xl font-bold tracking-tight text-white">Clientes</h1>
-                </div>
-                <p className="mt-1.5 text-sm text-zinc-500">
-                    Bot {ctx.botName} · {customers.length} {customers.length === 1 ? "cliente" : "clientes"} · {formatMoney(totalSpent)} no total.
-                </p>
-            </div>
+            <BotPageHero
+                eyebrow="VENDAS / CLIENTES"
+                title="Clientes"
+                description={`Bot ${ctx.botName} · ${customers.length} ${customers.length === 1 ? "cliente" : "clientes"} · ${formatMoney(totalSpent)} no total.`}
+                meta={<span className="bot-page-hero-meta"><span>Receita total</span><strong>{formatMoney(totalSpent)}</strong><small>{customers.length} cliente(s)</small></span>}
+            />
 
-            {customers.length === 0 ? (
+            <div className="mt-6">{customers.length === 0 ? (
                 <Empty text="Nenhum cliente com compra confirmada ainda." />
             ) : (
                 <Card className="overflow-hidden p-0">
@@ -76,6 +74,7 @@ export default async function ClientesPage({ params }: { params: Promise<{ appId
                     </div>
                 </Card>
             )}
+            </div>
         </main>
     );
 }

@@ -5,8 +5,9 @@ import { AppControls } from "@/components/AppControls";
 import { AppTabs } from "@/components/AppTabs";
 import { BotConfigHeader } from "@/components/BotConfigHeader";
 import { BotConfigIndex } from "@/components/BotConfigIndex";
+import { BotPageHero } from "@/components/BotPageHero";
 import { CopyButton } from "@/components/CopyButton";
-import { Badge, Button, Card, Empty, PageHeader } from "@/components/ui";
+import { Badge, Button, Card, Empty } from "@/components/ui";
 import { getAppDetail, listAppExtracts } from "@/lib/actions/apps.actions";
 import { ActionError } from "@/lib/actions/context";
 import { formatDate, formatMoney, formatUptime, getRemainingLabel, getRemainingTone } from "@/lib/status";
@@ -177,15 +178,18 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
 
     return (
         <main className="app-detail-page mx-auto min-w-0 max-w-6xl px-5 py-8">
-            <div className="app-detail-heading mb-6">
+            <div className="mb-6">
                 <Link href="/dashboard" className="group inline-flex items-center gap-1 text-sm text-zinc-500 transition hover:text-[var(--accent-strong)]">
                     <span className="transition group-hover:-translate-x-0.5">←</span> Voltar
                 </Link>
-                <PageHeader
-                    title={app.name}
-                    subtitle={`${app.productName} · v${app.version}`}
-                    actions={<Button href={`/dashboard/${routeId}/vendas`}>Vendas</Button>}
-                />
+                <div className="mt-4">
+                    <BotPageHero
+                        eyebrow="PAINEL / APLICAÇÃO"
+                        title={app.name}
+                        description={`${app.productName} · v${app.version}`}
+                        actions={<Button href={`/dashboard/${routeId}/vendas`}>Vendas</Button>}
+                    />
+                </div>
             </div>
 
             {app.errorOnUpdate && (
