@@ -34,6 +34,30 @@
     --radius: 0.75rem;
 }
 
+[data-theme="light"] {
+    --background: #f5f7f6;
+    --background-dark: #e9eeeb;
+    --surface: #ffffff;
+    --surface-raised: #f0f4f2;
+    --surface-hover: #e7eeea;
+    --border: #d5dfda;
+    --border-strong: #b7c6bf;
+    --muted: #53635c;
+    --muted-dim: #71817a;
+    --accent: #739d16;
+    --accent-strong: #587d0b;
+    --accent-dim: #9cbc36;
+    --accent-soft: rgba(115, 157, 22, 0.13);
+    --accent-glow: rgba(115, 157, 22, 0.22);
+    --success: #168044;
+    --success-soft: rgba(22, 128, 68, 0.12);
+    --danger: #c92f38;
+    --danger-soft: rgba(201, 47, 56, 0.1);
+    --magenta: #c24d36;
+    --magenta-soft: rgba(194, 77, 54, 0.1);
+    --foreground: #17201c;
+}
+
 * {
     scrollbar-width: thin;
     scrollbar-color: #272033 transparent;
@@ -2168,3 +2192,59 @@ body:has(.zuros-sidebar-panel) td {
   line-height: 1;
 }
 .bot-identity p:last-child { margin-top: .35rem; color: #71717a; font-size: .76rem; }
+
+/* Tema claro: substitui apenas superfícies herdadas de estilos legados. */
+[data-theme="light"] body,
+[data-theme="light"] .zuros-dashboard-stage {
+    background-color: var(--background);
+    color: var(--foreground);
+}
+[data-theme="light"] .zuros-dashboard-content,
+[data-theme="light"] .zuros-sidebar-panel,
+[data-theme="light"] .public-nav {
+    background: var(--surface);
+    border-color: var(--border);
+}
+[data-theme="light"] .zuros-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 12px 30px -24px rgba(23, 32, 28, 0.5);
+}
+[data-theme="light"] .text-white { color: var(--foreground); }
+[data-theme="light"] .text-zinc-200,
+[data-theme="light"] .text-zinc-300,
+[data-theme="light"] .text-zinc-400 { color: var(--muted); }
+[data-theme="light"] .text-zinc-500,
+[data-theme="light"] .text-zinc-600 { color: var(--muted-dim); }
+[data-theme="light"] .bg-background-dark { background-color: var(--background-dark); }
+[data-theme="light"] .bg-background { background-color: var(--background); }
+[data-theme="light"] .bg-surface { background-color: var(--surface); }
+[data-theme="light"] .border-zinc-800,
+[data-theme="light"] .border-zinc-900 { border-color: var(--border); }
+[data-theme="light"] .hover\:bg-zinc-900\/50:hover,
+[data-theme="light"] .hover\:bg-white\/\[\.04\]:hover { background-color: var(--surface-hover); }
+
+/* Tokens claros finais: ficam no fim para vencer definições legadas de :root. */
+[data-theme="light"] {
+    --background: #f5f7f6;
+    --background-dark: #e9eeeb;
+    --surface: #ffffff;
+    --surface-raised: #f0f4f2;
+    --surface-hover: #e7eeea;
+    --border: #d5dfda;
+    --border-strong: #b7c6bf;
+    --muted: #53635c;
+    --muted-dim: #71817a;
+    --accent: #739d16;
+    --accent-strong: #587d0b;
+    --accent-dim: #9cbc36;
+    --accent-soft: rgba(115, 157, 22, 0.13);
+    --accent-glow: rgba(115, 157, 22, 0.22);
+    --success: #168044;
+    --success-soft: rgba(22, 128, 68, 0.12);
+    --danger: #c92f38;
+    --danger-soft: rgba(201, 47, 56, 0.1);
+    --magenta: #c24d36;
+    --magenta-soft: rgba(194, 77, 54, 0.1);
+    --foreground: #17201c;
+}

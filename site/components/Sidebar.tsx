@@ -11,6 +11,7 @@ import { BotStatusIndicator } from "./BotStatusIndicator";
 import { Icon } from "./Icon";
 import { BrandLogo } from "./BrandLogo";
 import { SidebarApplicationControls } from "./SidebarApplicationControls";
+import { ThemeToggle } from "./ThemeToggle";
 
 export interface SidebarUser {
     name?: string | null;
@@ -505,6 +506,9 @@ export function Sidebar({
             )}
             </div>
 
+            <div className="mt-3 flex items-center justify-end">
+                <ThemeToggle />
+            </div>
             <button
                 type="button"
                 onClick={() => signOut({ callbackUrl: "/" })}

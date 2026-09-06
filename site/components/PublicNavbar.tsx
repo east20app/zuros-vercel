@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PublicAccountMenu } from "./PublicAccountMenu";
 import { BrandLogo } from "./BrandLogo";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_ITEMS = [
     { label: "Início", href: "/" },
@@ -33,6 +34,7 @@ export function PublicNavbar({ user, pendingCount = 0 }: { user?: { name?: strin
                     {NAV_ITEMS.map((item) => <Link key={item.label} href={item.href} className={`public-nav-link ${isActive(pathname, item.href) ? "is-active" : ""}`}>{item.label}</Link>)}
                 </nav>
                 <div className="flex items-center gap-3">
+                    <ThemeToggle compact />
                     <Link href="/planos" className="public-nav-mobile-plan hidden border border-white/15 px-3 py-2 text-xs font-medium text-zinc-300 hover:border-[var(--accent)] hover:text-white sm:inline-flex md:hidden">Planos</Link>
                     {user ? <PublicAccountMenu name={user.name} image={user.image} pendingCount={pendingCount} /> : <Link href="/login" className="public-nav-cta">Entrar <span aria-hidden>↗</span></Link>}
                 </div>

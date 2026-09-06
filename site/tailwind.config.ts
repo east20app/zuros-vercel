@@ -17,6 +17,8 @@ const config: Config = {
                 foreground: "var(--foreground)",
                 surface: "var(--surface)",
                 "surface-raised": "var(--surface-raised)",
+                border: "var(--border)",
+                "border-strong": "var(--border-strong)",
                 accent: "var(--accent)",
                 muted: "var(--muted)",
                 info: "var(--info)",
