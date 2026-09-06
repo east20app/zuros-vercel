@@ -15,6 +15,8 @@
     "dev": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=384 tsx src/index.ts",
     "dev:site": "npm --prefix site run dev",
     "start": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=384 tsx src/index.ts",
+    "start:support": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=256 tsx src/support-bot.ts",
+    "dev:support": "cross-env NODE_ENV=development tsx watch src/support-bot.ts",
     "start:site": "npm --prefix site run start",
     "prestart": "node scripts/ensure-site.cjs build",
     "postinstall": "node scripts/ensure-site.cjs install",

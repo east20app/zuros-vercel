@@ -13,9 +13,10 @@ import sharpifyEvents from "./schemas/sharpify-events";
 import authLicenses from "./schemas/auth-licenses";
 import paymentEvents from "./schemas/payment-events";
 import ledgerOperations from "./schemas/ledger-operations";
+import supportTickets from "./schemas/support-tickets";
 
 const databases = {
-    userSettings, globalSettings, products, coupons, cartsBuy, applications, extracts, stores, cartsRenew, siteUsers, sharpifyEvents, authLicenses, paymentEvents, ledgerOperations
+    userSettings, globalSettings, products, coupons, cartsBuy, applications, extracts, stores, cartsRenew, siteUsers, sharpifyEvents, authLicenses, paymentEvents, ledgerOperations, supportTickets
 }
 
 // O Next importa os módulos das rotas durante o build para descobrir metadados.
