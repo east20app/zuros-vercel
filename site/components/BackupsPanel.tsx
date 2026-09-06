@@ -50,8 +50,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
         try {
             await fn();
             notify(ok);
-            const fresh = (await import("@/lib/actions/backups.actions")).getBotBackups(appId);
-            const data = await fresh;
+            const data = await getBotBackups(appId);
             setBackups(data.backups);
             setAuto(data.auto);
         } catch (error) {
