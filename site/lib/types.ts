@@ -24,6 +24,7 @@ export interface AppDetail {
     storeId: string;
     name: string;
     botId: string;
+    serverId: string | null;
     status: AppStatus;
     lifetime: boolean;
     expiresAt: string | null;

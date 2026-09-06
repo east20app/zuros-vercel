@@ -256,6 +256,7 @@ export async function getAppDetail(appId: string): Promise<AppDetail> {
         storeId: String(store?._id || application.storeId),
         name: application.name,
         botId: application.botId,
+        serverId: application.serverId || null,
         status: application.status,
         lifetime: !!application.lifetime,
         expiresAt: toISO(application.expiresAt),

@@ -698,21 +698,10 @@ new InteractionHandler({
                 return interaction.editReply({ content: "`❌`・O token fornecido não é válido ou não corresponde a um bot existente." });
             }
 
-            let detectedServerId = manualServerId || storeConfig.teamId_campos || "";
-
-            if (!manualServerId) {
-                const botGuilds = await axios.get(`https://discord.com/api/v10/users/@me/guilds`, {
-                    headers: { Authorization: `Bot ${botToken}` },
-                    timeout: DISCORD_API_TIMEOUT_MS,
-                }).catch(() => null);
-
-                if (botGuilds?.data?.length === 1) {
-                    detectedServerId = botGuilds.data[0].id;
-                } else if (botGuilds?.data?.length && storeConfig.teamId_campos) {
-                    const match = botGuilds.data.find((g: any) => g.id === storeConfig.teamId_campos);
-                    if (match) detectedServerId = match.id;
-                }
-            }
+            // O servidor principal é opcional na compra. O cliente pode adicionar
+            // o bot depois pelo convite exibido no dashboard e escolher o servidor
+            // em Configurações, sem bloquear a entrega da aplicação.
+            const detectedServerId = manualServerId || "";
 
             // Atomically claim the cart so two near-simultaneous submissions can't both proceed.
             const lockedCart = await databases.cartsBuy.findOneAndUpdate(
@@ -800,10 +789,12 @@ new InteractionHandler({
                 lockedCart.delivered = true;
                 await lockedCart.save();
 
+                const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(String(application.botId))}&scope=bot%20applications.commands&permissions=0`;
                 const notifyContent = [
                     `# Bot enviado com sucesso! 🎉`,
                     `- Olá <@${interaction.user.id}>, seu bot foi enviado com sucesso!\n`,
                     `> Você pode ver mais detalhes usando o comando /apps na loja ${storeConfig.name}.\n`,
+                    `> Servidor principal: não configurado (opcional). Adicione o bot: ${inviteUrl}\n`,
                     `-# ${product.name} - ID ${application._id}`
                 ];
 

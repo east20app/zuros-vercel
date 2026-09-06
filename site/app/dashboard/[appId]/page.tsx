@@ -47,6 +47,9 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
     const overview = await getSalesOverview(resolvedParams.appId, "7d");
     const routeId = app.botId || app.id;
     const tone = getRemainingTone(app.expiresAt, app.lifetime);
+    const inviteUrl = app.botId
+        ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(app.botId)}&scope=bot%20applications.commands&permissions=0`
+        : null;
 
     const statusInfo = (
         <Card className="flex flex-col gap-3 text-sm">
@@ -81,6 +84,23 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
                 Inicie, pause ou reinicie o bot, ou altere nome, token e servidor principal.
             </p>
             <AppControls appId={app.id} botId={app.botId} status={app.status} online={app.online} />
+        </Card>
+    );
+
+    const serverSetup = (
+        <Card className="flex flex-col gap-3">
+            <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-white">
+                <span className="h-4 w-1 rounded-full bg-[var(--accent)]" />
+                Servidor principal
+            </h3>
+            {app.serverId ? (
+                <p className="text-sm text-zinc-400">Configurado: <code className="text-zinc-200">{app.serverId}</code></p>
+            ) : (
+                <>
+                    <p className="text-sm text-zinc-400">Opcional. Adicione o bot ao seu servidor agora ou configure o servidor principal depois.</p>
+                    {inviteUrl && <a href={inviteUrl} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110">Adicionar bot ao servidor</a>}
+                </>
+            )}
         </Card>
     );
 
@@ -172,7 +192,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
                     </Card>
                 </div>
 
-                <div className="flex flex-col gap-4">{statusInfo}</div>
+                <div className="flex flex-col gap-4">{statusInfo}{serverSetup}</div>
             </div>
         ),
         controles: controls,
