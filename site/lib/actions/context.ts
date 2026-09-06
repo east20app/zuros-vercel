@@ -34,11 +34,13 @@ export async function getSessionUser(): Promise<{ discordId: string } | null> {
     return null;
 }
 
-export async function requireSessionUser(): Promise<string> {
-    const user = await getSessionUser();
-    if (!user) {
-        throw new ActionError("Não autenticado.");
+export async function requireSessionUser(discordIdOverride?: string): Promise<string> {
+    if (discordIdOverride?.trim()) {
+        await ensureDatabaseConnection();
+        return discordIdOverride.trim();
     }
+    const user = await getSessionUser();
+    if (!user) throw new ActionError("Não autenticado.");
     await ensureDatabaseConnection();
     return user.discordId;
 }

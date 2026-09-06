@@ -23,13 +23,13 @@ import { calculatePixPrice, createPurchaseCart, getPurchaseCart, listStoreCatalo
 import type { PurchasePlan } from "@root/src/integration";
 import { requireSessionUser, type ActionResult } from "./context";
 
-export async function getStoreCatalogs() {
-    await requireSessionUser();
+export async function getStoreCatalogs(discordIdOverride?: string) {
+    await requireSessionUser(discordIdOverride);
     return listStoreCatalogs();
 }
 
-export async function getStoreCatalog(storeId: string) {
-    await requireSessionUser();
+export async function getStoreCatalog(storeId: string, discordIdOverride?: string) {
+    await requireSessionUser(discordIdOverride);
     return listStoreProducts(storeId);
 }
 
@@ -37,9 +37,9 @@ export async function startPurchase(input: {
     storeId: string;
     productId: string;
     plan: PurchasePlan;
-}): Promise<ActionResult<{ cartId: string }>> {
+}, discordIdOverride?: string): Promise<ActionResult<{ cartId: string }>> {
     try {
-        const discordId = await requireSessionUser();
+        const discordId = await requireSessionUser(discordIdOverride);
         const cart = await createPurchaseCart({ discordId, ...input });
         return { ok: true, data: { cartId: cart.id } };
     } catch (error) {
@@ -51,13 +51,13 @@ export async function startPurchase(input: {
     }
 }
 
-export async function getMyPurchaseCart(cartId: string) {
-    const discordId = await requireSessionUser();
+export async function getMyPurchaseCart(cartId: string, discordIdOverride?: string) {
+    const discordId = await requireSessionUser(discordIdOverride);
     return getPurchaseCart(discordId, cartId);
 }
 
-export async function generatePurchasePayment(cartId: string): Promise<{ qrcodeDataUrl: string; copyPaste: string; finalPrice: number }> {
-    const discordId = await requireSessionUser();
+export async function generatePurchasePayment(cartId: string, discordIdOverride?: string): Promise<{ qrcodeDataUrl: string; copyPaste: string; finalPrice: number }> {
+    const discordId = await requireSessionUser(discordIdOverride);
     const cart = await databases.cartsBuy.findOne({ _id: cartId, userId: discordId }).populate("coupon");
     if (!cart) throw new Error("Carrinho não encontrado ou expirado.");
     if (cart.status !== "opened") throw new Error("Este carrinho não está disponível para pagamento.");
@@ -123,16 +123,16 @@ export async function generatePurchasePayment(cartId: string): Promise<{ qrcodeD
     return { qrcodeDataUrl, copyPaste, finalPrice };
 }
 
-export async function pollPurchaseCart(cartId: string) {
-    const discordId = await requireSessionUser();
+export async function pollPurchaseCart(cartId: string, discordIdOverride?: string) {
+    const discordId = await requireSessionUser(discordIdOverride);
     const cart = await getPurchaseCart(discordId, cartId);
     if (!cart) throw new Error("Carrinho não encontrado.");
     return cart;
 }
 
-export async function applyPurchaseCoupon(cartId: string, code: string): Promise<ActionResult<{ discount: number }>> {
+export async function applyPurchaseCoupon(cartId: string, code: string, discordIdOverride?: string): Promise<ActionResult<{ discount: number }>> {
     try {
-        const discordId = await requireSessionUser();
+        const discordId = await requireSessionUser(discordIdOverride);
         const cart = await databases.cartsBuy.findOne({ _id: cartId, userId: discordId }, { productId: 1 }).lean();
         if (!cart) throw new Error("Carrinho não encontrado.");
         const result = await reserveCouponForCart({ cartType: "buy", cartId, userId: discordId, code, productId: String(cart.productId) });

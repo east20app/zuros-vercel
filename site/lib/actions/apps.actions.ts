@@ -622,8 +622,8 @@ export async function getRenewPrices(appId: string): Promise<{ prices: RenewPric
     };
 }
 
-export async function startRenew(appId: string, plan: "weekly" | "biweekly" | "monthly" | "lifetime"): Promise<{ cartId: string }> {
-    const discordId = await requireSessionUser();
+export async function startRenew(appId: string, plan: "weekly" | "biweekly" | "monthly" | "lifetime", discordIdOverride?: string): Promise<{ cartId: string }> {
+    const discordId = await requireSessionUser(discordIdOverride);
     const application = await assertOwnsApp(appId, discordId);
     const product = application.productId;
     const store = application.storeId;
@@ -653,8 +653,8 @@ export async function startRenew(appId: string, plan: "weekly" | "biweekly" | "m
     return { cartId: String(cart._id) };
 }
 
-export async function applyRenewCoupon(cartId: string, code: string): Promise<{ discount: number }> {
-    const discordId = await requireSessionUser();
+export async function applyRenewCoupon(cartId: string, code: string, discordIdOverride?: string): Promise<{ discount: number }> {
+    const discordId = await requireSessionUser(discordIdOverride);
     const cart = await databases.cartsRenew.findOne({ _id: cartId, userId: discordId }, { applicationId: 1 }).populate("applicationId").lean();
     if (!cart) throw new ActionError("Carrinho não encontrado.");
     const application = cart.applicationId as unknown as IApplications;
@@ -662,13 +662,13 @@ export async function applyRenewCoupon(cartId: string, code: string): Promise<{ 
     return { discount: result.discount };
 }
 
-export async function generateRenewPayment(cartId: string): Promise<{
+export async function generateRenewPayment(cartId: string, discordIdOverride?: string): Promise<{
     qrcodeDataUrl: string;
     copyPaste: string;
     paymentId: string;
     finalPrice: number;
 }> {
-    const discordId = await requireSessionUser();
+    const discordId = await requireSessionUser(discordIdOverride);
     const cart = (await databases.cartsRenew.findById(cartId).populate("coupon")) as unknown as CartRenewCouponPopulated | null;
     if (!cart) throw new ActionError("Carrinho não encontrado ou expirado.");
     if (String(cart.userId) !== discordId) throw new ActionError("Este carrinho não pertence a você.");
@@ -784,8 +784,8 @@ export async function generateRenewPayment(cartId: string): Promise<{
     return { qrcodeDataUrl, copyPaste, paymentId, finalPrice };
 }
 
-export async function pollRenewCart(cartId: string): Promise<CartRenewView> {
-    const discordId = await requireSessionUser();
+export async function pollRenewCart(cartId: string, discordIdOverride?: string): Promise<CartRenewView> {
+    const discordId = await requireSessionUser(discordIdOverride);
     const cart = (await databases.cartsRenew.findById(cartId).populate("applicationId")) as unknown as CartRenewAppCouponPopulated | null;
     if (!cart) throw new ActionError("Carrinho não encontrado.");
     if (String(cart.userId) !== discordId) throw new ActionError("Este carrinho não pertence a você.");
