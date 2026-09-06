@@ -2248,3 +2248,15 @@ body:has(.zuros-sidebar-panel) td {
     --magenta-soft: rgba(194, 77, 54, 0.1);
     --foreground: #17201c;
 }
+
+/* Densidade do dashboard: cards menores sem remover informação essencial. */
+.dashboard-app-card-v2 { min-height: 15.5rem; padding: 1rem; }
+.dashboard-app-card-v2-title { margin-top: 1rem; }
+.dashboard-app-card-v2-title h3 { font-size: 1.15rem; }
+.dashboard-app-card-v2-details { margin-top: .8rem; }
+.dashboard-app-card-v2-footer { padding-top: .85rem; }
+.user-bot-workspace-bar nav a { padding: .5rem .65rem; font-size: .7rem; }
+@media (max-width: 767px) {
+    .dashboard-app-card-v2 { min-height: 13rem; }
+    .user-bot-workspace-bar { top: calc(4rem + env(safe-area-inset-top)); }
+}

@@ -20,6 +20,10 @@ export interface IApplications {
     forceUpdate?: boolean;
     updateLeaseUntil?: Date;
     renewalOperationKeys?: string[];
+    lastHeartbeatAt?: Date;
+    heartbeatVersion?: string;
+    heartbeatUptime?: number;
+    heartbeatGuildId?: string;
 }
 
 const settingsSchema = new Schema<IApplications>({
@@ -41,6 +45,10 @@ const settingsSchema = new Schema<IApplications>({
     forceUpdate: { type: Boolean, required: true, default: false },
     updateLeaseUntil: { type: Date, required: false },
     renewalOperationKeys: { type: [String], default: [], select: false },
+    lastHeartbeatAt: { type: Date, required: false, index: true },
+    heartbeatVersion: { type: String, required: false },
+    heartbeatUptime: { type: Number, required: false },
+    heartbeatGuildId: { type: String, required: false },
 });
 
 settingsSchema.index({ storeId: 1 });

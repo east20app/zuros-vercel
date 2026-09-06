@@ -20,6 +20,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
     const [range, setRange] = useState<SalesRange>("7d");
     const [data, setData] = useState<SalesOverview>(initial);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const dailyCanvasRef = useRef<HTMLCanvasElement>(null);
     const productCanvasRef = useRef<HTMLCanvasElement>(null);
     const chartsRef = useRef<Chart[]>([]);
@@ -121,16 +122,20 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
 
     function changeRange(next: SalesRange) {
         if (next === range) return;
-        const requestId = ++requestIdRef.current;
         setRange(next);
+        void loadRange(next);
+    }
+    function loadRange(next: SalesRange) {
+        const requestId = ++requestIdRef.current;
         setLoading(true);
+        setError(null);
         getSalesOverview(appId, next)
             .then((overview) => {
                 if (requestId !== requestIdRef.current) return; // superseded, ignore
                 setData(overview);
             })
             .catch(() => {
-                // mantém os dados atuais em caso de falha
+                if (requestId === requestIdRef.current) setError("Não foi possível atualizar este período. Os dados exibidos são do último carregamento válido.");
             })
             .finally(() => {
                 if (requestId === requestIdRef.current) setLoading(false);
@@ -195,6 +200,7 @@ export function SalesDashboard({ appId, productName, initial }: { appId: string;
                     </Card>
                 </div>
             )}
+            {error && <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200"><span>{error}</span><button type="button" onClick={() => loadRange(range)} className="font-semibold underline underline-offset-2">Tentar novamente</button></div>}
         </div>
     );
 }

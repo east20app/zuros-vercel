@@ -101,7 +101,14 @@ export async function saveBotConfig(appId: string, modulo: string, data: Record<
     return { ok: true, synced: true };
 }
 export async function getBotConfigStatus(appId: string): Promise<{ online: boolean }> {
-    try { await getBotConfig(appId, "customizacao"); return { online: true }; } catch { return { online: false }; }
+    try {
+        const discordId = await requireSessionUser();
+        const identifier = /^[a-f\d]{24}$/i.test(appId) ? { $or: [{ _id: appId }, { botId: appId }, { appId }] } : { botId: appId };
+        const application = await databases.applications.findOne({ ...identifier, ownerId: discordId }, { status: 1, lastHeartbeatAt: 1 }).lean();
+        if (!application || application.status !== "active") return { online: false };
+        const heartbeatAt = application.lastHeartbeatAt ? new Date(application.lastHeartbeatAt).getTime() : 0;
+        return { online: heartbeatAt > 0 && Date.now() - heartbeatAt <= 90_000 };
+    } catch { return { online: false }; }
 }
 
 export async function publishDroxProduct(appId: string, productId: string, channelId: string): Promise<{ ok: true; messageId: string }> {

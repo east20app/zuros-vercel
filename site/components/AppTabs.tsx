@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -14,6 +14,9 @@ export function AppTabs({ tabs, defaultTab }: { tabs: AppTabItem[]; defaultTab?:
     const searchParams = useSearchParams();
     const requestedTab = searchParams.get("tab");
     const [activeId, setActiveId] = useState(requestedTab && tabs.some((tab) => tab.id === requestedTab) ? requestedTab : defaultTab ?? tabs[0]?.id);
+    useEffect(() => {
+        if (requestedTab && tabs.some((tab) => tab.id === requestedTab)) setActiveId(requestedTab);
+    }, [requestedTab, tabs]);
     const current = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
 
     return <div>
