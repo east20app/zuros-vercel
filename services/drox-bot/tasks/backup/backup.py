@@ -1,10 +1,20 @@
 import os
 import json
 import datetime
+from functions.database import database
 
 BACKUP_DIR = 'database/backups'
 
 class Backup:
+    @staticmethod
+    def Espelhar():
+        """Espelha a lista de backups locais no documento Mongo `backs`
+        para que o painel da web possa listar sem acesso ao filesystem."""
+        try:
+            database.save_document("backs", Backup.ListarBackups())
+        except Exception as e:
+            print(f"[Backup] Erro ao espelhar lista de backups: {e}")
+
     @staticmethod
     def ListarBackups():
         backups = []

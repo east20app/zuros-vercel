@@ -31,7 +31,7 @@ export const BOT_CONFIG_MODULES = {
         disparadorDm: "automations_disparador_dm", forms: "automations_forms",
     },
     customizacao: { colors: "custom_colors", status: "custom_status", info: "custom_info", mode: "custom_mode" },
-    cloud: { config: "cloud_data", tasks: "cloud_tasks" },
+    cloud: { config: "cloud_data", tasks: "cloud_tasks", gifts: "cloud_gifts" },
     mensagens: { announce: "messages_anunciar", templates: "messages_templates1", directMessage: "enviar_dm_editor" },
     extensions: {
         config: "extensions_config", droxgen: "extensions_droxgen", boostData: "extensions_boost_data",

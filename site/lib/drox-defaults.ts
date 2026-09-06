@@ -14,6 +14,14 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
         pushinpay: { enabled: false, token_pushinpay: "" },
         misticpay: { enabled: false, client_id: "", client_secret: "" },
         sync_wallet: { enabled: false, api_key: "", cover_fee: false },
+        pagbank: { enabled: false, token_pagbank: "" },
+        picpay: { enabled: false, token_picpay: "" },
+        stripe: { enabled: false, token_stripe: "" },
+        paypal: { enabled: false, client_id: "", client_secret: "" },
+        asaas: { enabled: false, token_asaas: "" },
+        coinbase: { enabled: false, token_coinbase: "" },
+        nowpayments: { enabled: false, token_nowpayments: "" },
+        nubank_imap: { enabled: false, email: "", password: "", pix_key: "", pix_key_type: "" },
     },
     pagamentos: {},
     payment_tracking: { items: {} },
@@ -187,6 +195,7 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     // --- Cloud / OAuth2 ---
     cloud_data: { definitions: { require_oauth2: { enabled: false } }, log_channel_id: "", zuros_auth: { base_url: "https://zuros-auth.vercel.app", auth_id: "", bot_credential: "" }, message_verify: { message_style: "container", button: { label: "Verificar", emoji: "", style: "grey" }, container: { content: "Clique abaixo para concluir sua verificação.", color: "#7c3aed", image_url: "", thumbnail_url: "" }, embed: { title: "Verificação", description: "Clique abaixo para concluir sua verificação.", color: "#7c3aed", image_url: "", thumbnail_url: "" }, content: { content: "Clique abaixo para concluir sua verificação." } } },
     cloud_tasks: { items: [] },
+    cloud_gifts: { items: [] },
 
     // --- Configurações do /painel ---
     cargos: { cargo_admin: null, cargo_suporte: null, cargo_cliente: null, cargo_verificado: null, cargo_auto_role: null },

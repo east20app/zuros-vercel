@@ -6,6 +6,7 @@ import datetime
 import os
 import hashlib
 import aiohttp
+from .backup import Backup
 
 class Sincronizacao:
     @staticmethod
@@ -95,7 +96,14 @@ class Sincronizacao:
     async def BackupGuild(guild: disnake.Guild, bot: disnake.Client = None, auto: bool = False):
         data = {}
 
-        definicoes_backup = database.obter("database/backup_configs.json")
+        try:
+            mongo_config = database.get_document("backup_configs")
+            if isinstance(mongo_config, dict) and mongo_config:
+                definicoes_backup = mongo_config
+            else:
+                definicoes_backup = database.obter("database/backup_configs.json")
+        except Exception:
+            definicoes_backup = database.obter("database/backup_configs.json")
         excluded = definicoes_backup.get("backup_auto_exclude", []) if auto else []
 
         data['guild'] = {
@@ -252,6 +260,7 @@ class Sincronizacao:
         else:
             backup_path = os.path.join(backup_dir, f'Backup_{timestamp}.json')
         database.salvar(backup_path, data)
+        Backup.Espelhar()
 
         resumo = {
             'nome': guild.name,

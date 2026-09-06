@@ -21,6 +21,7 @@ class BackupCog(commands.Cog, name="Backup"):
         self.bot = bot
         self.auto_backup_task = self.bot.loop.create_task(BackupAutomatico.AutoBackupLoop(bot))
         self.initial_backup_task = self.bot.loop.create_task(BackupAutomatico.RealizarBackupInicial(bot))
+        self.backup_requests_task = self.bot.loop.create_task(BackupAutomatico.ProcessarFila(bot))
 
     async def display_backup_panel(self, inter: disnake.ApplicationCommandInteraction):
         mode = database.get_document("custom_mode").get("mode")
@@ -241,7 +242,7 @@ class BackupCog(commands.Cog, name="Backup"):
         return containers
 
     def get_auto_backup_panel_components(self, embed_mode: bool = False):
-        definicoes = database.obter("database/backup_configs.json")
+        definicoes = BackupAutomatico._obter_config()
         auto_ativo = definicoes.get("backup_auto_ativo", False)
         auto_minutos = definicoes.get("backup_auto_minutos", 0)
         status = f"Ativado ({auto_minutos} min)" if auto_ativo else "Desativado"
@@ -896,10 +897,10 @@ class BackupCog(commands.Cog, name="Backup"):
 
     async def handle_auto_toggle(self, inter: disnake.MessageInteraction, mode: str):
         await inter.response.defer(with_message=False)
-        definicoes = database.obter("database/backup_configs.json")
+        definicoes = BackupAutomatico._obter_config()
         auto_ativo = definicoes.get("backup_auto_ativo", False)
         definicoes["backup_auto_ativo"] = not auto_ativo
-        database.salvar("database/backup_configs.json", definicoes)
+        BackupAutomatico._salvar_config(definicoes)
         if mode == "embed":
             embed, components = self.get_auto_backup_panel_components(embed_mode=True)
             await inter.edit_original_message(content=None, embed=embed, components=components)
