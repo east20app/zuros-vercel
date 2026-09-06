@@ -43,7 +43,7 @@ async function ownedActiveApplication(appId: string) {
     return { appId: String(application._id), discordId, botId: application.botId };
 }
 
-function readItems(doc: Record<string, unknown> | null | undefined, key = "backs"): unknown[] {
+function readItems(doc: Record<string, unknown> | null | undefined): unknown[] {
     if (!doc) return [];
     const items = (doc as Record<string, unknown>).items;
     if (Array.isArray(items)) return items;
@@ -58,20 +58,20 @@ export async function getBotBackups(appId: string): Promise<{ backups: BackupEnt
         getBotDocument(botId, "backup_configs"),
         getBotDocument(botId, "backup_requests"),
     ]);
-    const backups = readItems(backsDoc, "backs").filter((b): b is BackupEntry => !!b && typeof b === "object" && typeof (b as BackupEntry).arquivo === "string");
+    const backups = readItems(backsDoc).filter((b): b is BackupEntry => !!b && typeof b === "object" && typeof (b as BackupEntry).arquivo === "string");
     const autoRaw = (configDoc ?? {}) as Record<string, unknown>;
     const auto: BackupAutoConfig = {
         backup_auto_ativo: Boolean(autoRaw.backup_auto_ativo) || false,
         backup_auto_minutos: typeof autoRaw.backup_auto_minutos === "number" ? autoRaw.backup_auto_minutos : 360,
         backup_auto_exclude: Array.isArray(autoRaw.backup_auto_exclude) ? (autoRaw.backup_auto_exclude as string[]) : [],
     };
-    const fila = readItems(filaDoc, "backup_requests").filter((q): q is BackupQueueItem => !!q && typeof q === "object");
+    const fila = readItems(filaDoc).filter((q): q is BackupQueueItem => !!q && typeof q === "object");
     return { backups, auto, fila };
 }
 
 async function enqueueRequest(botId: string, item: Omit<BackupQueueItem, "id" | "status">) {
     const filaDoc = await getBotDocument(botId, "backup_requests");
-    const fila = readItems(filaDoc, "backup_requests");
+    const fila = readItems(filaDoc);
     const next: BackupQueueItem = { ...item, id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()), status: undefined };
     await saveBotDocument(botId, "backup_requests", { items: [...fila.slice(-99), next] });
 }
