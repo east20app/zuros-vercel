@@ -65,6 +65,9 @@ const DROX_RUNTIME_DOCUMENTS = [
     "products",
     "tickets_calls",
     "tickets_data",
+    "backs",
+    "backup_configs",
+    "backup_requests",
 ] as const;
 const allowedDocuments = new Set<string>([
     ...Object.values(BOT_CONFIG_MODULES).flatMap((documents) => Object.values(documents)),

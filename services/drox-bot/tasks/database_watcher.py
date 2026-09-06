@@ -51,6 +51,7 @@ EXTERNALLY_CONFIGURABLE_DOCUMENTS = {
     "protection_protecaogeral_banimentos", "protection_protecaogeral_canais",
     "protection_protecaogeral_cargos", "protection_protecaogeral_comandosext",
     "protection_protecaogeral_expulsoes", "protection_protecaogeral_webhooks",
+    "backs", "backup_configs", "backup_requests",
 }
 
 

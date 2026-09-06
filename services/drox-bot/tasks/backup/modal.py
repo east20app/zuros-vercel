@@ -2,6 +2,7 @@ import disnake
 import asyncio
 from functions.database import database
 from functions.message import message, embed_message
+from .backup_auto import BackupAutomatico
 
 class BackupAutoConfigModal(disnake.ui.Modal):
     def __init__(self, cog, minutos_atuais: int, mode: str):
@@ -34,11 +35,11 @@ class BackupAutoConfigModal(disnake.ui.Modal):
             return
         
         definicoes = await self.cog.bot.loop.run_in_executor(
-            None, database.obter, "database/backup_configs.json"
+            None, BackupAutomatico._obter_config
         )
         definicoes["backup_auto_minutos"] = minutos
         await self.cog.bot.loop.run_in_executor(
-            None, database.salvar, "database/backup_configs.json", definicoes
+            None, BackupAutomatico._salvar_config, definicoes
         )
         
         if self.mode == "embed":

@@ -853,6 +853,7 @@ class BackupCog(commands.Cog, name="Backup"):
         arquivo = inter.component.custom_id.split(":", 1)[1]
         try:
             os.remove(os.path.join(BACKUP_DIR, arquivo))
+            Backup.Espelhar()
         except Exception as e:
             if mode == "embed":
                 await embed_message.error(inter, f"Erro ao apagar backup: {e}")
@@ -908,7 +909,7 @@ class BackupCog(commands.Cog, name="Backup"):
             await inter.edit_original_message(components=self.get_auto_backup_panel_components())
 
     async def handle_auto_config(self, inter: disnake.MessageInteraction, mode: str):
-        definicoes = database.obter("database/backup_configs.json")
+        definicoes = BackupAutomatico._obter_config()
         minutos_atuais = definicoes.get("backup_auto_minutos", 360)
         await inter.response.send_modal(BackupAutoConfigModal(self, minutos_atuais, mode))
 
@@ -923,12 +924,10 @@ class BackupCog(commands.Cog, name="Backup"):
             if valores is None:
                 valores = []
             valores = list(valores)
-            definicoes = await self.bot.loop.run_in_executor(
-                None, database.obter, "database/backup_configs.json"
-            )
+            definicoes = BackupAutomatico._obter_config()
             definicoes["backup_auto_exclude"] = valores
             await self.bot.loop.run_in_executor(
-                None, database.salvar, "database/backup_configs.json", definicoes
+                None, BackupAutomatico._salvar_config, definicoes
             )
             if mode == "embed":
                 embed, components = self.get_auto_backup_panel_components(embed_mode=True)
