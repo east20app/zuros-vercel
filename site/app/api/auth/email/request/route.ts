@@ -161,12 +161,16 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ ok: true, message: "Se o e-mail estiver cadastrado, um código foi enviado." });
     } catch (error) {
-        console.error("[auth-email] Falha ao enviar código:", error instanceof Error ? error.message : "erro desconhecido");
-        const message = error instanceof Error && /não está configurada|inválida/i.test(error.message)
-            ? "O envio de e-mail ainda não está configurado corretamente."
-            : error instanceof Error && /timeout|timed out|etimedout|econnreset|econnrefused/i.test(error.message)
-                ? "O servidor de e-mail demorou para responder. Tente novamente em instantes."
-            : "Não foi possível enviar o código agora. Tente novamente mais tarde.";
+        const raw = error instanceof Error ? error.message : String(error);
+        console.error("[auth-email] Falha ao enviar código:", raw);
+        let message: string;
+        if (/não está configurada|inválida/i.test(raw)) {
+            message = "O envio de e-mail ainda não está configurado corretamente.";
+        } else if (/invalid login|authentication|535|relay denied|sender|mail from|5\.7\.0|5\.7\.1|550|554|530/i.test(raw)) {
+            message = `O servidor de e-mail recusou o envio. Verifique usuário/senha e o remetente (From). Detalhe: ${raw.slice(0, 300)}`;
+        } else {
+            message = `Não foi possível enviar o código. Detalhe: ${raw.slice(0, 300)}`;
+        }
         return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
 }
