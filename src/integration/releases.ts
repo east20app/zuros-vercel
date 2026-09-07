@@ -111,7 +111,7 @@ export async function publishProductRelease(args: {
     notes?: string;
 }): Promise<{ version: string; productName: string }> {
     releaseUploadSchema.parse({ storeId: args.storeId, productId: args.productId });
-    const notes = String(args.notes || "").trim().slice(0, 5000);
+    const notes = String(args.notes || "").trim().slice(0, 20000);
     await assertReleaseAdmin(args.requesterId, args.storeId);
     if (!args.fileSize) throw new Error("Não foi possível determinar o tamanho do arquivo!");
     if (args.fileSize > MAX_RELEASE_FILE_SIZE) throw new Error(RELEASE_FILE_TOO_LARGE_MESSAGE);

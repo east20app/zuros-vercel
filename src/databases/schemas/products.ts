@@ -95,7 +95,7 @@ const productsSchema = new Schema<IProducts>({
             _id: { type: Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
             version: { type: String, required: true },
             date: { type: Date, required: true, default: Date.now },
-            notes: { type: String, required: false, maxlength: 5000 },
+            notes: { type: String, required: false, maxlength: 20000 },
             path: { type: String, required: false, default: "" },
             status: { type: String, enum: ["uploading", "published", "failed"], default: "published" },
             sha256: { type: String, required: false },
