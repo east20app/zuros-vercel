@@ -44,6 +44,8 @@ const schema = new Schema<ISiteUser>({
     emailLoginCodeExpiresAt: { type: Date, select: false },
     emailLoginCodeRequestedAt: { type: Date, select: false },
     emailLoginCodeAttempts: { type: Number, select: false },
+    emailLoginSendCount: { type: Number, select: false },
+    emailLoginSendWindowStart: { type: Date, select: false },
     image: { type: String },
     avatarHash: { type: String },
     bannerHash: { type: String },
