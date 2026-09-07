@@ -440,15 +440,15 @@ export function Sidebar({
 
 
             <div className={`mt-5 hidden rounded-xl border border-zinc-800 bg-background p-1 lg:grid ${canAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:bg-white/[.04] hover:text-white"}`}>
+                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:text-white"}`}>
                     Apps
                 </Link>
                 {canAdmin && (
-                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:bg-white/[.04] hover:text-white"}`}>
+                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
                         Admin
                     </Link>
                 )}
-                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:bg-white/[.04] hover:text-white"}`}>
+                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
                     Conta
                 </Link>
             </div>
