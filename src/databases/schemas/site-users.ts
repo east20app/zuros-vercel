@@ -11,6 +11,8 @@ export interface ISiteUser {
     emailLoginCodeExpiresAt?: Date;
     emailLoginCodeRequestedAt?: Date;
     emailLoginCodeAttempts?: number;
+    emailLoginSendCount?: number;
+    emailLoginSendWindowStart?: Date;
     image?: string;
     avatarHash?: string;
     bannerHash?: string;
