@@ -1,10 +1,5 @@
-import { Suspense } from "react";
-import { LoginForm } from "@/components/LoginForm";
+import LoginPage from "@/components/LoginPage";
 
-export default function LoginPage() {
-    return (
-        <Suspense fallback={null}>
-            <LoginForm />
-        </Suspense>
-    );
+export default function Page() {
+    return <LoginPage />;
 }
