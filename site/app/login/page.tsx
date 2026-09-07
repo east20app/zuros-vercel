@@ -1,15 +1,17 @@
-export default function LoginPage() {
-    return (
-        <main className="flex min-h-dvh items-center justify-center">
-            <div>
-                <h1 className="text-2xl font-bold">
-                    Entrar
-                </h1>
+import LoginForm from "@/components/LoginForm";
 
-                <p className="mt-2 text-muted-foreground">
-                    Página de login do ZUROS APP.
-                </p>
-            </div>
-        </main>
-    );
+export default function LoginPage() {
+  return (
+    <main className="login-page-root min-h-dvh">
+      <div className="login-page-background" aria-hidden="true">
+        <div className="login-page-grid" />
+        <div className="login-page-glow login-page-glow--one" />
+        <div className="login-page-glow login-page-glow--two" />
+      </div>
+
+      <div className="login-page-content">
+        <LoginForm />
+      </div>
+    </main>
+  );
 }
