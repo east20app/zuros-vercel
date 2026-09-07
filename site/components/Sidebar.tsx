@@ -270,7 +270,6 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
     const items: Array<{ label: string; href: string; icon: SidebarIconName }> = [
         { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
         { label: "Faturas", href: "/dashboard/invoices", icon: "invoice" },
-        { label: "Conta", href: "/dashboard/account", icon: "user" },
     ];
     return (
         <aside className="flex h-full flex-col items-center gap-2 bg-background-dark px-2 py-4">
@@ -316,7 +315,6 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
 export function Sidebar({
     user,
     pendingCount = 0,
-    canAdmin = false,
     defaultAdminStoreId,
     collapsed = false,
     onToggleCollapsed,
@@ -437,21 +435,6 @@ export function Sidebar({
             </button>
 
             <div className="hidden lg:block"><Logo /></div>
-
-
-            <div className={`mt-5 hidden rounded-xl border border-zinc-800 bg-background p-1 lg:grid ${canAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:text-white"}`}>
-                    Apps
-                </Link>
-                {canAdmin && (
-                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
-                        Admin
-                    </Link>
-                )}
-                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
-                    Conta
-                </Link>
-            </div>
 
             <div className="sidebar-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
             {selectedBotId ? <SidebarApplicationControls appId={selectedBotId} /> : null}
