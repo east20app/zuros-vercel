@@ -1917,6 +1917,16 @@ body, .reference-home, .reference-plans, .reference-public-page { background: #0
 .login-simple-panel .login-discord-button { display: flex; min-height: 46px; width: 100%; align-items: center; gap: 10px; border: 1px solid #3b4244; border-radius: 8px; background: #1C2223; padding: 0 14px; color: #f4f5f5; font-size: 13px; font-weight: 600; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
 .login-simple-panel .login-discord-button:hover { border-color: #5B9CFF; background: #20282a; }
 .login-simple-panel .login-discord-button:active { transform: scale(.98); }
+.login-divider { display: flex; align-items: center; gap: .75rem; margin: 1.25rem 0; color: #687274; font-size: 11px; }
+.login-divider::before, .login-divider::after { content: ""; height: 1px; flex: 1; background: #2a3132; }
+.login-email-input { display: block; min-height: 46px; width: 100%; border: 1px solid #3b4244; border-radius: 8px; background: #101415; padding: 0 14px; color: #f4f5f5; font-size: 13px; outline: none; transition: border-color .18s ease, box-shadow .18s ease; }
+.login-email-input:focus { border-color: #D6FF63; box-shadow: 0 0 0 3px rgba(214,255,99,.1); }
+.login-email-button { min-height: 46px; width: 100%; border: 1px solid #D6FF63; border-radius: 8px; background: #D6FF63; color: #0b0d0e; font-size: 13px; font-weight: 700; transition: background .18s ease, transform .18s ease; }
+.login-email-button:hover { background: #e7ff98; }
+.login-email-button:active { transform: scale(.98); }
+.login-change-email { display: block; width: 100%; color: #899294; font-size: 11px; text-align: center; }
+.login-change-email:hover { color: #D6FF63; }
+.login-success { margin-top: 1rem; border: 1px solid rgba(214,255,99,.3); background: rgba(214,255,99,.07); padding: .75rem .9rem; color: #dfff9a; font-size: .76rem; line-height: 1.5; }
 @media (max-width: 430px) { .login-simple-shell { padding: 16px; } .login-simple-panel { padding: 22px; } .login-simple-logo { margin-bottom: 38px; } }
 
 /* Dashboard geral: composição operacional sem hero editorial. */

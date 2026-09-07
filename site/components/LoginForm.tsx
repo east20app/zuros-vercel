@@ -23,13 +23,47 @@ export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const error = searchParams.get("error");
+    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
     const [starting, setStarting] = useState(false);
+    const [email, setEmail] = useState("");
+    const [code, setCode] = useState("");
+    const [emailStep, setEmailStep] = useState<"email" | "code">("email");
+    const [message, setMessage] = useState("");
+    const [emailError, setEmailError] = useState("");
 
     useEffect(() => { if (status === "authenticated") router.replace("/dashboard"); }, [status, router]);
 
-    async function handleSignIn() {
+    async function handleDiscordSignIn() {
         setStarting(true);
-        await signIn("discord", { callbackUrl: searchParams.get("callbackUrl") || "/dashboard" });
+        await signIn("discord", { callbackUrl });
+        setStarting(false);
+    }
+
+    async function requestCode(event: React.FormEvent) {
+        event.preventDefault();
+        setStarting(true);
+        setEmailError("");
+        setMessage("");
+        try {
+            const response = await fetch("/api/auth/email/request", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || !result.ok) throw new Error(result.error || "Não foi possível enviar o código.");
+            setEmailStep("code");
+            setMessage("Confira sua caixa de entrada e digite o código de 6 dígitos.");
+        } catch (requestError) {
+            setEmailError(requestError instanceof Error ? requestError.message : "Não foi possível enviar o código.");
+        } finally {
+            setStarting(false);
+        }
+    }
+
+    async function verifyCode(event: React.FormEvent) {
+        event.preventDefault();
+        setStarting(true);
+        setEmailError("");
+        const result = await signIn("email-code", { email, code, redirect: false, callbackUrl });
+        if (result?.ok) router.replace(callbackUrl);
+        else setEmailError("Código inválido ou expirado. Solicite um novo código e tente novamente.");
         setStarting(false);
     }
 
@@ -41,8 +75,23 @@ export function LoginForm() {
                 <Link href="/" aria-label="ZUROS — início" className="login-simple-logo"><BrandLogo priority className="h-9 w-36" /></Link>
                 <div className="login-simple-heading"><span className="login-simple-eyebrow">PAINEL ZUROS</span><h1 id="login-title">Entrar</h1><p>Acesse sua conta para gerenciar suas aplicações.</p></div>
                 {error && <div role="alert" className="login-error">{ERROR_MESSAGES[error] || ERROR_MESSAGES.Default}</div>}
-                {loading ? <div className="login-simple-loading" aria-label="Entrando"><Spinner /></div> : <button type="button" onClick={handleSignIn} className="login-discord-button"><DiscordIcon /><span>Entrar com Discord</span><span aria-hidden className="ml-auto">↗</span></button>}
-                <p className="login-simple-note">A autenticação é protegida pelo Discord.</p>
+                {emailError && <div role="alert" className="login-error">{emailError}</div>}
+                {message && <div role="status" className="login-success">{message}</div>}
+                {loading ? <div className="login-simple-loading" aria-label="Processando"><Spinner /></div> : <>
+                    <button type="button" onClick={handleDiscordSignIn} className="login-discord-button"><DiscordIcon /><span>Entrar com Discord</span><span aria-hidden className="ml-auto">↗</span></button>
+                    <div className="login-divider"><span>ou entre com e-mail</span></div>
+                    {emailStep === "email" ? <form onSubmit={requestCode} className="space-y-3">
+                        <label className="sr-only" htmlFor="login-email">E-mail</label>
+                        <input id="login-email" type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" className="login-email-input" />
+                        <button type="submit" className="login-email-button">Enviar código</button>
+                    </form> : <form onSubmit={verifyCode} className="space-y-3">
+                        <label className="sr-only" htmlFor="login-code">Código recebido por e-mail</label>
+                        <input id="login-code" type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required autoComplete="one-time-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" className="login-email-input text-center tracking-[0.5em]" />
+                        <button type="submit" className="login-email-button">Confirmar código</button>
+                        <button type="button" className="login-change-email" onClick={() => { setEmailStep("email"); setCode(""); setMessage(""); }}>Usar outro e-mail</button>
+                    </form>}
+                </>}
+                <p className="login-simple-note">Você pode entrar pelo Discord ou confirmar sua identidade com um código de uso único enviado por e-mail.</p>
                 <Link href="/" className="login-simple-back">Voltar ao início</Link>
             </section>
         </main>

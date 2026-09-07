@@ -7,6 +7,10 @@ export interface ISiteUser {
     globalName?: string;
     discriminator?: string;
     email?: string;
+    emailLoginCodeHash?: string;
+    emailLoginCodeExpiresAt?: Date;
+    emailLoginCodeRequestedAt?: Date;
+    emailLoginCodeAttempts?: number;
     image?: string;
     avatarHash?: string;
     bannerHash?: string;
@@ -34,6 +38,10 @@ const schema = new Schema<ISiteUser>({
     globalName: { type: String },
     discriminator: { type: String },
     email: { type: String },
+    emailLoginCodeHash: { type: String, select: false },
+    emailLoginCodeExpiresAt: { type: Date, select: false },
+    emailLoginCodeRequestedAt: { type: Date, select: false },
+    emailLoginCodeAttempts: { type: Number, select: false },
     image: { type: String },
     avatarHash: { type: String },
     bannerHash: { type: String },

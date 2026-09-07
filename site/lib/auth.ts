@@ -1,5 +1,7 @@
 import type { AuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import CredentialsProvider from "next-auth/providers/credentials";
+import crypto from "node:crypto";
 import databases from "@root/src/databases";
 import { encryptOAuthToken } from "@root/src/functions/oauth-crypto";
 
@@ -32,6 +34,10 @@ function validatedAuthUrl(): URL {
     return url;
 }
 
+function emailCodeHash(email: string, code: string): string {
+    return crypto.createHmac("sha256", process.env.NEXTAUTH_SECRET || "dev-insecure-secret").update(`${email}:${code}`).digest("hex");
+}
+
 const authUrl = validatedAuthUrl();
 // Sem barra final: uma divergência aqui muda o nome do cookie de sessão
 // (`next-auth.session-token` vs `__Secure-next-auth.session-token`) e derruba
@@ -46,6 +52,35 @@ export const authOptions: AuthOptions = {
             clientSecret: envWithFallback("DISCORD_CLIENT_SECRET", "missing-discord-client-secret"),
             authorization: {
                 params: { scope: "identify email guilds guilds.join" },
+            },
+        }),
+        CredentialsProvider({
+            id: "email-code",
+            name: "Código por e-mail",
+            credentials: {
+                email: { label: "E-mail", type: "email" },
+                code: { label: "Código", type: "text" },
+            },
+            async authorize(credentials) {
+                const email = credentials?.email?.trim().toLowerCase();
+                const code = credentials?.code?.trim();
+                if (!email || !code || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code)) return null;
+                const user = await databases.siteUsers.findOne({ email }).select("+emailLoginCodeHash +emailLoginCodeExpiresAt +emailLoginCodeAttempts");
+                if (!user?.emailLoginCodeHash || !user.emailLoginCodeExpiresAt || user.emailLoginCodeExpiresAt.getTime() < Date.now()) return null;
+                if ((user.emailLoginCodeAttempts || 0) >= 5) return null;
+                const expected = emailCodeHash(email, code);
+                const supplied = Buffer.from(expected, "hex");
+                const stored = Buffer.from(user.emailLoginCodeHash, "hex");
+                const valid = supplied.length === stored.length && crypto.timingSafeEqual(supplied, stored);
+                if (!valid) {
+                    await databases.siteUsers.updateOne({ _id: user._id }, { $inc: { emailLoginCodeAttempts: 1 } });
+                    return null;
+                }
+                await databases.siteUsers.updateOne(
+                    { _id: user._id },
+                    { $set: { emailVerified: true, lastLoginAt: new Date() }, $inc: { loginCount: 1 }, $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "" } },
+                );
+                return { id: user.discordId, name: user.name || "Usuário", email: user.email || email, image: user.image || null };
             },
         }),
     ],

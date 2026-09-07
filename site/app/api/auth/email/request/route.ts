@@ -1,0 +1,81 @@
+import crypto from "node:crypto";
+import nodemailer from "nodemailer";
+import { NextResponse } from "next/server";
+import databases from "@root/src/databases";
+
+export const runtime = "nodejs";
+
+const CODE_TTL_MS = 10 * 60 * 1000;
+const REQUEST_COOLDOWN_MS = 60 * 1000;
+
+function normalizeEmail(value: unknown): string {
+    return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+function codeHash(email: string, code: string): string {
+    return crypto.createHmac("sha256", process.env.NEXTAUTH_SECRET || "dev-insecure-secret").update(`${email}:${code}`).digest("hex");
+}
+
+function emailUserId(email: string): string {
+    return `email:${crypto.createHash("sha256").update(email).digest("hex").slice(0, 40)}`;
+}
+
+function configured(name: string): string {
+    const value = process.env[name]?.trim();
+    if (!value) throw new Error(`A variável ${name} não está configurada.`);
+    return value;
+}
+
+export async function POST(request: Request) {
+    try {
+        const body = await request.json().catch(() => ({}));
+        const email = normalizeEmail(body.email);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+            return NextResponse.json({ ok: false, error: "Informe um e-mail válido." }, { status: 400 });
+        }
+
+        const users = databases.siteUsers;
+        let user = await users.findOne({ email }).select("+emailLoginCodeRequestedAt");
+        const now = new Date();
+        if (user?.emailLoginCodeRequestedAt && now.getTime() - user.emailLoginCodeRequestedAt.getTime() < REQUEST_COOLDOWN_MS) {
+            return NextResponse.json({ ok: true, message: "Se o e-mail estiver cadastrado, um código será enviado em instantes." });
+        }
+
+        if (!user) {
+            user = await users.create({
+                discordId: emailUserId(email),
+                name: email.split("@")[0].slice(0, 80) || "Usuário",
+                email,
+                authorizedGuildJoin: false,
+                firstLoginAt: now,
+                lastLoginAt: now,
+                loginCount: 0,
+            });
+        }
+
+        const code = crypto.randomInt(100000, 1000000).toString();
+        await users.updateOne(
+            { _id: user._id },
+            { $set: { emailLoginCodeHash: codeHash(email, code), emailLoginCodeExpiresAt: new Date(now.getTime() + CODE_TTL_MS), emailLoginCodeRequestedAt: now, emailLoginCodeAttempts: 0, email }, $unset: { emailVerified: "" } },
+        );
+
+        const transporter = nodemailer.createTransport({
+            host: configured("EMAIL_SERVER_HOST"),
+            port: Number(process.env.EMAIL_SERVER_PORT || 587),
+            secure: process.env.EMAIL_SERVER_SECURE === "true",
+            auth: { user: configured("EMAIL_SERVER_USER"), pass: configured("EMAIL_SERVER_PASSWORD") },
+        });
+        await transporter.sendMail({
+            from: configured("EMAIL_FROM"),
+            to: email,
+            subject: "Seu código de acesso à ZUROS",
+            text: `Seu código de acesso é ${code}. Ele expira em 10 minutos e só pode ser usado uma vez.`,
+            html: `<p>Seu código de acesso à <strong>ZUROS</strong> é:</p><p style="font-size:28px;letter-spacing:8px"><strong>${code}</strong></p><p>Ele expira em 10 minutos e só pode ser usado uma vez.</p>`,
+        });
+
+        return NextResponse.json({ ok: true, message: "Se o e-mail estiver cadastrado, um código foi enviado." });
+    } catch (error) {
+        console.error("[auth-email] Falha ao enviar código:", error instanceof Error ? error.message : "erro desconhecido");
+        return NextResponse.json({ ok: false, error: "Não foi possível enviar o código agora. Tente novamente mais tarde." }, { status: 500 });
+    }
+}
