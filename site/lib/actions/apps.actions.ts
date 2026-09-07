@@ -28,6 +28,7 @@ import type { IStores } from "@root/src/databases/schemas/stores";
 
 import type { AppDetail, AppStatus, AppSummary, CartRenewView, ExtractEntry, RenewPrices } from "@/lib/types";
 import { ActionError, requireSessionUser } from "./context";
+import { sendCartOpenedAlert } from "@/lib/email/transactional";
 
 const RENEW_CART_EXPIRES_MINUTES = 30;
 const PIX_TAX = 1.2;
@@ -649,6 +650,8 @@ export async function startRenew(appId: string, plan: "weekly" | "biweekly" | "m
         step: "select-coupons",
         expiresAt: new Date(Date.now() + RENEW_CART_EXPIRES_MINUTES * 60_000),
     });
+
+    void sendCartOpenedAlert({ userId: discordId, cartId: String(cart._id), type: "renewal", productName: product.name, applicationName: application.name, plan, amount: price, expiresAt: cart.expiresAt }).catch((error) => console.error("[email] Falha no alerta de renovação aberta:", error instanceof Error ? error.message : "erro desconhecido"));
 
     return { cartId: String(cart._id) };
 }

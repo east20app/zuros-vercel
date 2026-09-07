@@ -40,6 +40,7 @@ export interface IProducts {
             _id: ObjectId;
             version: string;
             date: Date;
+            notes?: string;
             path: string;
             status?: "uploading" | "published" | "failed";
             sha256?: string;
@@ -94,6 +95,7 @@ const productsSchema = new Schema<IProducts>({
             _id: { type: Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
             version: { type: String, required: true },
             date: { type: Date, required: true, default: Date.now },
+            notes: { type: String, required: false, maxlength: 5000 },
             path: { type: String, required: false, default: "" },
             status: { type: String, enum: ["uploading", "published", "failed"], default: "published" },
             sha256: { type: String, required: false },

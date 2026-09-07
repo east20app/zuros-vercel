@@ -24,6 +24,8 @@ export interface IApplications {
     heartbeatVersion?: string;
     heartbeatUptime?: number;
     heartbeatGuildId?: string;
+    renewalReminder7SentAt?: Date;
+    renewalReminder1SentAt?: Date;
 }
 
 const settingsSchema = new Schema<IApplications>({
@@ -49,6 +51,8 @@ const settingsSchema = new Schema<IApplications>({
     heartbeatVersion: { type: String, required: false },
     heartbeatUptime: { type: Number, required: false },
     heartbeatGuildId: { type: String, required: false },
+    renewalReminder7SentAt: { type: Date, required: false },
+    renewalReminder1SentAt: { type: Date, required: false },
 });
 
 settingsSchema.index({ storeId: 1 });

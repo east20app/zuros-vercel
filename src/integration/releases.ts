@@ -21,6 +21,7 @@ export const RELEASE_FILE_TOO_LARGE_MESSAGE = "O arquivo é muito grande! O tama
 export interface ProductReleaseDTO {
     version: string;
     date: string;
+    notes: string;
     isCurrent: boolean;
     status: "uploading" | "published" | "failed";
     sha256: string | null;
@@ -107,8 +108,10 @@ export async function publishProductRelease(args: {
     productId: string;
     fileBuffer: Buffer;
     fileSize: number;
+    notes?: string;
 }): Promise<{ version: string; productName: string }> {
     releaseUploadSchema.parse({ storeId: args.storeId, productId: args.productId });
+    const notes = String(args.notes || "").trim().slice(0, 5000);
     await assertReleaseAdmin(args.requesterId, args.storeId);
     if (!args.fileSize) throw new Error("Não foi possível determinar o tamanho do arquivo!");
     if (args.fileSize > MAX_RELEASE_FILE_SIZE) throw new Error(RELEASE_FILE_TOO_LARGE_MESSAGE);
@@ -134,7 +137,7 @@ export async function publishProductRelease(args: {
     let saved = false;
     const reservation = await databases.products.updateOne(
         { _id: product._id, lastReleaseCreatedVersion: product.lastReleaseCreatedVersion, $expr: { $lt: [{ $size: { $ifNull: ["$releases", []] } }, MAX_PRODUCT_RELEASES] } },
-        { $set: { lastReleaseCreatedVersion: nextRelease }, $push: { releases: { version: nextRelease, date: new Date(), path: "", status: "uploading" } } },
+        { $set: { lastReleaseCreatedVersion: nextRelease }, $push: { releases: { version: nextRelease, date: new Date(), notes, path: "", status: "uploading" } } },
     );
     if (!reservation.modifiedCount) throw new Error("Outra publicação reservou esta versão. Atualize a página e tente novamente.");
 
@@ -208,6 +211,7 @@ export async function getProductReleases(args: {
     const releases = (product.releases || []).map((release) => ({
         version: release.version,
         date: release.date.toISOString(),
+        notes: release.notes || "",
         isCurrent: release.version === product.currentReleaseVersion,
         status: release.status || "published",
         sha256: release.sha256 || null,

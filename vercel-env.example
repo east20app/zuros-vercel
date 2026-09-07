@@ -15,6 +15,7 @@ EMAIL_SERVER_SECURE=false
 EMAIL_SERVER_USER=
 EMAIL_SERVER_PASSWORD=
 EMAIL_FROM=ZUROS <no-reply@exemplo.com>
+CRON_SECRET=gere-um-segredo-forte-para-os-crons-da-vercel
 
 # Obrigatórias: persistência
 MONGO_DB_URL=

@@ -2,8 +2,10 @@ import type { AuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from "node:crypto";
+import { headers } from "next/headers";
 import databases from "@root/src/databases";
 import { encryptOAuthToken } from "@root/src/functions/oauth-crypto";
+import { loginContextFromHeaders, sendLoginAlert } from "@/lib/email/transactional";
 
 function envWithFallback(key: string, devFallback: string): string {
     const value = process.env[key];
@@ -174,6 +176,7 @@ export const authOptions: AuthOptions = {
             } catch (error) {
                 console.error("[auth] Não foi possível registrar o login Discord.", error instanceof Error ? error.message : "Erro desconhecido");
             }
+            void sendLoginAlert({ userId: user.email ? ((await databases.siteUsers.findOne({ email: user.email }, { discordId: 1 }).lean())?.discordId || user.id) : user.id, method: account?.provider === "discord" ? "Discord" : "e-mail", context: loginContextFromHeaders(await headers()) }).catch((error) => console.error("[auth] Falha ao enviar alerta de login:", error instanceof Error ? error.message : "erro desconhecido"));
             return true;
         },
         // Persiste a identidade inteira no JWT. Assim a sessão sobrevive a

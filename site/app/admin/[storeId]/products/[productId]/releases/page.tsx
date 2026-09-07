@@ -54,6 +54,7 @@ export default async function ProductReleasesPage({ params }: { params: Promise<
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2"><p className="font-mono text-sm font-semibold text-white">v{release.version}</p>{release.isCurrent ? <Badge tone="green">Em produção</Badge> : null}<Badge tone={release.status === "failed" ? "red" : release.status === "uploading" ? "amber" : "zinc"}>{statusLabel[release.status]}</Badge></div>
                             <p className="mt-1 text-xs text-zinc-500">Criada em {new Date(release.date).toLocaleString("pt-BR")}</p>
+                            {release.notes ? <p className="mt-2 max-w-2xl whitespace-pre-wrap text-xs text-zinc-400">{release.notes}</p> : null}
                             {release.sha256 ? <p className="mt-1 truncate font-mono text-[10px] text-zinc-600" title={release.sha256}>SHA-256: {release.sha256}</p> : null}
                             {release.errorMessage ? <p className="mt-2 text-xs text-red-300">{release.errorMessage}</p> : null}
                         </div>

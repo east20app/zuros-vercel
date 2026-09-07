@@ -5,6 +5,7 @@ import efiWrapper from "../functions/efi_wrapper";
 import promisseWrapper from "../functions/promisse_wrapper";
 import sharpifyWrapper from "../functions/sharpify_wrapper";
 import { calculateCheckoutCents, fromCents, toCents } from "./money";
+import { sendPaymentConfirmedAlert } from "../functions/transactional-email";
 
 type CartType = "buy" | "renew";
 type Provider = "efi" | "promisse" | "sharpify" | "manual";
@@ -161,6 +162,9 @@ const confirmedAt = new Date();
         }
         await model.updateOne({ _id: cart._id, status: "processing" }, { $set: { step: "payment-confirmed", status: input.cartType === "renew" ? "closed" : "opened", confirmedAt, confirmedBy: input.manualApproval?.adminDiscordId || input.source, couponReservationState: cart.coupon ? (cart.couponReservationState === "released" ? "released" : "consumed") : undefined, deliveryState, delivered } });
         await databases.ledgerOperations.updateOne({ operationKey }, { $set: { state: "applied", appliedAt: confirmedAt }, $unset: { failureCode: 1 } });
+        const product = cart.productId ? await databases.products.findById(cart.productId, { name: 1 }).lean() : null;
+        const application = cart.applicationId ? await databases.applications.findById(cart.applicationId, { name: 1, expiresAt: 1 }).lean() : null;
+        void sendPaymentConfirmedAlert({ userId: String(cart.userId), cartId: input.cartId, type: input.cartType === "renew" ? "renewal" : "purchase", productName: product?.name || application?.name || "Aplicação", applicationName: application?.name, plan: cart.lifetime ? "lifetime" : `${cart.days || 0} dias`, amount: fromCents(expectedCents), expiresAt: application?.expiresAt || (cart.lifetime ? null : undefined) }).catch((error) => console.error("[email] Falha no alerta de pagamento aprovado:", error instanceof Error ? error.message : "erro desconhecido"));
         return { status: "confirmed", cartId: input.cartId, operationKey };
     } catch (error) {
         await model.updateOne({ _id: cart._id, status: "processing" }, { $set: { status: "opened", deliveryState: "retryable_error" } });
