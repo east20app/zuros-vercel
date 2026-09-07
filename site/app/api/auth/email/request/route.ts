@@ -34,6 +34,10 @@ function smtpConfig() {
         port,
         secure: process.env.EMAIL_SERVER_SECURE === "true",
         auth: { user: configured("EMAIL_SERVER_USER"), pass: configured("EMAIL_SERVER_PASSWORD") },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 15_000,
+        requireTLS: !process.env.EMAIL_SERVER_SECURE || process.env.EMAIL_SERVER_SECURE === "false",
         from: configured("EMAIL_FROM"),
     };
 }
@@ -91,6 +95,8 @@ export async function POST(request: Request) {
         console.error("[auth-email] Falha ao enviar código:", error instanceof Error ? error.message : "erro desconhecido");
         const message = error instanceof Error && /não está configurada|inválida/i.test(error.message)
             ? "O envio de e-mail ainda não está configurado corretamente."
+            : error instanceof Error && /timeout|timed out|etimedout|econnreset|econnrefused/i.test(error.message)
+                ? "O servidor de e-mail demorou para responder. Verifique SMTP 587/STARTTLS no Hostinger."
             : "Não foi possível enviar o código agora. Tente novamente mais tarde.";
         return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
