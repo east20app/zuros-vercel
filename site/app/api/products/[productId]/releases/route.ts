@@ -28,7 +28,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
             if (index < total - 1) return Response.json({ received: index + 1 });
             const fileBuffer = await assembleReleaseUpload(uploadId, total);
             if (fileBuffer.length > MAX_RELEASE_FILE_SIZE) throw new Error(RELEASE_FILE_TOO_LARGE_MESSAGE);
-            const result = await publishProductRelease({ requesterId, storeId: ids.storeId, productId: ids.productId, fileBuffer, fileSize: fileBuffer.length, notes: request.headers.get("x-release-notes") || "" });
+            const encodedNotes = request.headers.get("x-release-notes-b64") || "";
+            const notes = encodedNotes ? Buffer.from(encodedNotes, "base64").toString("utf8") : "";
+            const result = await publishProductRelease({ requesterId, storeId: ids.storeId, productId: ids.productId, fileBuffer, fileSize: fileBuffer.length, notes });
             revalidatePath(`/admin/${ids.storeId}/products`);
             revalidatePath(`/admin/${ids.storeId}/products/${ids.productId}/releases`);
             return Response.json({ version: result.version });

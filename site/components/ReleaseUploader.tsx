@@ -34,7 +34,12 @@ export function ReleaseUploader({ storeId, productId, disabled }: { storeId: str
                 const chunk = file.slice(index * chunkSize, Math.min(file.size, (index + 1) * chunkSize));
                 const query = new URLSearchParams({ chunk: "1", storeId, uploadId, index: String(index), total: String(total) });
                 const headers: Record<string, string> = { "content-type": "application/octet-stream" };
-                if (index === total - 1 && notes.trim()) headers["x-release-notes"] = notes.trim();
+                if (index === total - 1 && notes.trim()) {
+                    const bytes = new TextEncoder().encode(notes.trim());
+                    let binary = "";
+                    for (const byte of bytes) binary += String.fromCharCode(byte);
+                    headers["x-release-notes-b64"] = btoa(binary);
+                }
                 const response = await fetch(`/api/products/${productId}/releases?${query}`, { method: "POST", headers, body: chunk });
                 result = await response.json() as typeof result;
                 if (!response.ok) throw new Error(result.error || `Erro HTTP ${response.status}.`);
