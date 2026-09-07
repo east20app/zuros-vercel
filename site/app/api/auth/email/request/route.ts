@@ -26,6 +26,18 @@ function configured(name: string): string {
     return value;
 }
 
+function smtpConfig() {
+    const port = Number(process.env.EMAIL_SERVER_PORT || 587);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("EMAIL_SERVER_PORT inválida.");
+    return {
+        host: configured("EMAIL_SERVER_HOST"),
+        port,
+        secure: process.env.EMAIL_SERVER_SECURE === "true",
+        auth: { user: configured("EMAIL_SERVER_USER"), pass: configured("EMAIL_SERVER_PASSWORD") },
+        from: configured("EMAIL_FROM"),
+    };
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
@@ -34,6 +46,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ ok: false, error: "Informe um e-mail válido." }, { status: 400 });
         }
 
+        const smtp = smtpConfig();
         const users = databases.siteUsers;
         let user = await users.findOne({ email }).select("+emailLoginCodeRequestedAt");
         const now = new Date();
@@ -59,23 +72,26 @@ export async function POST(request: Request) {
             { $set: { emailLoginCodeHash: codeHash(email, code), emailLoginCodeExpiresAt: new Date(now.getTime() + CODE_TTL_MS), emailLoginCodeRequestedAt: now, emailLoginCodeAttempts: 0, email }, $unset: { emailVerified: "" } },
         );
 
-        const transporter = nodemailer.createTransport({
-            host: configured("EMAIL_SERVER_HOST"),
-            port: Number(process.env.EMAIL_SERVER_PORT || 587),
-            secure: process.env.EMAIL_SERVER_SECURE === "true",
-            auth: { user: configured("EMAIL_SERVER_USER"), pass: configured("EMAIL_SERVER_PASSWORD") },
-        });
-        await transporter.sendMail({
-            from: configured("EMAIL_FROM"),
-            to: email,
-            subject: "Seu código de acesso à ZUROS",
-            text: `Seu código de acesso é ${code}. Ele expira em 10 minutos e só pode ser usado uma vez.`,
-            html: `<p>Seu código de acesso à <strong>ZUROS</strong> é:</p><p style="font-size:28px;letter-spacing:8px"><strong>${code}</strong></p><p>Ele expira em 10 minutos e só pode ser usado uma vez.</p>`,
-        });
+        const transporter = nodemailer.createTransport(smtp);
+        try {
+            await transporter.sendMail({
+                from: smtp.from,
+                to: email,
+                subject: "Seu código de acesso à ZUROS",
+                text: `Seu código de acesso é ${code}. Ele expira em 10 minutos e só pode ser usado uma vez.`,
+                html: `<p>Seu código de acesso à <strong>ZUROS</strong> é:</p><p style="font-size:28px;letter-spacing:8px"><strong>${code}</strong></p><p>Ele expira em 10 minutos e só pode ser usado uma vez.</p>`,
+            });
+        } catch (error) {
+            await users.updateOne({ _id: user._id }, { $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "" } });
+            throw error;
+        }
 
         return NextResponse.json({ ok: true, message: "Se o e-mail estiver cadastrado, um código foi enviado." });
     } catch (error) {
         console.error("[auth-email] Falha ao enviar código:", error instanceof Error ? error.message : "erro desconhecido");
-        return NextResponse.json({ ok: false, error: "Não foi possível enviar o código agora. Tente novamente mais tarde." }, { status: 500 });
+        const message = error instanceof Error && /não está configurada|inválida/i.test(error.message)
+            ? "O envio de e-mail ainda não está configurado corretamente."
+            : "Não foi possível enviar o código agora. Tente novamente mais tarde.";
+        return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
 }
