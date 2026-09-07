@@ -440,37 +440,39 @@ export function Sidebar({
 
 
             <div className={`mt-5 hidden rounded-xl border border-zinc-800 bg-background p-1 lg:grid ${canAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:text-white"}`}>
+                <Link href="/dashboard" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${!account && !admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:bg-white/[.04] hover:text-white"}`}>
                     Apps
                 </Link>
                 {canAdmin && (
-                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
+                    <Link href="/admin" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${admin ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:bg-white/[.04] hover:text-white"}`}>
                         Admin
                     </Link>
                 )}
-                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-[var(--accent)] text-[#091116]" : "text-zinc-500 hover:text-white"}`}>
+                <Link href="/dashboard/account" onClick={() => setOpen(false)} className={`rounded-lg px-2 py-2.5 text-center text-sm transition ${account ? "bg-[var(--accent)] text-[#091116] shadow-[0_8px_20px_-10px_rgba(214,255,99,.35)]" : "text-zinc-500 hover:bg-white/[.04] hover:text-white"}`}>
                     Conta
                 </Link>
             </div>
 
             <div className="sidebar-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
             {selectedBotId ? <SidebarApplicationControls appId={selectedBotId} /> : null}
-            <p className="mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">
+            <p className="sidebar-section-label mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">
                 {admin ? "Administração" : account ? "Conta" : "Navegação"}
             </p>
 
             <nav className="space-y-1">
-                {links.map((link) => (
+                {links.map((link) => {
+                    const isActive = link.exact ? pathname === link.href : routeIsActive(pathname, link.href);
+                    return (
                     <div key={link.href}>
-                    {link.section ? <p className="mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-[.2em] text-zinc-600 first:mt-0">{link.section}</p> : null}
+                    {link.section ? <p className="sidebar-section-label mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-[.2em] text-zinc-600 first:mt-0">{link.section}</p> : null}
                     <Link
                         onClick={() => setOpen(false)}
                         href={link.href}
-                        className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
-                            (link.exact ? pathname === link.href : routeIsActive(pathname, link.href)) ? "border-[var(--accent)]/20 bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "border-transparent text-zinc-400 hover:bg-white/[.04] hover:text-white"
+                        className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
+                            isActive ? "sidebar-link-active border-[var(--accent)]/20 bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link border-transparent text-zinc-400 hover:bg-white/[.04] hover:text-white"
                         }`}
                     >
-                        <span className="grid h-5 w-5 shrink-0 place-items-center text-zinc-400">
+                        <span className={`grid h-5 w-5 shrink-0 place-items-center transition-colors ${isActive ? "text-[var(--accent)]" : "text-zinc-500 group-hover:text-zinc-300"}`}>
                             <SidebarIcon name={link.icon} />
                         </span>
                         <span className="min-w-0 flex-1 truncate">{link.label}</span>
@@ -481,7 +483,8 @@ export function Sidebar({
                         ) : null}
                     </Link>
                     </div>
-                ))}
+                );
+                })}
             </nav>
 
             {!admin && !account && !selectedBotId && (
@@ -492,15 +495,15 @@ export function Sidebar({
 
             {!admin && !account && (
                 <div className="mt-5 border-t border-zinc-900 pt-4">
-                    <p className="mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">Ajuda</p>
-                    <Link href={authLicenseId ? `/dashboard/auth/${authLicenseId}` : selectedBotId ? `/dashboard/${selectedBotId}?tour=1` : "/dashboard?tour=1"} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
-                        <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0" />Conheça o painel ZUROS
+                    <p className="sidebar-section-label mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">Ajuda</p>
+                    <Link href={authLicenseId ? `/dashboard/auth/${authLicenseId}` : selectedBotId ? `/dashboard/${selectedBotId}?tour=1` : "/dashboard?tour=1"} onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                        <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Conheça o painel ZUROS
                     </Link>
-                    <Link href="/#beneficios" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
-                        <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0" />Tutoriais
+                    <Link href="/#beneficios" onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                        <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Tutoriais
                     </Link>
-                    <Link href="/#suporte" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
-                        <SidebarIcon name="help" className="h-4 w-4 shrink-0" />Suporte
+                    <Link href="/#suporte" onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                        <SidebarIcon name="help" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Suporte
                     </Link>
                 </div>
             )}
