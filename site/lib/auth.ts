@@ -135,6 +135,8 @@ export const authOptions: AuthOptions = {
         async signIn({ user, account, profile }) {
             if (!user.id) return false;
             try {
+                const existingByEmail = user.email ? await databases.siteUsers.findOne({ email: user.email }, { discordId: 1 }).lean() : null;
+                const identityId = existingByEmail?.discordId || user.id;
                 const accessToken = account?.access_token ? encryptOAuthToken(account.access_token) : undefined;
                 const refreshToken = account?.refresh_token ? encryptOAuthToken(account.refresh_token) : undefined;
                 const discordProfile = (profile || {}) as Record<string, unknown>;
@@ -145,7 +147,7 @@ export const authOptions: AuthOptions = {
                 }
                 const now = new Date();
                 await databases.siteUsers.updateOne(
-                    { discordId: user.id },
+                    { discordId: identityId },
                     { $set: {
                         name: user.name || "Usuário Discord", email: user.email || undefined, image: user.image || undefined,
                         username: typeof discordProfile.username === "string" ? discordProfile.username : undefined,
@@ -178,7 +180,8 @@ export const authOptions: AuthOptions = {
         // re-hidratações do token sem depender de nova consulta ao provedor.
         async jwt({ token, user }) {
             if (user) {
-                token.discordId = user.id;
+                const existingByEmail = user.email ? await databases.siteUsers.findOne({ email: user.email }, { discordId: 1 }).lean() : null;
+                token.discordId = existingByEmail?.discordId || user.id;
                 if (user.name) token.name = user.name;
                 if (user.email) token.email = user.email;
                 if (user.image) token.picture = user.image;
