@@ -78,7 +78,7 @@ export const authOptions: AuthOptions = {
                 }
                 await databases.siteUsers.updateOne(
                     { _id: user._id },
-                    { $set: { emailVerified: true, lastLoginAt: new Date() }, $inc: { loginCount: 1 }, $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "" } },
+                    { $set: { emailVerified: true, lastLoginAt: new Date() }, $inc: { loginCount: 1 }, $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "", emailLoginSendCount: "", emailLoginSendWindowStart: "" } },
                 );
                 return { id: user.discordId, name: user.name || "Usuário", email: user.email || email, image: user.image || null };
             },

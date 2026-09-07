@@ -26,14 +26,18 @@ const ERROR_MESSAGES: Record<string, string> = {
         "Não foi possível entrar. Tente novamente.",
 };
 
+function safeCallbackUrl(raw: string | null): string {
+    if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return "/dashboard";
+    return raw;
+}
+
 export function LoginForm() {
     const { status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const error = searchParams.get("error");
-    const callbackUrl =
-        searchParams.get("callbackUrl") || "/dashboard";
+    const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
 
     const [starting, setStarting] = useState(false);
     const [email, setEmail] = useState("");
@@ -41,6 +45,17 @@ export function LoginForm() {
     const [emailStep, setEmailStep] = useState<"email" | "code">("email");
     const [message, setMessage] = useState("");
     const [emailError, setEmailError] = useState("");
+    const [resendAt, setResendAt] = useState(0);
+    const [nowTick, setNowTick] = useState(0);
+
+    useEffect(() => {
+        if (!resendAt) return;
+        setNowTick(Date.now());
+        const id = window.setInterval(() => setNowTick(Date.now()), 1000);
+        return () => window.clearInterval(id);
+    }, [resendAt]);
+
+    const resendLeft = resendAt ? Math.max(0, Math.ceil((resendAt - nowTick) / 1000)) : 0;
 
     useEffect(() => {
         if (status === "authenticated") {
@@ -54,8 +69,8 @@ export function LoginForm() {
         setStarting(false);
     }
 
-    async function requestCode(event: React.FormEvent) {
-        event.preventDefault();
+    async function requestCode(event?: React.FormEvent) {
+        if (event) event.preventDefault();
         setStarting(true);
         setEmailError("");
         setMessage("");
@@ -75,9 +90,18 @@ export function LoginForm() {
                 );
             }
 
+            if (result.cooldown) {
+                setMessage(
+                    result.message ||
+                        "Você já solicitou um código recentemente. Aguarde um instante para reenviar."
+                );
+                return;
+            }
+
             setEmailStep("code");
+            setResendAt(Date.now() + 60_000);
             setMessage(
-                "Confira sua caixa de entrada e digite o código de 6 dígitos."
+                `Enviamos um código de 6 dígitos para ${email}. Confira sua caixa de entrada e o spam.`
             );
         } catch (requestError) {
             setEmailError(
@@ -90,27 +114,32 @@ export function LoginForm() {
         }
     }
 
-    async function verifyCode(event: React.FormEvent) {
-        event.preventDefault();
+    async function verifyCode(event?: React.FormEvent, overrideCode?: string) {
+        if (event) event.preventDefault();
+        const finalCode = overrideCode ?? code;
+        if (starting || finalCode.length !== 6) return;
         setStarting(true);
         setEmailError("");
+        setCode(finalCode);
 
-        const result = await signIn("email-code", {
-            email,
-            code,
-            redirect: false,
-            callbackUrl,
-        });
+        try {
+            const result = await signIn("email-code", {
+                email,
+                code: finalCode,
+                redirect: false,
+                callbackUrl,
+            });
 
-        if (result?.ok) {
-            router.replace(callbackUrl);
-        } else {
-            setEmailError(
-                "Código inválido ou expirado. Solicite um novo código e tente novamente."
-            );
+            if (result?.ok) {
+                router.replace(callbackUrl);
+            } else {
+                setEmailError(
+                    "Código inválido, expirado ou com muitas tentativas. Solicite um novo código."
+                );
+            }
+        } finally {
+            setStarting(false);
         }
-
-        setStarting(false);
     }
 
     const loading = status === "loading" || starting;
@@ -190,6 +219,7 @@ export function LoginForm() {
                                         type="email"
                                         required
                                         autoComplete="email"
+                                        autoFocus
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="seu@email.com"
@@ -215,14 +245,17 @@ export function LoginForm() {
                                         maxLength={6}
                                         required
                                         autoComplete="one-time-code"
+                                        autoFocus
                                         value={code}
-                                        onChange={(e) =>
-                                            setCode(
-                                                e.target.value
-                                                    .replace(/\D/g, "")
-                                                    .slice(0, 6)
-                                            )
-                                        }
+                                        onChange={(e) => {
+                                            const next = e.target.value
+                                                .replace(/\D/g, "")
+                                                .slice(0, 6);
+                                            setCode(next);
+                                            if (next.length === 6) {
+                                                void verifyCode(undefined, next);
+                                            }
+                                        }}
                                         placeholder="000000"
                                         className="login-input login-input--code"
                                     />
@@ -232,18 +265,39 @@ export function LoginForm() {
                                     >
                                         Confirmar código
                                     </button>
-                                    <button
-                                        type="button"
-                                        className="login-change-email"
-                                        onClick={() => {
-                                            setEmailStep("email");
-                                            setCode("");
-                                            setMessage("");
-                                            setEmailError("");
-                                        }}
-                                    >
-                                        Usar outro e-mail
-                                    </button>
+                                    <div className="login-resend-row">
+                                        {resendLeft > 0 ? (
+                                            <span
+                                                className="login-change-email"
+                                                role="status"
+                                                aria-live="polite"
+                                            >
+                                                Reenviar código em {resendLeft}s
+                                            </span>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className="login-change-email"
+                                                onClick={() => void requestCode()}
+                                            >
+                                                Reenviar código
+                                            </button>
+                                        )}
+                                        <span className="login-resend-sep">·</span>
+                                        <button
+                                            type="button"
+                                            className="login-change-email"
+                                            onClick={() => {
+                                                setEmailStep("email");
+                                                setCode("");
+                                                setMessage("");
+                                                setEmailError("");
+                                                setResendAt(0);
+                                            }}
+                                        >
+                                            Usar outro e-mail
+                                        </button>
+                                    </div>
                                 </form>
                             )}
                         </>

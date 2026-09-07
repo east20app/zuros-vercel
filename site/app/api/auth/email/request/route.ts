@@ -7,6 +7,8 @@ export const runtime = "nodejs";
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 const REQUEST_COOLDOWN_MS = 60 * 1000;
+const HOURLY_WINDOW_MS = 60 * 60 * 1000;
+const HOURLY_SEND_LIMIT = 5;
 
 function normalizeEmail(value: unknown): string {
     return typeof value === "string" ? value.trim().toLowerCase() : "";
@@ -42,6 +44,64 @@ function smtpConfig() {
     };
 }
 
+function loginEmailText(code: string): string {
+    return [
+        "ZUROS — Seu código de acesso",
+        "",
+        "Use o código abaixo para entrar no painel. Ele expira em 10 minutos e só pode ser usado uma vez.",
+        "",
+        `Código: ${code}`,
+        "",
+        "Não solicitou este código? Pode ignorar esta mensagem com segurança.",
+    ].join("\n");
+}
+
+function loginEmailHtml(code: string): string {
+    return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Código de acesso à ZUROS</title>
+</head>
+<body style="margin:0;padding:0;background-color:#05060a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#05060a;padding:32px 16px;">
+<tr>
+<td align="center">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#0b0d12;border:1px solid #1c2029;border-radius:16px;padding:32px;">
+<tr>
+<td style="padding-bottom:20px;">
+<div style="color:#e8f6ff;font-size:13px;font-weight:700;letter-spacing:0.25em;">ZUROS</div>
+</td>
+</tr>
+<tr>
+<td style="padding-bottom:16px;">
+<div style="color:#e8f6ff;font-size:18px;font-weight:600;">Seu código de acesso</div>
+</td>
+</tr>
+<tr>
+<td style="padding-bottom:24px;">
+<div style="color:#9aa4b2;font-size:14px;line-height:1.6;">Use o código abaixo para entrar no painel. Ele expira em <strong style="color:#e8f6ff;">10 minutos</strong> e só pode ser usado uma vez.</div>
+</td>
+</tr>
+<tr>
+<td align="center" style="padding-bottom:24px;">
+<div style="display:inline-block;background-color:#0f131a;border:1px solid #232a36;border-radius:10px;padding:18px 22px;font-size:32px;font-weight:700;letter-spacing:10px;color:#d6ff63;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;">${code}</div>
+</td>
+</tr>
+<tr>
+<td>
+<div style="color:#6b7280;font-size:12px;line-height:1.6;">Não solicitou este código? Pode ignorar esta mensagem com segurança.</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>`;
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
@@ -52,12 +112,21 @@ export async function POST(request: Request) {
 
         const smtp = smtpConfig();
         const users = databases.siteUsers;
-        let user = await users.findOne({ email }).select("+emailLoginCodeRequestedAt");
-        const now = new Date();
-        if (user?.emailLoginCodeRequestedAt && now.getTime() - user.emailLoginCodeRequestedAt.getTime() < REQUEST_COOLDOWN_MS) {
-            return NextResponse.json({ ok: true, message: "Se o e-mail estiver cadastrado, um código será enviado em instantes." });
+        let user = await users.findOne({ email }).select("+emailLoginCodeRequestedAt +emailLoginSendCount +emailLoginSendWindowStart");
+        const nowMs = Date.now();
+
+        if (user?.emailLoginCodeRequestedAt && nowMs - user.emailLoginCodeRequestedAt.getTime() < REQUEST_COOLDOWN_MS) {
+            return NextResponse.json({ ok: true, message: "Você já solicitou um código recentemente. Aguarde um instante para reenviar.", cooldown: true });
         }
 
+        const windowStart = user?.emailLoginSendWindowStart;
+        const sendCount = user?.emailLoginSendCount || 0;
+        const inWindow = windowStart ? nowMs - windowStart.getTime() < HOURLY_WINDOW_MS : false;
+        if (inWindow && sendCount >= HOURLY_SEND_LIMIT) {
+            return NextResponse.json({ ok: false, error: "Muitos códigos solicitados para este e-mail. Tente novamente em uma hora." }, { status: 429 });
+        }
+
+        const now = new Date(nowMs);
         if (!user) {
             user = await users.create({
                 discordId: emailUserId(email),
@@ -73,7 +142,7 @@ export async function POST(request: Request) {
         const code = crypto.randomInt(100000, 1000000).toString();
         await users.updateOne(
             { _id: user._id },
-            { $set: { emailLoginCodeHash: codeHash(email, code), emailLoginCodeExpiresAt: new Date(now.getTime() + CODE_TTL_MS), emailLoginCodeRequestedAt: now, emailLoginCodeAttempts: 0, email }, $unset: { emailVerified: "" } },
+            { $set: { emailLoginCodeHash: codeHash(email, code), emailLoginCodeExpiresAt: new Date(nowMs + CODE_TTL_MS), emailLoginCodeRequestedAt: now, emailLoginCodeAttempts: 0, email, emailLoginSendWindowStart: inWindow && windowStart ? windowStart : now, emailLoginSendCount: inWindow ? sendCount + 1 : 1 }, $unset: { emailVerified: "" } },
         );
 
         const transporter = nodemailer.createTransport(smtp);
@@ -82,11 +151,11 @@ export async function POST(request: Request) {
                 from: smtp.from,
                 to: email,
                 subject: "Seu código de acesso à ZUROS",
-                text: `Seu código de acesso é ${code}. Ele expira em 10 minutos e só pode ser usado uma vez.`,
-                html: `<p>Seu código de acesso à <strong>ZUROS</strong> é:</p><p style="font-size:28px;letter-spacing:8px"><strong>${code}</strong></p><p>Ele expira em 10 minutos e só pode ser usado uma vez.</p>`,
+                text: loginEmailText(code),
+                html: loginEmailHtml(code),
             });
         } catch (error) {
-            await users.updateOne({ _id: user._id }, { $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "" } });
+            await users.updateOne({ _id: user._id }, { $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "", emailLoginSendCount: "", emailLoginSendWindowStart: "" } });
             throw error;
         }
 
@@ -96,7 +165,7 @@ export async function POST(request: Request) {
         const message = error instanceof Error && /não está configurada|inválida/i.test(error.message)
             ? "O envio de e-mail ainda não está configurado corretamente."
             : error instanceof Error && /timeout|timed out|etimedout|econnreset|econnrefused/i.test(error.message)
-                ? "O servidor de e-mail demorou para responder. Verifique SMTP 587/STARTTLS no Hostinger."
+                ? "O servidor de e-mail demorou para responder. Tente novamente em instantes."
             : "Não foi possível enviar o código agora. Tente novamente mais tarde.";
         return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
