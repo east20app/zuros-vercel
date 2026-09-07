@@ -270,6 +270,7 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
     const items: Array<{ label: string; href: string; icon: SidebarIconName }> = [
         { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
         { label: "Faturas", href: "/dashboard/invoices", icon: "invoice" },
+        { label: "Conta", href: "/dashboard/account", icon: "user" },
     ];
     return (
         <aside className="flex h-full flex-col items-center gap-2 bg-background-dark px-2 py-4">
@@ -417,7 +418,6 @@ export function Sidebar({
         : [
               { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
               { icon: "invoice", label: "Faturas", href: "/dashboard/invoices", badge: pendingCount },
-              { icon: "settings", label: "Configurações", href: "/dashboard/account" },
           ];
 
     const headerTitle = admin ? "Administração" : account ? "Minha conta" : authLicenseId ? "ZUROS Auth" : selectedBotId ? "Gerenciar bot" : "Minhas aplicações";
@@ -435,6 +435,21 @@ export function Sidebar({
             </button>
 
             <div className="hidden lg:block"><Logo /></div>
+
+            <div className="mt-5 hidden lg:block">
+                <Link
+                    href="/dashboard/account"
+                    onClick={() => setOpen(false)}
+                    className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
+                        account ? "sidebar-link-active border-[var(--accent)]/20 bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link border-zinc-800 bg-background text-zinc-400 hover:border-zinc-700 hover:bg-white/[.04] hover:text-white"
+                    }`}
+                >
+                    <span className={`grid h-5 w-5 shrink-0 place-items-center transition-colors ${account ? "text-[var(--accent)]" : "text-zinc-500 group-hover:text-zinc-300"}`}>
+                        <SidebarIcon name="user" />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">Conta</span>
+                </Link>
+            </div>
 
             <div className="sidebar-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
             {selectedBotId ? <SidebarApplicationControls appId={selectedBotId} /> : null}
