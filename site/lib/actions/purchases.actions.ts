@@ -42,7 +42,7 @@ export async function startPurchase(input: {
     try {
         const discordId = await requireSessionUser(discordIdOverride);
         const cart = await createPurchaseCart({ discordId, ...input });
-        void sendCartOpenedAlert({ userId: discordId, cartId: cart.id, type: "purchase", productName: cart.productName, plan: input.plan, amount: cart.price, expiresAt: cart.expiresAt }).catch((error) => console.error("[email] Falha no alerta de carrinho aberto:", error instanceof Error ? error.message : "erro desconhecido"));
+        await sendCartOpenedAlert({ userId: discordId, cartId: cart.id, type: "purchase", productName: cart.productName, plan: input.plan, amount: cart.price, expiresAt: cart.expiresAt }).catch((error) => console.error("[email] Falha no alerta de carrinho aberto:", error instanceof Error ? error.message : "erro desconhecido"));
         return { ok: true, data: { cartId: cart.id } };
     } catch (error) {
         const message = error instanceof Error ? error.message : "";

@@ -510,7 +510,7 @@ export async function setCurrentProductRelease(productId: string, version: strin
     await product.save();
     const owners = await databases.applications.find({ productId: product._id }, { ownerId: 1 }).lean();
     const uniqueOwners = [...new Set(owners.map((application) => application.ownerId).filter(Boolean))];
-    void Promise.all(uniqueOwners.map((ownerId) => sendReleaseUpdateAlert({ userId: ownerId, productName: product.name, version: release.version, notes: release.notes || "" }).catch((error) => console.error("[email] Falha no alerta de release:", error instanceof Error ? error.message : "erro desconhecido"))));
+    await Promise.all(uniqueOwners.map((ownerId) => sendReleaseUpdateAlert({ userId: ownerId, productName: product.name, version: release.version, notes: release.notes || "" }).catch((error) => console.error("[email] Falha no alerta de release:", error instanceof Error ? error.message : "erro desconhecido"))));
     const queued = await databases.applications.updateMany(
         { productId: product._id },
         { $set: { updateAttempts: 0, errorOnUpdate: false }, $unset: { errorOnUpdateMessage: "", updateLeaseUntil: "" } },
@@ -969,7 +969,7 @@ export async function approvePayment(args: { type: "renew" | "buy"; id: string; 
     }
     const product = cart.productId ? await databases.products.findById(cart.productId, { name: 1 }).lean() : null;
     const application = cart.applicationId ? await databases.applications.findById(cart.applicationId, { name: 1, expiresAt: 1 }).lean() : null;
-    void sendPaymentConfirmedAlert({ userId: String(cart.userId), cartId: args.id, type: cartType === "renew" ? "renewal" : "purchase", productName: product?.name || application?.name || "Aplicação", applicationName: application?.name, plan: cart.lifetime ? "lifetime" : `${cart.days || 0} dias`, amount: Number(cart.finalPrice || cart.price || 0), expiresAt: application?.expiresAt || (cart.lifetime ? null : undefined) }).catch((error) => console.error("[email] Falha no alerta de aprovação manual:", error instanceof Error ? error.message : "erro desconhecido"));
+    await sendPaymentConfirmedAlert({ userId: String(cart.userId), cartId: args.id, type: cartType === "renew" ? "renewal" : "purchase", productName: product?.name || application?.name || "Aplicação", applicationName: application?.name, plan: cart.lifetime ? "lifetime" : `${cart.days || 0} dias`, amount: Number(cart.finalPrice || cart.price || 0), expiresAt: application?.expiresAt || (cart.lifetime ? null : undefined) }).catch((error) => console.error("[email] Falha no alerta de aprovação manual:", error instanceof Error ? error.message : "erro desconhecido"));
     return { ok: true };
 }
 

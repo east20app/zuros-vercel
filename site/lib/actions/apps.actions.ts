@@ -651,7 +651,7 @@ export async function startRenew(appId: string, plan: "weekly" | "biweekly" | "m
         expiresAt: new Date(Date.now() + RENEW_CART_EXPIRES_MINUTES * 60_000),
     });
 
-    void sendCartOpenedAlert({ userId: discordId, cartId: String(cart._id), type: "renewal", productName: product.name, applicationName: application.name, plan, amount: price, expiresAt: cart.expiresAt }).catch((error) => console.error("[email] Falha no alerta de renovação aberta:", error instanceof Error ? error.message : "erro desconhecido"));
+    await sendCartOpenedAlert({ userId: discordId, cartId: String(cart._id), type: "renewal", productName: product.name, applicationName: application.name, plan, amount: price, expiresAt: cart.expiresAt }).catch((error) => console.error("[email] Falha no alerta de renovação aberta:", error instanceof Error ? error.message : "erro desconhecido"));
 
     return { cartId: String(cart._id) };
 }
