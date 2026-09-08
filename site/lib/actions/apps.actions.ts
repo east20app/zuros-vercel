@@ -51,6 +51,7 @@ export interface UserInvoiceDTO {
     status: string;
     paymentId: string | null;
     paid: boolean;
+    delivered: boolean;
     createdAt: string | null;
 }
 
@@ -119,17 +120,17 @@ export async function listMyInvoices(): Promise<UserInvoiceDTO[]> {
 
     const purchaseRows = buys as unknown as Array<{
         _id: unknown; productId?: { name?: string }; days?: number; lifetime?: boolean;
-        price?: number; finalPrice?: number; status: string; step?: string; paymentId?: string; createdAt?: Date;
+        price?: number; finalPrice?: number; status: string; step?: string; paymentId?: string; delivered?: boolean; createdAt?: Date;
     }>;
     const renewalRows = renewals as unknown as Array<{
         _id: unknown; applicationId?: { name?: string; productId?: { name?: string } };
         days?: number; lifetime?: boolean; price?: number; finalPrice?: number;
-        status: string; step?: string; paymentId?: string; createdAt?: Date;
+        status: string; step?: string; paymentId?: string; delivered?: boolean; createdAt?: Date;
     }>;
 
     return [
-        ...purchaseRows.map((cart) => ({ id: String(cart._id), type: "purchase" as const, item: cart.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null, paid: cart.step === "payment-confirmed", createdAt: toISO(cart.createdAt) })),
-        ...renewalRows.map((cart) => ({ id: String(cart._id), type: "renewal" as const, item: cart.applicationId?.name || cart.applicationId?.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null, paid: cart.step === "payment-confirmed", createdAt: toISO(cart.createdAt) })),
+        ...purchaseRows.map((cart) => ({ id: String(cart._id), type: "purchase" as const, item: cart.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null, paid: cart.step === "payment-confirmed", delivered: Boolean(cart.delivered), createdAt: toISO(cart.createdAt) })),
+        ...renewalRows.map((cart) => ({ id: String(cart._id), type: "renewal" as const, item: cart.applicationId?.name || cart.applicationId?.productId?.name || "Aplicação", plan: invoicePlan(cart), amount: cart.price || cart.finalPrice || 0, status: cart.status, paymentId: cart.paymentId || null, paid: cart.step === "payment-confirmed", delivered: Boolean(cart.delivered), createdAt: toISO(cart.createdAt) })),
     ];
 }
 type CartRenewAppPopulated = CartRenewDoc & { applicationId: AppDoc };

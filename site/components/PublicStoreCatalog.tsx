@@ -91,7 +91,7 @@ function ProductCard({ product, isFeatured, canPurchase, pending, onBuy }: {
                     onClick={() => onBuy(current.plan)}
                     className="plans-product-action"
                 >
-                    {pending ? "Abrindo pagamento..." : `Adquirir ${title}`}
+                    {pending ? "Abrindo pagamento..." : `Comprar ${title}`}
                 </button>
             ) : (
                 <Link href="/login?callbackUrl=/planos" className="plans-product-action">Entrar para comprar</Link>

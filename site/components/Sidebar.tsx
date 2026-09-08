@@ -393,7 +393,7 @@ export function Sidebar({
         : selectedBotId
         ? [
                   { icon: "left", label: "Minhas aplicações", href: "/dashboard", exact: true, section: "ZUROS" },
-                  { icon: "affiliate", label: "Adquirir aplicação", href: "/planos", exact: true, section: "App e Vendas" },
+                  { icon: "affiliate", label: "Comprar aplicação", href: "/planos", exact: true, section: "App e Vendas" },
                   { icon: "left", label: "Trocar aplicação", href: "/dashboard", exact: true },
                   { icon: "dashboard", label: "Visão Geral", href: `/dashboard/${selectedBotId}`, exact: true, section: "Principal" },
               { icon: "admin", label: "Servidores", href: `/dashboard/${selectedBotId}/servidores`, exact: true, section: "Gerenciamento" },

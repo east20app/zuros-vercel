@@ -38,7 +38,7 @@ export default async function DashboardPage() {
                     <h1>Minhas aplicações</h1>
                     <p>Selecione uma aplicação para abrir o painel.</p>
                 </div>
-                <Button href="/planos" className="dashboard-action-primary">Adquirir aplicação</Button>
+                <Button href="/planos" className="dashboard-action-primary">Comprar aplicação</Button>
             </header>
 
             <div className="sales-status-strip">
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
                 <div className="dashboard-apps-heading">
                     <h2 id="dashboard-apps-heading">Aplicações</h2>
                 </div>
-                <div className="dashboard-apps-list">{sorted.length === 0 ? <div className="dashboard-empty dashboard-empty-clean"><h2>Nenhuma aplicação</h2><p>Adquira uma aplicação para começar.</p><Button href="/planos" className="mt-5">Adquirir aplicação</Button></div> : <DashboardAppsGrid apps={sorted} />}</div>
+                <div className="dashboard-apps-list">{sorted.length === 0 ? <div className="dashboard-empty dashboard-empty-clean"><h2>Nenhuma aplicação</h2><p>Compre uma aplicação para começar.</p><Button href="/planos" className="mt-5">Comprar aplicação</Button></div> : <DashboardAppsGrid apps={sorted} />}</div>
             </section>
         </main>
     );
