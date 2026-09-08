@@ -200,7 +200,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
     };
 
     return (
-        <main className="app-detail-page mx-auto min-w-0 max-w-6xl px-5 py-8">
+        <main className="app-detail-page bot-overview-page mx-auto min-w-0 max-w-[1440px] px-5 py-6 sm:px-7 lg:px-10">
             <div className="mb-6">
                 <Link href="/dashboard" className="group inline-flex items-center gap-1 text-sm text-zinc-500 transition hover:text-[var(--accent-strong)]">
                     <span className="transition group-hover:-translate-x-0.5">←</span> Voltar
