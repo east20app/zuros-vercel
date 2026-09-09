@@ -60,7 +60,7 @@ function GenericValueEditor({ value, onChange, path = [] }: { value: unknown; on
 }
 
 export function AutomationsEditor({ value, roles, channels, onChange }: { value: Aggregate; roles: DiscordGuildRole[]; channels: DiscordGuildChannel[]; onChange: (next: Aggregate) => void }) {
-    const [selected, setSelected] = useState<string>("welcome");
+    const [selected, setSelected] = useState<string>("");
     const doc = asDoc(value[selected]);
     const setDoc = (next: Doc) => onChange({ ...value, [selected]: next });
     const guildId = channels[0]?.guildId || null;
