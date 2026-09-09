@@ -68,8 +68,8 @@ export default async function BotServersPage({ params }: { params: Promise<{ app
                 ) : (
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         {guilds.map((guild) => (
-                            <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#7c3aed]/40">
-                                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#7c3aed]/15 text-[#949cf7]">
+                            <Card key={guild.id} className="group flex items-center gap-4 transition hover:border-[#3b82f6]/40">
+                                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#3b82f6]/15 text-[#93c5fd]">
                                     <Icon name="apps" />
                                 </span>
                                 <span className="min-w-0">
