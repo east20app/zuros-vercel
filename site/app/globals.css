@@ -3115,3 +3115,34 @@ body:has(.zuros-sidebar-panel) td {
 .bot-workspace-page table thead { background: #151518; }
 .bot-workspace-page table tbody tr:hover { background: rgba(59,130,246,.055); }
 .bot-workspace-page .zuros-card:hover { border-color: rgba(59,130,246,.35); }
+
+/* Automações DROX — cards agrupados, expansão por item e switches mobile-first. */
+.drox-automations-ui { color: #f5f5f7; }
+.drox-automation-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.drox-automation-summary span { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid rgba(34,197,94,.18); border-radius: 999px; background: rgba(34,197,94,.1); color: #4ade80; padding: .5rem .85rem; font-size: .8rem; font-weight: 600; }
+.drox-automation-summary span i { width: .5rem; height: .5rem; border-radius: 999px; background: #22c55e; box-shadow: 0 0 9px rgba(34,197,94,.7); }
+.drox-automation-summary small { color: #71717a; font-size: .75rem; }
+.drox-automation-group > h3 { margin: 0 0 .8rem .35rem; color: #71717a; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.drox-automation-card { overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: 1.25rem; background: #101012; }
+.drox-automation-item + .drox-automation-item { border-top: 1px solid rgba(255,255,255,.08); }
+.drox-automation-row { display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: center; gap: .75rem; min-height: 6.5rem; padding: 1rem 1.25rem; }
+.drox-automation-trigger { display: flex; min-width: 0; align-items: center; gap: 1rem; text-align: left; }
+.drox-automation-icon { display: grid; width: 3.25rem; height: 3.25rem; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,255,255,.1); border-radius: 1rem; background: #151518; color: #a1a1aa; font-size: 1.35rem; }
+.drox-automation-icon.is-active { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.1); color: #22c55e; }
+.drox-automation-copy { display: flex; min-width: 0; flex-direction: column; gap: .3rem; }
+.drox-automation-copy b { overflow: hidden; color: #f5f5f7; font-size: .98rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.drox-automation-copy small { color: #71717a; font-size: .78rem; }
+.drox-automation-item.is-open .drox-automation-copy small { color: #4ade80; }
+.drox-automation-chevron { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: .75rem; color: #71717a; font-size: 1.35rem; transition: transform .2s ease, color .2s ease, background .2s ease; }
+.drox-automation-chevron:hover { background: rgba(255,255,255,.06); color: #f5f5f7; }
+.drox-automation-chevron.is-open { transform: rotate(180deg); color: #93c5fd; }
+.drox-switch { position: relative; display: inline-flex; width: 3.8rem; height: 2.1rem; flex: 0 0 auto; cursor: pointer; border-radius: 999px; background: #25262b; transition: background .2s ease; }
+.drox-switch input { position: absolute; height: 1px; width: 1px; opacity: 0; }
+.drox-switch span { position: absolute; top: .25rem; left: .25rem; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); transition: transform .2s ease; }
+.drox-switch.is-on { background: #3b82f6; }
+.drox-switch.is-on span { transform: translateX(1.7rem); }
+.drox-switch:focus-within { outline: 2px solid rgba(59,130,246,.55); outline-offset: 3px; }
+.drox-automation-details { border-top: 1px solid rgba(255,255,255,.08); background: #0b0b0e; padding: 1.25rem; }
+.drox-automation-details-title { margin: 0 0 1rem; color: #71717a; font-size: .68rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.drox-automation-details .zuros-card { background: #101012; }
+@media (max-width: 640px) { .drox-automation-summary { align-items: flex-start; flex-direction: column; }.drox-automation-summary small { padding-left: .35rem; }.drox-automation-row { min-height: 5.8rem; gap: .45rem; padding: .8rem .75rem; }.drox-automation-trigger { gap: .7rem; }.drox-automation-icon { width: 2.8rem; height: 2.8rem; border-radius: .8rem; font-size: 1.15rem; }.drox-automation-copy b { font-size: .86rem; }.drox-automation-copy small { font-size: .7rem; }.drox-switch { width: 3.2rem; height: 1.8rem; }.drox-switch span { width: 1.3rem; height: 1.3rem; }.drox-switch.is-on span { transform: translateX(1.4rem); }.drox-automation-details { padding: .9rem; } }
