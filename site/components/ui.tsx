@@ -29,19 +29,19 @@ export function Button({
     title?: string;
 }) {
     const base =
-        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
+        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
     const variants: Record<string, string> = {
         primary:
-            "border border-[var(--accent)] bg-[var(--accent)] text-[#091116] hover:bg-[var(--accent-strong)]",
+            "border border-[var(--z-primary)] bg-[var(--z-primary)] text-[#091116] hover:bg-[var(--z-primary-hover)]",
         success:
             "border border-[var(--success)]/60 bg-[var(--success)] text-white hover:bg-[var(--success)]/80",
         secondary:
-            "border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-raised)]",
+            "border border-[var(--z-border)] bg-transparent text-[var(--z-text)] hover:border-[var(--z-border-hover)] hover:bg-[var(--z-surface-3)]",
         danger:
             "border border-[var(--danger)]/60 bg-[var(--danger)] text-white hover:bg-[var(--danger)]/80",
-        ghost: "text-[var(--muted)] hover:bg-white/[.06] hover:text-white",
+        ghost: "text-[var(--z-text-secondary)] hover:bg-white/[.06] hover:text-white",
         outline:
-            "border border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]/40 hover:bg-[var(--accent-soft)] hover:text-white",
+            "border border-[var(--z-border)] text-[var(--z-text-secondary)] hover:border-[var(--z-primary)]/40 hover:bg-[var(--accent-soft)] hover:text-white",
     };
     const sizes: Record<string, string> = {
         sm: "min-h-8 px-3 py-1.5 text-xs",
@@ -95,7 +95,7 @@ export function PageHeader({
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
     return (
-        <div className={`zuros-card p-5 ${className}`}>
+        <div className={`zuros-card rounded-[var(--z-radius-card)] p-5 ${className}`}>
             {children}
         </div>
     );
@@ -135,11 +135,11 @@ export function DiscordCard({
 
 export function Badge({ children, tone = "zinc" }: { children: ReactNode; tone?: "green" | "red" | "amber" | "zinc" | "blue" }) {
     const tones: Record<string, string> = {
-        green: "bg-[var(--success-soft)] text-[var(--success)] border-[var(--success)]/30",
-        red: "bg-[var(--danger-soft)] text-[var(--danger)] border-[var(--danger)]/30",
-        amber: "bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning)]/30",
-        blue: "bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30",
-        zinc: "bg-white/[.05] text-[var(--muted)] border-[var(--border)]",
+            green: "bg-[var(--success-soft)] text-[var(--z-success)] border-[var(--z-success)]/30",
+            red: "bg-[var(--danger-soft)] text-[var(--z-danger)] border-[var(--z-danger)]/30",
+            amber: "bg-[rgba(245,185,66,.12)] text-[var(--z-warning)] border-[var(--z-warning)]/30",
+            blue: "bg-[var(--accent-soft)] text-[var(--z-primary)] border-[var(--z-primary)]/30",
+            zinc: "bg-white/[.05] text-[var(--z-text-secondary)] border-[var(--z-border)]",
     };
     return (
         <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>
@@ -262,7 +262,7 @@ export function Field({
 }
 
 export const inputClass =
-    "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--muted-dim)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10";
+    "w-full rounded-[var(--z-radius-md)] border border-[var(--z-border)] bg-[var(--z-surface-2)] px-3.5 py-2.5 text-sm text-[var(--z-text)] placeholder-[var(--z-text-muted)] outline-none transition focus:border-[var(--z-primary)] focus:ring-2 focus:ring-[var(--z-primary)]/10";
 
 export function SecretInput({
     value,
