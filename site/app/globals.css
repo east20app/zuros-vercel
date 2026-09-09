@@ -32,6 +32,27 @@
 
     --foreground: #f2f6f7;
     --radius: 0.75rem;
+    --z-bg: #050505;
+    --z-surface: #0B0D0E;
+    --z-surface-2: #101314;
+    --z-surface-3: #15191A;
+    --z-border: rgba(255,255,255,0.08);
+    --z-border-hover: rgba(255,255,255,0.14);
+    --z-text: #F2F6F0;
+    --z-text-secondary: #A3ADA9;
+    --z-text-muted: #6F7976;
+    --z-primary: #D6FF63;
+    --z-primary-hover: #E2FF8A;
+    --z-primary-dark: #B9E84E;
+    --z-danger: #F23F43;
+    --z-warning: #F5B942;
+    --z-success: #23A559;
+    --z-coral: #FF745A;
+    --z-radius-sm: 0.25rem;
+    --z-radius-md: 0.5rem;
+    --z-radius-card: 0.75rem;
+    --z-radius-lg: 1rem;
+    --z-shadow-card: 0 14px 35px rgba(0,0,0,.13);
 }
 
 [data-theme="light"] {
@@ -3040,3 +3061,24 @@ body:has(.zuros-sidebar-panel) td {
 .bot-overview-page .bot-home-manage-heading > span { color: #777380; font-size: .68rem; }
 @media (max-width: 900px) { .bot-overview-page .sales-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .bot-overview-page .sales-summary { grid-template-columns: 1fr; }.bot-overview-page .sales-status-strip, .bot-overview-page .sales-section-heading, .bot-overview-page .bot-home-manage-heading { align-items: flex-start; flex-direction: column; }.bot-overview-page .bot-power-controls { width: 100%; }.bot-overview-page .bot-power-controls > * { flex: 1; }.bot-overview-page .sales-chart-wrap { padding: 1rem; } }
+
+/* Aliases do design system para o modo claro. */
+[data-theme="light"] {
+    --z-bg: #f5f7f6;
+    --z-surface: #ffffff;
+    --z-surface-2: #f0f4f2;
+    --z-surface-3: #e7eeea;
+    --z-border: rgba(23,32,28,0.12);
+    --z-border-hover: rgba(23,32,28,0.2);
+    --z-text: #17201c;
+    --z-text-secondary: #53635c;
+    --z-text-muted: #71817a;
+    --z-primary: #739d16;
+    --z-primary-hover: #587d0b;
+    --z-primary-dark: #587d0b;
+    --z-danger: #c92f38;
+    --z-warning: #a56e00;
+    --z-success: #168044;
+    --z-coral: #c24d36;
+    --z-shadow-card: 0 14px 35px rgba(23,32,28,.1);
+}
