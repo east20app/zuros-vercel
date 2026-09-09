@@ -3146,3 +3146,20 @@ body:has(.zuros-sidebar-panel) td {
 .drox-automation-details-title { margin: 0 0 1rem; color: #71717a; font-size: .68rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
 .drox-automation-details .zuros-card { background: #101012; }
 @media (max-width: 640px) { .drox-automation-summary { align-items: flex-start; flex-direction: column; }.drox-automation-summary small { padding-left: .35rem; }.drox-automation-row { min-height: 5.8rem; gap: .45rem; padding: .8rem .75rem; }.drox-automation-trigger { gap: .7rem; }.drox-automation-icon { width: 2.8rem; height: 2.8rem; border-radius: .8rem; font-size: 1.15rem; }.drox-automation-copy b { font-size: .86rem; }.drox-automation-copy small { font-size: .7rem; }.drox-switch { width: 3.2rem; height: 1.8rem; }.drox-switch span { width: 1.3rem; height: 1.3rem; }.drox-switch.is-on span { transform: translateX(1.4rem); }.drox-automation-details { padding: .9rem; } }
+
+/* Navegação de configurações sem dropdown: cards expansíveis no mesmo padrão de Automações. */
+.config-card-sections { display: flex; flex-direction: column; gap: .75rem; }
+.config-card-section { overflow: hidden; border: 1px solid rgba(255,255,255,.09); border-radius: 1rem; background: #101012; }
+.config-card-section.is-open { border-color: rgba(59,130,246,.38); }
+.config-card-section-trigger { display: grid; width: 100%; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: .85rem; padding: 1rem 1.15rem; text-align: left; }
+.config-card-section-trigger:hover { background: rgba(59,130,246,.06); }
+.config-card-section-trigger > span:nth-child(2) { display: flex; min-width: 0; flex-direction: column; gap: .25rem; }
+.config-card-section-trigger b { color: #f5f5f7; font-size: .92rem; font-weight: 600; }
+.config-card-section-trigger small { overflow: hidden; color: #71717a; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+.config-card-section-icon { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; border: 1px solid rgba(255,255,255,.1); border-radius: .8rem; background: #151518; color: #93c5fd; }
+.config-card-section.is-open .config-card-section-icon { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.12); }
+.config-card-section-trigger > i { color: #71717a; font-size: 1.25rem; font-style: normal; transition: transform .2s ease, color .2s ease; }
+.config-card-section-trigger > i.is-open { transform: rotate(180deg); color: #93c5fd; }
+.config-card-section-content { border-top: 1px solid rgba(255,255,255,.08); background: #0b0b0e; padding: 1.1rem; }
+.config-card-section-content .zuros-card { background: #101012; }
+@media (max-width: 640px) { .config-card-section-trigger { gap: .65rem; padding: .85rem; }.config-card-section-icon { width: 2.45rem; height: 2.45rem; }.config-card-section-trigger b { font-size: .84rem; }.config-card-section-trigger small { font-size: .66rem; }.config-card-section-content { padding: .8rem; } }
