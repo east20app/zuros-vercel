@@ -3,6 +3,7 @@ import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicFooter } from "@/components/PublicFooter";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { getSessionUser } from "@/lib/require-admin";
+import TileBackground from "@/components/TileBackground";
 
 export const metadata: Metadata = {
     title: "Dúvidas frequentes · ZUROS APP",
@@ -13,6 +14,7 @@ export default async function QuestionsPage() {
     const user = await getSessionUser();
     return (
         <div className="reference-public-page min-h-screen overflow-x-clip text-white">
+            <TileBackground />
             <PublicNavbar user={user} />
             <main className="mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
                 <header className="mb-12 text-center">

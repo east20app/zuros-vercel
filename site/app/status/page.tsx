@@ -5,6 +5,7 @@ import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicFooter } from "@/components/PublicFooter";
 import { publicMetadata } from "@/lib/site-url";
 import { getPublicServiceStatus } from "@/lib/public-status";
+import TileBackground from "@/components/TileBackground";
 
 export const metadata: Metadata = publicMetadata("Status - ZUROS", "Status dos serviços ZUROS.", "/status");
 
@@ -18,6 +19,7 @@ export default async function StatusPage() {
     const checkedAt = services[0]?.checkedAt ? new Date(services[0].checkedAt).toLocaleString("pt-BR") : "agora";
     return (
         <div className="reference-public-page min-h-screen overflow-x-clip text-white">
+            <TileBackground />
             <PublicNavbar user={user} />
             <main className="mx-auto w-full max-w-5xl px-5 py-20 sm:px-8 sm:py-28">
                 <header className="mb-12 text-center">

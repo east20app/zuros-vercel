@@ -2,11 +2,13 @@ import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui";
 import { getSessionUser } from "@/lib/require-admin";
+import TileBackground from "@/components/TileBackground";
 
 export default async function NotFound() {
     const user = await getSessionUser();
     return (
         <div className="reference-public-page min-h-screen text-white">
+            <TileBackground />
             <PublicNavbar user={user} />
             <main className="flex flex-col items-center justify-center gap-4 px-4 py-32 text-center">
                 <p className="bg-gradient-to-b from-emerald-300 to-emerald-600 bg-clip-text text-7xl font-black text-transparent">404</p>

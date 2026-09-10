@@ -7,6 +7,7 @@ import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicStoreCatalog } from "@/components/PublicStoreCatalog";
 import { PublicFooter } from "@/components/PublicFooter";
 import { publicMetadata } from "@/lib/site-url";
+import TileBackground from "@/components/TileBackground";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = publicMetadata("Planos e preços · ZUROS APP", "Planos mensais para potencializar seus projetos e comunidades.", "/planos");
@@ -17,7 +18,7 @@ export default async function PlansPage() {
     const user = await userPromise;
     const [catalogs, pendingCount] = await Promise.all([catalogsPromise, user ? getUserPendingCount(user.discordId) : Promise.resolve(0)]);
 
-    return <div className="reference-plans min-h-screen overflow-x-clip text-white"><AnnouncementBar /><PublicNavbar user={user} pendingCount={pendingCount} />
+    return <div className="reference-plans min-h-screen overflow-x-clip text-white"><TileBackground /><AnnouncementBar /><PublicNavbar user={user} pendingCount={pendingCount} />
         <main>
             <section className="reference-plans-intro mx-auto w-full max-w-6xl px-5 pb-10 pt-20 text-center sm:px-8 sm:pt-24">
                 <h1>Escolha um plano para colocar sua operação em movimento.</h1>

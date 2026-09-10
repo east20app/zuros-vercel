@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/require-admin";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicFooter } from "@/components/PublicFooter";
 import { publicMetadata } from "@/lib/site-url";
+import TileBackground from "@/components/TileBackground";
 
 export const metadata: Metadata = publicMetadata("Sobre - ZUROS", "Conheça a plataforma ZUROS.", "/sobre");
 
@@ -11,6 +12,7 @@ export default async function AboutPage() {
     const user = await getSessionUser();
     return (
         <div className="reference-public-page min-h-screen overflow-x-clip text-white">
+            <TileBackground />
             <PublicNavbar user={user} />
             <main className="mx-auto flex w-full max-w-6xl flex-col items-center px-5 py-24 text-center sm:px-8 sm:py-32">
                 <p className="home-kicker"><span className="home-kicker-mark" />ZUROS / SOBRE</p>

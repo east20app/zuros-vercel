@@ -13,6 +13,7 @@ import { Icon } from "@/components/Icon";
 import { publicMetadata } from "@/lib/site-url";
 import { PublicFooter } from "@/components/PublicFooter";
 import GlowCursor from "@/components/GlowCursor";
+import TileBackground from "@/components/TileBackground";
 
 const features: Array<[ReactNode, string, string]> = [
     [<Icon key="payment" name="payment" className="h-5 w-5" />, "Alta conversão", "Checkout com PIX e confirmação automática, sem atrito entre o clique e a aprovação."],
@@ -52,6 +53,7 @@ export default async function HomePage() {
 
     return (
         <div className="reference-home min-h-screen overflow-x-clip text-white">
+            <TileBackground />
             <AnnouncementBar />
             <PublicNavbar user={user} pendingCount={pendingCount} />
             <main>
