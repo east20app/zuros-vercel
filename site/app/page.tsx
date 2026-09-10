@@ -12,6 +12,7 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/Icon";
 import { publicMetadata } from "@/lib/site-url";
 import { PublicFooter } from "@/components/PublicFooter";
+import GlowCursor from "@/components/GlowCursor";
 
 const features: Array<[ReactNode, string, string]> = [
     [<Icon key="payment" name="payment" className="h-5 w-5" />, "Alta conversão", "Checkout com PIX e confirmação automática, sem atrito entre o clique e a aprovação."],
@@ -70,42 +71,44 @@ export default async function HomePage() {
                         </div>
                     </div>
 
-                    <div className="reference-dashboard-mock mt-14 animate-fade-up" style={{ animationDelay: "120ms" }} aria-label="Preview do painel ZUROS">
-                        <div className="reference-mock-bar">
-                            <span className="reference-mock-dots"><i /><i /><i /></span>
-                            <span className="reference-mock-url">app.zuros.app / dashboard</span>
-                            <span className="reference-mock-live"><i />sistemas ativos</span>
-                        </div>
-                        <div className="reference-mock-body">
-                            <aside className="reference-mock-nav">
-                                <span className="reference-mock-brand">ZUROS <small>APP</small></span>
-                                <nav aria-hidden="true">
-                                    <a className="is-active">Painel</a>
-                                    <a>Vendas</a>
-                                    <a>Produtos</a>
-                                    <a>Aplicações</a>
-                                    <a>Configurações</a>
-                                </nav>
-                            </aside>
-                            <div className="reference-mock-main">
-                                <div className="reference-mock-heading">
-                                    <div><p>CONTROLE FINANCEIRO TOTAL</p><strong>O essencial da operação</strong></div>
-                                    <span>hoje</span>
-                                </div>
-                                <div className="reference-mock-kpis">
-                                    <div><span>aplicações ativas</span><strong>{activeApps || "—"}</strong></div>
-                                    <div><span>lojas conectadas</span><strong>{stores || "—"}</strong></div>
-                                    <div><span>produtos ativos</span><strong>{catalogs.length || "—"}</strong></div>
-                                </div>
-                                <div className="reference-mock-chart" aria-hidden="true">
-                                    {[38, 55, 42, 70, 58, 84, 66, 96].map((height, index) => <i key={index} style={{ height: `${height}%` }} className={index === 5 || index === 7 ? "is-alt" : ""} />)}
-                                </div>
-                                <div className="reference-mock-sales">
-                                    {financeRows.map((row) => <div key={`${row.time}-${row.label}`}><span className="reference-mock-time">{row.time}</span><span className={`reference-mock-dot ${row.tone}`} /><b>{row.label}</b><em>{row.value}</em></div>)}
+                    <GlowCursor className="mt-14 animate-fade-up" style={{ animationDelay: "120ms" }}>
+                        <div className="reference-dashboard-mock" aria-label="Preview do painel ZUROS">
+                            <div className="reference-mock-bar">
+                                <span className="reference-mock-dots"><i /><i /><i /></span>
+                                <span className="reference-mock-url">app.zuros.app / dashboard</span>
+                                <span className="reference-mock-live"><i />sistemas ativos</span>
+                            </div>
+                            <div className="reference-mock-body">
+                                <aside className="reference-mock-nav">
+                                    <span className="reference-mock-brand">ZUROS <small>APP</small></span>
+                                    <nav aria-hidden="true">
+                                        <a className="is-active">Painel</a>
+                                        <a>Vendas</a>
+                                        <a>Produtos</a>
+                                        <a>Aplicações</a>
+                                        <a>Configurações</a>
+                                    </nav>
+                                </aside>
+                                <div className="reference-mock-main">
+                                    <div className="reference-mock-heading">
+                                        <div><p>CONTROLE FINANCEIRO TOTAL</p><strong>O essencial da operação</strong></div>
+                                        <span>hoje</span>
+                                    </div>
+                                    <div className="reference-mock-kpis">
+                                        <div><span>aplicações ativas</span><strong>{activeApps || "—"}</strong></div>
+                                        <div><span>lojas conectadas</span><strong>{stores || "—"}</strong></div>
+                                        <div><span>produtos ativos</span><strong>{catalogs.length || "—"}</strong></div>
+                                    </div>
+                                    <div className="reference-mock-chart" aria-hidden="true">
+                                        {[38, 55, 42, 70, 58, 84, 66, 96].map((height, index) => <i key={index} style={{ height: `${height}%` }} className={index === 5 || index === 7 ? "is-alt" : ""} />)}
+                                    </div>
+                                    <div className="reference-mock-sales">
+                                        {financeRows.map((row) => <div key={`${row.time}-${row.label}`}><span className="reference-mock-time">{row.time}</span><span className={`reference-mock-dot ${row.tone}`} /><b>{row.label}</b><em>{row.value}</em></div>)}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </GlowCursor>
                 </section>
 
                 {clientNames.length > 0 && (

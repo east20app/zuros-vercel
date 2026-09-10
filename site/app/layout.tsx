@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@/app/globals.css";
+import "@/components/GlowCursor.css";
 import SessionProvider from "@/components/SessionProvider";
 import { ToastProvider } from "@/components/Toast";
 import ChunkRecovery from "@/components/ChunkRecovery";
