@@ -23,6 +23,13 @@ const PANEL_OPTIONS: PanelOption[] = [
     { label: "Extensões", description: "Ativação, DROX Gen, boost e assinaturas", icon: "apps", module: "extensions" },
 ];
 
+const GROUPS: Array<[string, string[]]> = [
+    ["Vendas", ["Configurar Loja", "Gerenciar Ticket", "Ver Rendimento"]],
+    ["Comunidade", ["Automações", "Mensagens", "Sorteios"]],
+    ["Segurança", ["Proteção do Servidor", "Configurações"]],
+    ["Personalização e integrações", ["Personalização", "DROX Cloud", "Extensões"]],
+];
+
 export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
     const [status, setStatus] = useState<Partial<Record<BotConfigModule, string>>>({});
     useEffect(() => {
@@ -41,7 +48,7 @@ export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
     }, [appId]);
 
     return (
-        <section className="zuros-card overflow-hidden rounded-2xl">
+        <div className="rounded-2xl border border-white/[.1] bg-[#101012] overflow-hidden">
             <div className="border-b border-white/[.06] bg-white/[.025] px-5 py-5 sm:px-6">
                 <div className="flex items-center gap-3">
                     <span className="grid h-11 w-11 place-items-center rounded-full bg-[#7c3aed] text-white"><Icon name="bot" /></span>
@@ -51,23 +58,39 @@ export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
                     </div>
                 </div>
             </div>
-            <div className="grid gap-3 p-3 sm:grid-cols-2 sm:p-5">
-                {PANEL_OPTIONS.map((option) => {
-                    const href = option.path ? `/dashboard/${appId}/${option.path}` : `/dashboard/${appId}/config/${option.module}`;
-                    const state = option.module ? status[option.module] : "Abrir rendimentos";
+            <div className="drox-automations-ui space-y-6 p-3 sm:p-5">
+                <div className="drox-automation-summary"><span><i /> {PANEL_OPTIONS.length} módulos</span><small>Clique em um módulo para abrir suas configurações.</small></div>
+                {GROUPS.map(([group, labels]) => {
+                    const options = PANEL_OPTIONS.filter((option) => labels.includes(option.label));
                     return (
-                        <Link key={option.label} href={href} className="group flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:-translate-y-px hover:border-[var(--accent)]/25 hover:bg-[var(--accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
-                            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#7c3aed]/15 text-[#949cf7] transition group-hover:bg-[#7c3aed] group-hover:text-white"><Icon name={option.icon} /></span>
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate text-sm font-semibold text-[#f2f3f5]">{option.label}</span>
-                                <span className="mt-0.5 block truncate text-xs text-[#949ba4]">{option.description}</span>
-                                <span className={`mt-1 block text-[11px] ${state === "Indisponível no momento" ? "text-red-400" : "text-[#23a559]"}`}>{state || "Carregando..."}</span>
-                            </span>
-                            <Icon name="arrow-right" className="h-4 w-4 text-[#6d6f78] transition group-hover:translate-x-0.5 group-hover:text-white" />
-                        </Link>
+                        <section key={group} className="drox-automation-group">
+                            <h3>{group}</h3>
+                            <div className="drox-automation-card">
+                                {options.map((option) => {
+                                    const href = option.path ? `/dashboard/${appId}/${option.path}` : `/dashboard/${appId}/config/${option.module}`;
+                                    const state = option.module ? status[option.module] : "Abrir rendimentos";
+                                    const unavailable = state === "Indisponível no momento";
+                                    return (
+                                        <article key={option.label} className="drox-automation-item">
+                                            <Link href={href} className="drox-automation-row group" aria-label={`Abrir ${option.label}`}>
+                                                <span className="drox-automation-trigger min-w-0 flex-1">
+                                                    <span className="drox-automation-icon"><Icon name={option.icon} /></span>
+                                                    <span className="drox-automation-copy">
+                                                        <b>{option.label}</b>
+                                                        <small>{option.description}</small>
+                                                        <em className={`not-italic text-[11px] ${unavailable ? "text-[#f87175]" : "text-[#23a559]"}`}>{state || "Carregando..."}</em>
+                                                    </span>
+                                                </span>
+                                                <span className={`drox-automation-chevron ${unavailable ? "" : "transition group-hover:text-white"} ${unavailable ? "text-[#f87175]" : ""}`}>→</span>
+                                            </Link>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+                        </section>
                     );
                 })}
             </div>
-        </section>
+        </div>
     );
 }

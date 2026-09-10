@@ -1,5 +1,6 @@
 "use client";
-import { Badge, Field, inputClass } from "../ui";
+import { useState } from "react";
+import { Field, inputClass } from "../ui";
 import { Icon, type IconName } from "../Icon";
 import type { DiscordGuildChannel, DiscordGuildRole } from "@/lib/actions/bot-config.actions";
 
@@ -30,6 +31,11 @@ const BARRIERS: { key: string; title: string; description: string; group: "anti-
     { key: "privatUrls", title: "URLs", description: "Bloqueia envio de links indesejados", group: "privatizacao", icon: "help" },
 ];
 
+const COMPLEMENTARY = [
+    { key: "antifake", title: "Anti-fake", description: "Bloqueia contas recém-criadas", icon: "shield" },
+    { key: "interactionMonitor", title: "Monitor de interações", description: "Registra interações suspeitas de membros", icon: "settings" },
+] as const;
+
 function asDoc(raw: unknown): Doc {
     return raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Doc) : {};
 }
@@ -42,12 +48,12 @@ function asList(value: unknown): string[] {
 function ChoiceChecklist({ items, value, onChange }: { items: Array<{ id: string; name: string }>; value: string[]; onChange: (next: string[]) => void }) {
     const selected = new Set(value);
     return (
-        <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg border border-[#3f4147] bg-[#1e1f22] p-2">
+        <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg border border-white/[.08] bg-[#1e1f22] p-2">
             {items.length ? items.map((item) => {
                 const checked = selected.has(item.id);
                 return (
-                    <label key={item.id} className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition ${checked ? "bg-[#7c3aed]/20 text-white" : "text-[#b5bac1] hover:bg-[#35373c]"}`}>
-                        <input type="checkbox" checked={checked} onChange={() => onChange(checked ? value.filter((id) => id !== item.id) : [...value, item.id])} className="h-4 w-4 accent-[#7c3aed]" />
+                    <label key={item.id} className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition ${checked ? "bg-[#00CBA4]/20 text-white" : "text-[#b5bac1] hover:bg-[#35373c]"}`}>
+                        <input type="checkbox" checked={checked} onChange={() => onChange(checked ? value.filter((id) => id !== item.id) : [...value, item.id])} className="h-4 w-4 accent-[#00CBA4]" />
                         <span className="truncate">{item.name}</span>
                     </label>
                 );
@@ -85,9 +91,9 @@ function advancedEntry(doc: Doc): { key: string; obj: Doc } | null {
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (next: boolean) => void }) {
     return (
-        <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-[#3f4147] bg-[#1e1f22] px-3 py-2 text-left transition hover:border-[#5865F2]/40">
+        <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-white/[.08] bg-[#232428] px-3 py-2 text-left transition hover:border-[#00CBA4]/50">
             <span className="min-w-0 text-sm text-[#f2f3f5]">{label}</span>
-            <span className={`relative h-5 w-9 shrink-0 rounded-full transition ${checked ? "bg-[#23a559] shadow-[0_0_10px_-1px_rgba(35,165,89,.6)]" : "bg-[#4e5058]"}`}>
+            <span className={`relative h-5 w-9 shrink-0 rounded-full transition ${checked ? "bg-[#23a559]" : "bg-[#4e5058]"}`}>
                 <i className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${checked ? "left-4.5" : "left-0.5"}`} />
             </span>
         </button>
@@ -118,140 +124,152 @@ function ListField({ label, value, onChange, hint }: { label: string; value: str
     );
 }
 
-function BarrierCard({ alias, data, roles, channels, onChange }: { alias: string; data: Aggregate; roles: DiscordGuildRole[]; channels: DiscordGuildChannel[]; onChange: (next: Aggregate) => void }) {
+function BarrierRow({ alias, data, roles, channels, onChange }: { alias: string; data: Aggregate; roles: DiscordGuildRole[]; channels: DiscordGuildChannel[]; onChange: (next: Aggregate) => void }) {
     const meta = BARRIERS.find((item) => item.key === alias);
     const doc = asDoc(data[alias]);
     const actions = actionEntries(doc);
     const advanced = advancedEntry(doc);
     const activeCount = actions.filter(({ obj }) => Boolean(obj.ativado)).length;
     const fullActive = actions.length > 0 && actions.every(({ obj }) => Boolean(obj.ativado));
-    const accent = meta?.group === "anti-raid" ? "#5865F2" : "#23a559";
+    const [open, setOpen] = useState(false);
 
     const setInDoc = (path: string[], next: unknown) => {
         const nextDoc = setPath(doc, path, next);
         onChange({ ...data, [alias]: nextDoc });
     };
 
+    const toggleAll = (next: boolean) => {
+        const nextDoc = structuredClone(doc);
+        for (const { key } of actions) {
+            if (nextDoc[key] && typeof nextDoc[key] === "object") {
+                (nextDoc[key] as Doc).ativado = next;
+            }
+        }
+        onChange({ ...data, [alias]: nextDoc });
+    };
+
     return (
-        <section className="overflow-hidden rounded-xl border border-[#3f4147] bg-[#2B2D31]">
-            <header className="flex items-center gap-3 border-b border-white/[.06] px-4 py-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg" style={{ backgroundColor: `${accent}1f`, color: accent }}><Icon name={meta?.icon ?? "shield"} className="h-4 w-4" /></span>
-                <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-sm font-semibold text-[#f2f3f5]">{meta?.title ?? alias}</h3>
-                    <p className="truncate text-xs text-[#949ba4]">{meta?.description ?? alias}</p>
-                </div>
-                <Badge tone={fullActive ? "green" : activeCount > 0 ? "amber" : "zinc"}>{activeCount ? `${activeCount} ativo(s)` : "Desativado"}</Badge>
-            </header>
-            <div className="space-y-3 p-4">
-                {actions.map(({ key, obj }) => {
-                    const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
-                    const hasLimits = typeof obj.limite === "number" || typeof obj.intervalo === "number";
-                    return (
-                        <div key={key} className={`rounded-lg border p-3 ${Boolean(obj.ativado) ? "border-[#23a559]/25 bg-[#23a559]/[.05]" : "border-white/[.06] bg-[#1e1f22]"}`}>
-                            <Toggle label={label} checked={Boolean(obj.ativado)} onChange={(next) => setInDoc([key, "ativado"], next)} />
-                            {hasLimits && (
-                                <div className="mt-3 grid grid-cols-2 gap-2">
-                                    {typeof obj.limite === "number" && (
-                                        <label className="block">
-                                            <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Limite</span>
-                                            <input aria-label={`Limite de ${label}`} type="number" min="1" className={inputClass} value={Number(obj.limite)} onChange={(e) => setInDoc([key, "limite"], Number(e.target.value))} />
-                                        </label>
-                                    )}
-                                    {typeof obj.intervalo === "number" && (
-                                        <label className="block">
-                                            <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Intervalo (min)</span>
-                                            <input aria-label={`Intervalo de ${label}`} type="number" min="1" className={inputClass} value={Number(obj.intervalo)} onChange={(e) => setInDoc([key, "intervalo"], Number(e.target.value))} />
-                                        </label>
+        <article className={`drox-automation-item ${open ? "is-open" : ""}`}>
+            <div className="drox-automation-row">
+                <button type="button" className="drox-automation-trigger" onClick={() => setOpen(!open)} aria-expanded={open}>
+                    <span className={`drox-automation-icon ${fullActive ? "is-active" : ""}`}><Icon name={meta?.icon ?? "shield"} /></span>
+                    <span className="drox-automation-copy"><b>{meta?.title ?? alias}</b><small>{fullActive ? "Ativa" : activeCount > 0 ? `${activeCount} ativo(s)` : "Desativada"}</small></span>
+                </button>
+                <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setOpen(!open)} aria-label={`${open ? "Fechar" : "Abrir"} ${meta?.title ?? alias}`}>⌄</button>
+                <label className={`drox-switch ${fullActive ? "is-on" : ""}`}><input type="checkbox" checked={fullActive} onChange={(event) => toggleAll(event.target.checked)} aria-label={`${fullActive ? "Desativar" : "Ativar"} ${meta?.title ?? alias}`} /><span /></label>
+            </div>
+            {open && (
+                <div className="drox-automation-details">
+                    <p className="drox-automation-details-title">Configuração</p>
+                    <div className="space-y-3">
+                        {actions.map(({ key, obj }) => {
+                            const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
+                            const hasLimits = typeof obj.limite === "number" || typeof obj.intervalo === "number";
+                            return (
+                                <div key={key} className={`rounded-lg border p-3 ${Boolean(obj.ativado) ? "border-[#23a559]/25 bg-[#23a559]/[.05]" : "border-white/[.06] bg-[#1e1f22]"}`}>
+                                    <Toggle label={label} checked={Boolean(obj.ativado)} onChange={(next) => setInDoc([key, "ativado"], next)} />
+                                    {hasLimits && (
+                                        <div className="mt-3 grid grid-cols-2 gap-2">
+                                            {typeof obj.limite === "number" && (
+                                                <label className="block">
+                                                    <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Limite</span>
+                                                    <input aria-label={`Limite de ${label}`} type="number" min="1" className={inputClass} value={Number(obj.limite)} onChange={(e) => setInDoc([key, "limite"], Number(e.target.value))} />
+                                                </label>
+                                            )}
+                                            {typeof obj.intervalo === "number" && (
+                                                <label className="block">
+                                                    <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Intervalo (min)</span>
+                                                    <input aria-label={`Intervalo de ${label}`} type="number" min="1" className={inputClass} value={Number(obj.intervalo)} onChange={(e) => setInDoc([key, "intervalo"], Number(e.target.value))} />
+                                                </label>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
-                {advanced && (
-                    <div className="grid gap-2 rounded-lg border border-white/[.06] bg-black/20 p-3 sm:grid-cols-2">
-                        <label className="block">
-                            <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Punição</span>
-                            <PunishmentSelect value={str(advanced.obj.punicao, "none")} onChange={(next) => setInDoc([advanced.key, "punicao"], next)} />
-                        </label>
-                        <label className="block">
-                            <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Canal de logs</span>
-                            <select aria-label="Canal de logs" className={inputClass} value={str(advanced.obj.canal_logs)} onChange={(e) => setInDoc([advanced.key, "canal_logs"], e.target.value || null)}><option value="">Nenhum canal</option>{channels.map((channel) => <option key={channel.id} value={channel.id}>{channel.type === 4 ? "Categoria" : channel.type === 2 || channel.type === 13 ? "Voz" : "#"} {channel.name}</option>)}</select>
-                        </label>
-                        {Object.keys(advanced.obj).filter((key) => Array.isArray(advanced.obj[key])).map((key) => (
-                            <div key={key} className="sm:col-span-2">
-                                {/cargo|role/i.test(key) ? <Field label={key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())} hint="Clique para marcar os cargos"><ChoiceChecklist items={roles} value={asList(advanced.obj[key])} onChange={(next) => setInDoc([advanced.key, key], next)} /></Field> : /canal|channel|categoria/i.test(key) ? <Field label={key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())} hint="Clique para marcar os canais"><ChoiceChecklist items={channels.map((channel) => ({ id: channel.id, name: `${channel.type === 4 ? "Categoria" : channel.type === 2 || channel.type === 13 ? "Voz" : "#"} ${channel.name}` }))} value={asList(advanced.obj[key])} onChange={(next) => setInDoc([advanced.key, key], next)} /></Field> : <ListField label={key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())} hint="Um item por linha" value={asList(advanced.obj[key])} onChange={(next) => setInDoc([advanced.key, key], next)} />}
+                            );
+                        })}
+                        {advanced && (
+                            <div className="grid gap-2 rounded-lg border border-white/[.06] bg-black/20 p-3 sm:grid-cols-2">
+                                <label className="block">
+                                    <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Punição</span>
+                                    <PunishmentSelect value={str(advanced.obj.punicao, "none")} onChange={(next) => setInDoc([advanced.key, "punicao"], next)} />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Canal de logs</span>
+                                    <select aria-label="Canal de logs" className={inputClass} value={str(advanced.obj.canal_logs)} onChange={(e) => setInDoc([advanced.key, "canal_logs"], e.target.value || null)}><option value="">Nenhum canal</option>{channels.map((channel) => <option key={channel.id} value={channel.id}>{channel.type === 4 ? "Categoria" : channel.type === 2 || channel.type === 13 ? "Voz" : "#"} {channel.name}</option>)}</select>
+                                </label>
+                                {Object.keys(advanced.obj).filter((key) => Array.isArray(advanced.obj[key])).map((key) => (
+                                    <div key={key} className="sm:col-span-2">
+                                        {/cargo|role/i.test(key) ? <Field label={key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())} hint="Clique para marcar os cargos"><ChoiceChecklist items={roles} value={asList(advanced.obj[key])} onChange={(next) => setInDoc([advanced.key, key], next)} /></Field> : /canal|channel|categoria/i.test(key) ? <Field label={key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())} hint="Clique para marcar os canais"><ChoiceChecklist items={channels.map((channel) => ({ id: channel.id, name: `${channel.type === 4 ? "Categoria" : channel.type === 2 || channel.type === 13 ? "Voz" : "#"} ${channel.name}` }))} value={asList(advanced.obj[key])} onChange={(next) => setInDoc([advanced.key, key], next)} /></Field> : <ListField label={key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())} hint="Um item por linha" value={asList(advanced.obj[key])} onChange={(next) => setInDoc([advanced.key, key], next)} />}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
                     </div>
-                )}
-            </div>
-        </section>
-    );
-}
-
-function SimpleSection({ title, icon, description, children }: { title: string; icon: IconName; description: string; children: React.ReactNode }) {
-    return (
-        <section className="rounded-xl border border-[#3f4147] bg-[#2B2D31] p-4">
-            <div className="mb-3 flex items-center gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#5865F2]/15 text-[#7983F5]"><Icon name={icon} className="h-4 w-4" /></span>
-                <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-[#f2f3f5]">{title}</h3>
-                    <p className="truncate text-xs text-[#949ba4]">{description}</p>
                 </div>
-            </div>
-            {children}
-        </section>
+            )}
+        </article>
     );
 }
 
-function GroupHeading({ children, accent }: { children: React.ReactNode; accent: string }) {
+function ComplementaryRow({ item, value, onChange }: { item: { key: string; title: string; description: string; icon: IconName }; value: Aggregate; onChange: (next: Aggregate) => void }) {
+    const doc = asDoc(value[item.key]);
+    const [open, setOpen] = useState(false);
+    const active = Boolean(doc.enabled);
+
+    const toggleActive = (next: boolean) => {
+        onChange({ ...value, [item.key]: { ...doc, enabled: next } });
+    };
+
     return (
-        <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: accent, boxShadow: `0 0 10px ${accent}` }} />
-            <h2 className="text-sm font-bold uppercase tracking-[.12em] text-[#b5bac1]">{children}</h2>
-        </div>
+        <article className={`drox-automation-item ${open ? "is-open" : ""}`}>
+            <div className="drox-automation-row">
+                <button type="button" className="drox-automation-trigger" onClick={() => setOpen(!open)} aria-expanded={open}>
+                    <span className={`drox-automation-icon ${active ? "is-active" : ""}`}><Icon name={item.icon} /></span>
+                    <span className="drox-automation-copy"><b>{item.title}</b><small>{active ? "Ativa" : "Desativada"}</small></span>
+                </button>
+                <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setOpen(!open)} aria-label={`${open ? "Fechar" : "Abrir"} ${item.title}`}>⌄</button>
+                <label className={`drox-switch ${active ? "is-on" : ""}`}><input type="checkbox" checked={active} onChange={(event) => toggleActive(event.target.checked)} aria-label={`${active ? "Desativar" : "Ativar"} ${item.title}`} /><span /></label>
+            </div>
+            {open && (
+                <div className="drox-automation-details">
+                    <p className="drox-automation-details-title">Configuração</p>
+                    {item.key === "antifake" ? (
+                        <div className="space-y-3">
+                            <label className="block">
+                                <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Idade mínima (dias)</span>
+                                <input aria-label="Idade mínima" type="number" min="0" className={inputClass} value={Number(doc.min_days ?? 0)} onChange={(e) => onChange({ ...value, [item.key]: { ...doc, min_days: Number(e.target.value) } })} />
+                            </label>
+                            <Toggle label="Bloquear bots" checked={Boolean(doc.block_bots)} onChange={(next) => onChange({ ...value, [item.key]: { ...doc, block_bots: next } })} />
+                        </div>
+                    ) : (
+                        <p className="text-sm text-[#949ba4]">Configuração do monitor de interações sincronizada com o módulo do DROX.</p>
+                    )}
+                </div>
+            )}
+        </article>
     );
 }
 
 export function ProtectionEditor({ value, roles = [], channels = [], onChange }: { value: Aggregate; roles?: DiscordGuildRole[]; channels?: DiscordGuildChannel[]; onChange: (next: Aggregate) => void }) {
-    const doc = (alias: string): Doc => asDoc(value[alias]);
-    const set = (alias: string, nextDoc: Doc) => onChange({ ...value, [alias]: nextDoc });
-    const antifake = doc("antifake");
-    const interactionMonitor = doc("interactionMonitor");
-
     return (
-        <div className="space-y-6">
-            <GroupHeading accent="#5865F2">Anti-raid</GroupHeading>
-            <div className="grid gap-4 lg:grid-cols-2">
+        <div className="drox-automations-ui space-y-6">
+            <section className="drox-automation-group"><h3>Anti-raid</h3><div className="drox-automation-card">
                 {BARRIERS.filter((item) => item.group === "anti-raid").map((item) => (
-                    <BarrierCard key={item.key} alias={item.key} data={value} roles={roles} channels={channels} onChange={onChange} />
+                    <BarrierRow key={item.key} alias={item.key} data={value} roles={roles} channels={channels} onChange={onChange} />
                 ))}
-            </div>
+            </div></section>
 
-            <GroupHeading accent="#23a559">Privatizações</GroupHeading>
-            <div className="grid gap-4 lg:grid-cols-2">
+            <section className="drox-automation-group"><h3>Privatizações</h3><div className="drox-automation-card">
                 {BARRIERS.filter((item) => item.group === "privatizacao").map((item) => (
-                    <BarrierCard key={item.key} alias={item.key} data={value} roles={roles} channels={channels} onChange={onChange} />
+                    <BarrierRow key={item.key} alias={item.key} data={value} roles={roles} channels={channels} onChange={onChange} />
                 ))}
-            </div>
+            </div></section>
 
-            <GroupHeading accent="#f0b232">Barreiras complementares</GroupHeading>
-            <div className="grid gap-4 lg:grid-cols-2">
-                <SimpleSection title="Anti-fake" icon="shield" description="Bloqueia contas recém-criadas">
-                    <div className="space-y-3">
-                        <Toggle label="Ativado" checked={Boolean(antifake.enabled)} onChange={(next) => set("antifake", { ...antifake, enabled: next })} />
-                        <label className="block">
-                            <span className="mb-1 block text-[11px] uppercase tracking-wider text-[#949ba4]">Idade mínima (dias)</span>
-                            <input aria-label="Idade mínima" type="number" min="0" className={inputClass} value={Number(antifake.min_days ?? 0)} onChange={(e) => set("antifake", { ...antifake, min_days: Number(e.target.value) })} />
-                        </label>
-                        <Toggle label="Bloquear bots" checked={Boolean(antifake.block_bots)} onChange={(next) => set("antifake", { ...antifake, block_bots: next })} />
-                    </div>
-                </SimpleSection>
-                <SimpleSection title="Monitor de interações" icon="settings" description="Registra interações suspeitas de membros">
-                    <Toggle label="Ativado" checked={Boolean(interactionMonitor.enabled)} onChange={(next) => set("interactionMonitor", { ...interactionMonitor, enabled: next })} />
-                </SimpleSection>
-            </div>
+            <section className="drox-automation-group"><h3>Barreiras complementares</h3><div className="drox-automation-card">
+                {COMPLEMENTARY.map((item) => (
+                    <ComplementaryRow key={item.key} item={item} value={value} onChange={onChange} />
+                ))}
+            </div></section>
         </div>
     );
 }
