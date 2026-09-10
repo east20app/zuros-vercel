@@ -1813,9 +1813,9 @@ button, a { transition-property: background-color, border-color, color, opacity 
 .reference-home, .reference-plans, .reference-public-page { position: relative; z-index: 0; }
 .tiles-backdrop { position: fixed; inset: 0; z-index: -1; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; }
 .tiles-container { width: 100rem; aspect-ratio: 1; display: grid; grid-template-rows: repeat(40, 1fr); grid-template-columns: repeat(40, 1fr); position: absolute; transform: perspective(2000px) rotateX(50deg) rotateY(-5deg) rotate(20deg) scale(1.25); }
-.tiles-cell { background-color: #0f0f12; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .045); will-change: background-color; animation: tiles-shimmer 10s linear infinite; }
-@keyframes tiles-shimmer { 0%, 60% { background-color: #0f0f12; } 26% { background-color: #1d1d23; } 100% { background-color: #0f0f12; } }
-.tiles-crosses { position: absolute; inset: 0; z-index: 2; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M34 12h12v22h22v12H46v22H34V46H12V34h22z' fill='%23ffffff' fill-opacity='0.55'/%3E%3C/svg%3E"); background-size: 5%; background-repeat: repeat; pointer-events: none; opacity: .22; }
+.tiles-cell { background-color: #141419; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); will-change: background-color; animation: tiles-shimmer 10s linear infinite; }
+@keyframes tiles-shimmer { 0%, 62% { background-color: #141419; } 24% { background-color: #2c2c36; } 100% { background-color: #141419; } }
+.tiles-crosses { position: absolute; inset: 0; z-index: 2; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cdefs%3E%3Cpattern id='p' width='16' height='16' patternUnits='userSpaceOnUse'%3E%3Cpath d='M6 4h2v2h2v2h-2v2h-2v-2h-2v-2h2z' fill='%23ffffff'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='80' height='80' fill='url(%23p)'/%3E%3C/svg%3E"); background-size: 5%; background-repeat: repeat; pointer-events: none; opacity: .2; }
 .tiles-gradient { position: absolute; inset: -10px; z-index: 3; background: radial-gradient(circle, transparent 25%, #000 80%); pointer-events: none; }
 .reference-hero { min-height: 0; }
 .reference-hero-copy { display: flex; max-width: 56rem; flex-direction: column; align-items: center; }
