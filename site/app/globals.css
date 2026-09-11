@@ -3501,3 +3501,61 @@ table tbody tr:hover { background: rgba(185,237,86,.035) !important; }
 @media (max-width:900px) { .notification-category-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
 @media (max-width:560px) { .notification-category-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .account-page .sales-chart-wrap { padding: .9rem; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+
+/* Cross-page consistency pass: normalize legacy module surfaces without touching behavior. */
+[class*="rounded-xl"], [class*="rounded-2xl"], [class*="rounded-3xl"] {
+    border-radius: var(--z-premium-radius-lg) !important;
+}
+[class*="rounded-full"] {
+    border-radius: 999px !important;
+}
+[class*="border-[#00CBA4]"], [class*="border-[#7c3aed]"], [class*="border-[#3b82f6]"], [class*="border-[#5865f2]"] {
+    border-color: var(--z-premium-line-strong) !important;
+}
+[class*="bg-[#08090b]"], [class*="bg-[#232428]"], [class*="bg-[#1e1f22]"], [class*="bg-[#35373c]"], [class*="bg-[#4e5058]"] {
+    background-color: var(--z-premium-panel) !important;
+}
+[class*="bg-[#00CBA4]"], [class*="bg-[#7c3aed]"], [class*="bg-[#5865f2]"] {
+    background-color: var(--z-premium-accent) !important;
+}
+[class*="text-[#00CBA4]"], [class*="text-[#7c3aed]"], [class*="text-[#5865f2]"], [class*="text-[#93c5fd]"] {
+    color: var(--z-premium-accent-strong) !important;
+}
+[class*="text-[#b5bac1]"], [class*="text-[#f2f3f5]"], [class*="text-[#7f939c]"] {
+    color: var(--z-premium-text-muted) !important;
+}
+
+/* Shared operational headings across admin, auth, backup and config modules. */
+main h1, main h2, main h3, main h4 {
+    text-wrap: balance;
+}
+main > div > h1,
+main > div > div > h1,
+main > section > h1 {
+    letter-spacing: -.04em;
+}
+
+/* Keep colored status surfaces semantic but on the same neutral foundation. */
+[class*="bg-red-500/10"], [class*="bg-amber-500/10"], [class*="bg-emerald-500/10"], [class*="bg-blue-500/10"] {
+    border-radius: var(--z-premium-radius-md) !important;
+}
+
+/* Common cards and field groups in legacy feature modules. */
+[class*="border-white/[.07]"], [class*="border-white/[.05]"], [class*="border-white/10"] {
+    border-color: var(--z-premium-line) !important;
+}
+[class*="bg-white/[.02]"], [class*="bg-white/[.04]"], [class*="bg-black/40"] {
+    background-color: rgba(255,255,255,.025) !important;
+}
+
+/* All dense data views share the same rhythm. */
+.invoice-table, .sales-chart-wrap, .admin-page, .auth-sections, .config-page, .backups-page {
+    --tw-ring-color: var(--z-premium-line);
+}
+
+@media (max-width: 767px) {
+    main[class*="max-w-"] { width: 100%; }
+    table { font-size: .8rem; }
+    .dashboard-page-header, .account-heading, .sales-section-heading { gap: .75rem; }
+}
