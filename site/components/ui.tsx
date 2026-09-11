@@ -29,7 +29,7 @@ export function Button({
     title?: string;
 }) {
     const base =
-        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] font-semibold tracking-[-0.01em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
+        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] border font-semibold tracking-[-0.01em] transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
     const variants: Record<string, string> = {
         primary:
             "border border-[var(--z-primary)] bg-[var(--z-primary)] text-[#091116] hover:bg-[var(--z-primary-hover)]",
