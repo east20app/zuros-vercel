@@ -57,51 +57,10 @@ function loginEmailText(code: string): string {
 }
 
 function loginEmailHtml(code: string): string {
-    return `<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Código de acesso à ZUROS</title>
-</head>
-<body style="margin:0;padding:0;background-color:#05060a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#05060a;padding:32px 16px;">
-<tr>
-<td align="center">
-<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#0b0d12;border:1px solid #1c2029;border-radius:16px;padding:32px;">
-<tr>
-<td style="padding-bottom:20px;">
-<div style="color:#e8f6ff;font-size:13px;font-weight:700;letter-spacing:0.25em;">ZUROS</div>
-</td>
-</tr>
-<tr>
-<td style="padding-bottom:16px;">
-<div style="color:#e8f6ff;font-size:18px;font-weight:600;">Seu código de acesso</div>
-</td>
-</tr>
-<tr>
-<td style="padding-bottom:24px;">
-<div style="color:#9aa4b2;font-size:14px;line-height:1.6;">Use o código abaixo para entrar no painel. Ele expira em <strong style="color:#e8f6ff;">10 minutos</strong> e só pode ser usado uma vez.</div>
-</td>
-</tr>
-<tr>
-<td align="center" style="padding-bottom:24px;">
-<div style="display:inline-block;background-color:#0f131a;border:1px solid #232a36;border-radius:10px;padding:18px 22px;font-size:32px;font-weight:700;letter-spacing:10px;color:#d6ff63;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;">${code}</div>
-</td>
-</tr>
-<tr>
-<td>
-<div style="color:#6b7280;font-size:12px;line-height:1.6;">Não solicitou este código? Pode ignorar esta mensagem com segurança.</div>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</body>
-</html>`;
+    const base = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+    const dashboard = `${base}/dashboard` || "/dashboard";
+    return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><title>Seu código de acesso à ZUROS</title></head><body style="margin:0;padding:0;background:#0B0F14;font-family:Arial,Helvetica,sans-serif;"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Seu código de acesso à ZUROS expira em 10 minutos.</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0B0F14;"><tr><td align="center" style="padding:28px 14px 44px;"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;"><tr><td style="padding:8px 4px 22px;"><span style="color:#D6FF63;font-size:15px;font-weight:800;letter-spacing:.22em;">ZUROS</span><span style="float:right;color:#94A3B8;font-size:11px;">PLATAFORMA</span></td></tr><tr><td style="background:#111827;border:1px solid #1F2937;border-radius:8px;padding:34px 30px 30px;"><p style="margin:0 0 12px;color:#D6FF63;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">Acesso seguro</p><h1 style="margin:0;color:#F8FAFC;font-size:27px;line-height:1.2;">Seu código de acesso</h1><p style="margin:16px 0 0;color:#94A3B8;font-size:15px;line-height:1.65;">Recebemos uma solicitação de login para sua conta. Use o código abaixo para abrir o dashboard. Ele expira em <strong style="color:#F8FAFC;">10 minutos</strong> e só pode ser usado uma vez.</p><div style="margin:26px 0;text-align:center;background:#0B0F14;border:1px solid #1F2937;border-radius:6px;padding:20px 14px;"><span style="color:#D6FF63;font-family:monospace;font-size:32px;font-weight:700;letter-spacing:9px;">${code}</span></div><table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;"><tr><td bgcolor="#D6FF63" style="border-radius:6px;"><a href="${dashboard}" style="display:inline-block;padding:13px 18px;color:#0B0F14;font-size:13px;font-weight:700;text-decoration:none;">Abrir dashboard</a></td></tr></table><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #1F2937;color:#94A3B8;font-size:12px;line-height:1.6;">Não solicitou este código? Ignore esta mensagem com segurança. Nunca compartilhe seu código.</p></td></tr><tr><td style="padding:22px 4px 0;color:#64748B;font-size:11px;line-height:1.7;">Dashboard · Status · Suporte · Termos · Privacidade<br><span style="color:#475569;">© ZUROS — comunicação transacional automática.</span></td></tr></table></td></tr></table></body></html>`;
 }
-
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
