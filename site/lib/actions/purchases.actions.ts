@@ -53,6 +53,25 @@ export async function startPurchase(input: {
     }
 }
 
+export async function identifyPurchaseBot(botToken: string): Promise<ActionResult<{ botName: string; botId: string; guilds: Array<{ id: string; name: string }> }>> {
+    try {
+        await requireSessionUser();
+        const token = botToken.trim();
+        if (!token) throw new Error("Informe o token do bot.");
+        if (token.length < 20) throw new Error("Informe o token completo do bot.");
+        const headers = { Authorization: `Bot ${token}` };
+        const [userResponse, guildResponse] = await Promise.all([
+            axios.get("https://discord.com/api/v10/users/@me", { headers, timeout: 15_000 }),
+            axios.get("https://discord.com/api/v10/users/@me/guilds", { headers, timeout: 15_000 }),
+        ]);
+        const user = userResponse.data as { id?: string; username?: string; global_name?: string | null };
+        const guilds = Array.isArray(guildResponse.data) ? guildResponse.data : [];
+        if (!user.id || !user.username) throw new Error("O token informado não pertence a um bot Discord válido.");
+        return { ok: true, data: { botName: user.global_name || user.username, botId: user.id, guilds: guilds.map((guild: { id?: string; name?: string }) => ({ id: String(guild.id || ""), name: String(guild.name || "Servidor sem nome") })).filter((guild: { id: string }) => guild.id) } };
+    } catch (error) {
+        return { ok: false, error: error instanceof Error && error.message ? error.message : "Não foi possível identificar o bot. Verifique o token." };
+    }
+}
 export async function getMyPurchaseCart(cartId: string, discordIdOverride?: string) {
     const discordId = await requireSessionUser(discordIdOverride);
     return getPurchaseCart(discordId, cartId);

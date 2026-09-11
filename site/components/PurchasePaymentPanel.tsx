@@ -1,10 +1,10 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { applyPurchaseCoupon, deliverAuthPurchase, deliverPurchaseApplication, generatePurchasePayment, pollPurchaseCart } from "@/lib/actions/purchases.actions";
+import { applyPurchaseCoupon, deliverAuthPurchase, deliverPurchaseApplication, generatePurchasePayment, identifyPurchaseBot, pollPurchaseCart } from "@/lib/actions/purchases.actions";
 import { useCopyPixCode, usePixPolling, type PixPollState } from "@/hooks/usePixPayment";
 import { Button, Field, Spinner, inputClass } from "./ui";
 import { useToast } from "./Toast";
@@ -39,9 +39,41 @@ export function PurchasePaymentPanel({ cartId, initialStep, productName, product
     const [botName, setBotName] = useState("");
     const [botToken, setBotToken] = useState("");
     const [serverId, setServerId] = useState("");
+    const [botIdentityState, setBotIdentityState] = useState<"idle" | "loading" | "identified" | "error">("idle");
+    const [botIdentityMessage, setBotIdentityMessage] = useState("");
     const { copied, copy } = useCopyPixCode();
     const netTotal = price ?? Math.max(0, initialPrice * (1 - (discount || 0) / 100));
     const taxedTotal = netTotal / (1 - PIX_TAX);
+
+    useEffect(() => {
+        if (step !== "payment-confirmed" || productType === "auth") return;
+        const token = botToken.trim();
+        if (token.length < 20) {
+            setBotIdentityState("idle");
+            setBotIdentityMessage("");
+            setBotName("");
+            return;
+        }
+        let cancelled = false;
+        const timer = window.setTimeout(() => {
+            setBotIdentityState("loading");
+            setBotIdentityMessage("Identificando bot no Discord...");
+            void identifyPurchaseBot(token).then((result) => {
+                if (cancelled) return;
+                if (!result.ok) {
+                    setBotIdentityState("error");
+                    setBotIdentityMessage(result.error);
+                    setBotName("");
+                    return;
+                }
+                setBotIdentityState("identified");
+                setBotIdentityMessage(`${result.data.botName} identificado automaticamente.`);
+                setBotName(result.data.botName);
+                if (result.data.guilds.length === 1) setServerId((current) => current || result.data.guilds[0].id);
+            });
+        }, 650);
+        return () => { cancelled = true; window.clearTimeout(timer); };
+    }, [botToken, productType, step]);
 
     function resetToPayment() { setQr(""); setCode(""); setPrice(null); setStep("select-coupons"); setCheckoutStep(3); }
 
@@ -60,8 +92,10 @@ export function PurchasePaymentPanel({ cartId, initialStep, productName, product
     if (step === "payment-confirmed" && productType === "auth") return <div><CheckoutHeading eyebrow="Ativação" title="Ative seu ZUROS Auth" subtitle="Pagamento confirmado. Sua licença será vinculada automaticamente à sua conta Discord." /><CheckoutSteps current={3} /><section className="mx-auto mt-7 max-w-2xl space-y-5 rounded-2xl border border-emerald-500/20 bg-[#08090b] p-5 text-center sm:p-7"><div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 text-left"><p className="font-semibold text-emerald-300">✓ Pagamento confirmado</p><p className="mt-1 text-sm text-emerald-100/70">Você não precisa informar token de bot. O acesso será criado no ZUROS Auth.</p></div><Button disabled={pending} className="w-full" onClick={() => startTransition(async () => { try { const result = await deliverAuthPurchase(cartId); if (!result.ok) return push(result.error, "error"); push("ZUROS Auth ativado com sucesso!", "success"); window.location.href = result.data.dashboardUrl; } catch (err) { push(err instanceof Error ? err.message : "Falha ao ativar ZUROS Auth.", "error"); } })}>{pending ? <><Spinner /> Ativando licença...</> : "Ativar ZUROS Auth"}</Button></section></div>;
     if (step === "payment-confirmed") return <div><CheckoutHeading eyebrow="Ativação" title="Configure seu novo bot" subtitle="Pagamento confirmado. Informe os dados do Discord para preparar sua aplicação." /><CheckoutSteps current={3} /><form className="mx-auto mt-7 max-w-2xl space-y-5 rounded-2xl border border-emerald-500/20 bg-[#08090b] p-5 sm:p-7" onSubmit={(event) => { event.preventDefault(); startTransition(async () => { const result = await deliverPurchaseApplication({ cartId, botName, botToken, serverId }); if (!result.ok) return push(result.error, "error"); sessionStorage.setItem("zuros-new-purchase-tour", "pending"); push("Aplicação criada e entregue com sucesso!", "success"); router.push(`/dashboard/${result.data.applicationId}`); router.refresh(); }); }}>
         <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4"><p className="font-semibold text-emerald-300">✓ Pagamento confirmado</p><p className="mt-1 text-xs text-emerald-100/70">Finalize a entrega com os mesmos dados usados no bot.</p></div>
-        <Field label="Nome do bot"><input className={inputClass} value={botName} onChange={(e) => setBotName(e.target.value)} maxLength={25} required /></Field>
-        <Field label="Token do bot" hint="O token é protegido e usado somente para instalar e iniciar a aplicação."><input className={inputClass} type="password" value={botToken} onChange={(e) => setBotToken(e.target.value)} required autoComplete="off" /></Field>
+        <Field label="Nome do bot" hint={botIdentityState === "identified" ? botIdentityMessage : "Será identificado automaticamente a partir do token."}><input className={inputClass} value={botName} readOnly maxLength={25} required placeholder="Aguardando identificação" /></Field>
+        <Field label="Token do bot" hint="Ao informar um token válido, o nome do bot será identificado automaticamente."><input className={inputClass} type="password" value={botToken} onChange={(e) => setBotToken(e.target.value)} required autoComplete="off" /></Field>
+        {botIdentityState === "loading" && <p className="text-sm text-zinc-400">{botIdentityMessage}</p>}
+        {botIdentityState === "error" && <p className="text-sm text-red-300" role="alert">{botIdentityMessage}</p>}
         <Field label="ID do servidor Discord (opcional)"><input className={inputClass} value={serverId} onChange={(e) => setServerId(e.target.value.replace(/\D/g, ""))} placeholder="123456789012345678" inputMode="numeric" /></Field>
         <Button type="submit" disabled={pending} className="w-full">{pending ? <><Spinner /> Preparando aplicação...</> : "Enviar bot e concluir"}</Button>
     </form></div>;

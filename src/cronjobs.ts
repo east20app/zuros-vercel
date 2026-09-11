@@ -129,8 +129,8 @@ asyncLoopingExec(15000, async () => {
     }
 });
 
-/** Expira carrinhos ainda não confirmados e devolve reservas de cupom. */asyncLoopingExec(5000, async () => {
-    const buyCarts = await databases.cartsBuy.find({ status: "opened", step: { $ne: "payment-confirmed" }, expiresAt: { $lte: new Date() } });
+/** Expira somente carrinhos que ainda aguardam pagamento e devolve reservas de cupom. */asyncLoopingExec(5000, async () => {
+    const buyCarts = await databases.cartsBuy.find({ status: "opened", step: "waiting-payment", expiresAt: { $lte: new Date() } });
 
     for (const cart of buyCarts) {
         try {
@@ -155,7 +155,7 @@ asyncLoopingExec(15000, async () => {
         }
     }
 
-    const renewCarts = await databases.cartsRenew.find({ status: "opened", expiresAt: { $lte: new Date() } });
+    const renewCarts = await databases.cartsRenew.find({ status: "opened", step: "waiting-payment", expiresAt: { $lte: new Date() } });
 
     for (const cart of renewCarts) {
         try {
