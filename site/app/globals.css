@@ -52,7 +52,9 @@
     --z-radius-md: 0.5rem;
     --z-radius-card: 0.75rem;
     --z-radius-lg: 1rem;
-    --z-shadow-card: 0 14px 35px rgba(0,0,0,.13);
+    --z-shadow-card: 0 18px 48px rgba(0,0,0,.24);
+    --background-glow: rgba(214, 255, 99, 0.08);
+    --surface-glass: rgba(21, 25, 26, 0.78);
 }
 
 [data-theme="light"] {
@@ -124,8 +126,8 @@ body {
         "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image: none;
-    background-attachment: initial;
+    background-image: radial-gradient(900px 420px at 50% -180px, var(--background-glow), transparent 72%);
+    background-attachment: fixed;
 }
 
 /* Títulos com uma voz editorial mais compacta e menos SaaS-genérica. */
@@ -165,7 +167,7 @@ h4,
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--radius);
     background: var(--surface);
-    box-shadow: none;
+    box-shadow: var(--z-shadow-card);
 }
 .zuros-card-lit::before {
     content: "";
