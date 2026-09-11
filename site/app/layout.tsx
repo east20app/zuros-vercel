@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="pt-BR" suppressHydrationWarning>
+        <html lang="pt-BR" className="bg-background" suppressHydrationWarning>
 <body className="min-h-screen text-foreground antialiased">
                 <a href="#main-content" className="skip-link">Pular para o conteúdo principal</a>
                 <ChunkRecovery />
