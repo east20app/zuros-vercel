@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import databases from "@root/src/databases";
+import { renderEmail } from "@root/src/lib/email-layout";
 
 export const runtime = "nodejs";
 
@@ -44,23 +45,6 @@ function smtpConfig() {
     };
 }
 
-function loginEmailText(code: string): string {
-    return [
-        "ZUROS — Seu código de acesso",
-        "",
-        "Use o código abaixo para entrar no painel. Ele expira em 10 minutos e só pode ser usado uma vez.",
-        "",
-        `Código: ${code}`,
-        "",
-        "Não solicitou este código? Pode ignorar esta mensagem com segurança.",
-    ].join("\n");
-}
-
-function loginEmailHtml(code: string): string {
-    const base = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
-    const dashboard = `${base}/dashboard` || "/dashboard";
-    return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><title>Seu código de acesso à ZUROS</title></head><body style="margin:0;padding:0;background:#0B0F14;font-family:Arial,Helvetica,sans-serif;"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Seu código de acesso à ZUROS expira em 10 minutos.</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0B0F14;"><tr><td align="center" style="padding:28px 14px 44px;"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;"><tr><td style="padding:8px 4px 22px;"><span style="color:#D6FF63;font-size:15px;font-weight:800;letter-spacing:.22em;">ZUROS</span><span style="float:right;color:#94A3B8;font-size:11px;">PLATAFORMA</span></td></tr><tr><td style="background:#111827;border:1px solid #1F2937;border-radius:8px;padding:34px 30px 30px;"><p style="margin:0 0 12px;color:#D6FF63;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">Acesso seguro</p><h1 style="margin:0;color:#F8FAFC;font-size:27px;line-height:1.2;">Seu código de acesso</h1><p style="margin:16px 0 0;color:#94A3B8;font-size:15px;line-height:1.65;">Recebemos uma solicitação de login para sua conta. Use o código abaixo para abrir o dashboard. Ele expira em <strong style="color:#F8FAFC;">10 minutos</strong> e só pode ser usado uma vez.</p><div style="margin:26px 0;text-align:center;background:#0B0F14;border:1px solid #1F2937;border-radius:6px;padding:20px 14px;"><span style="color:#D6FF63;font-family:monospace;font-size:32px;font-weight:700;letter-spacing:9px;">${code}</span></div><table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;"><tr><td bgcolor="#D6FF63" style="border-radius:6px;"><a href="${dashboard}" style="display:inline-block;padding:13px 18px;color:#0B0F14;font-size:13px;font-weight:700;text-decoration:none;">Abrir dashboard</a></td></tr></table><p style="margin:24px 0 0;padding-top:18px;border-top:1px solid #1F2937;color:#94A3B8;font-size:12px;line-height:1.6;">Não solicitou este código? Ignore esta mensagem com segurança. Nunca compartilhe seu código.</p></td></tr><tr><td style="padding:22px 4px 0;color:#64748B;font-size:11px;line-height:1.7;">Dashboard · Status · Suporte · Termos · Privacidade<br><span style="color:#475569;">© ZUROS — comunicação transacional automática.</span></td></tr></table></td></tr></table></body></html>`;
-}
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
@@ -106,12 +90,13 @@ export async function POST(request: Request) {
 
         const transporter = nodemailer.createTransport(smtp);
         try {
+            const rendered = renderEmail({ eyebrow: "ACESSO SEGURO", heroTitle: "Seu código de acesso", heroSubtitle: "Use este código para entrar no dashboard. Ele expira em 10 minutos e só pode ser usado uma vez.", fields: [{ label: "Código", value: code }], primaryCta: { label: "Abrir Dashboard", href: "/dashboard" }, campaign: "login_code", footerNote: "Não solicitou este código? Ignore esta mensagem com segurança. Nunca compartilhe seu código." });
             await transporter.sendMail({
                 from: smtp.from,
                 to: email,
                 subject: "Seu código de acesso à ZUROS",
-                text: loginEmailText(code),
-                html: loginEmailHtml(code),
+                text: rendered.text,
+                html: rendered.html,
             });
         } catch (error) {
             await users.updateOne({ _id: user._id }, { $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "", emailLoginSendCount: "", emailLoginSendWindowStart: "" } });
