@@ -29,7 +29,7 @@ export function Button({
     title?: string;
 }) {
     const base =
-        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
+        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] font-semibold tracking-[-0.01em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
     const variants: Record<string, string> = {
         primary:
             "border border-[var(--z-primary)] bg-[var(--z-primary)] text-[#091116] hover:bg-[var(--z-primary-hover)]",
@@ -95,7 +95,7 @@ export function PageHeader({
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
     return (
-        <div className={`zuros-card rounded-[var(--z-radius-card)] p-5 ${className}`}>
+        <div className={`zuros-card rounded-[var(--z-radius-card)] p-5 transition-[border-color,box-shadow] duration-200 ${className}`}>
             {children}
         </div>
     );
@@ -210,7 +210,7 @@ export function DiscordSkeleton({ rows = 4 }: { rows?: number }) {
 export interface PillTabItem { label: string; href: string; active?: boolean }
 export function PillTabs({ items, className = "" }: { items: PillTabItem[]; className?: string }) {
     return (
-        <nav className={`inline-flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 ${className}`}>
+        <nav className={`inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] ${className}`}>
             {items.map((item) => (
                 <Link
                     key={`${item.href}:${item.label}`}
