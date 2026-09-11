@@ -29,7 +29,7 @@ export function Button({
     title?: string;
 }) {
     const base =
-        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] border font-semibold tracking-[-0.01em] transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
+        "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--z-radius-md)] border font-semibold tracking-[-0.01em] shadow-[0_8px_24px_-16px_rgba(214,255,99,.6)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-18px_rgba(214,255,99,.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--z-primary)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--z-bg)] disabled:cursor-not-allowed disabled:opacity-40 select-none";
     const variants: Record<string, string> = {
         primary:
             "border border-[var(--z-primary)] bg-[var(--z-primary)] text-[#091116] hover:bg-[var(--z-primary-hover)]",
@@ -95,7 +95,7 @@ export function PageHeader({
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
     return (
-        <div className={`zuros-card rounded-[var(--z-radius-card)] p-5 transition-[border-color,box-shadow] duration-200 ${className}`}>
+        <div className={`zuros-card rounded-[var(--z-radius-card)] p-5 transition-[border-color,box-shadow,transform] duration-200 ${className}`}>
             {children}
         </div>
     );
@@ -142,7 +142,7 @@ export function Badge({ children, tone = "zinc" }: { children: ReactNode; tone?:
             zinc: "bg-white/[.05] text-[var(--z-text-secondary)] border-[var(--z-border)]",
     };
     return (
-        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>
+        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] shadow-[inset_0_1px_0_rgba(255,255,255,.08)] ${tones[tone]}`}>
             {children}
         </span>
     );

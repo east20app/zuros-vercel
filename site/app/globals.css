@@ -83,7 +83,7 @@
 
 * {
     scrollbar-width: thin;
-    scrollbar-color: #272033 transparent;
+    scrollbar-color: #526238 transparent;
 }
 
 ::-webkit-scrollbar {
@@ -185,7 +185,7 @@ h4,
 }
 .zuros-lift:hover {
     transform: translateY(-2px);
-    border-color: rgba(124, 58, 237, 0.5);
+    border-color: rgba(214, 255, 99, 0.42);
     box-shadow: none;
 }
 
@@ -447,13 +447,13 @@ textarea:disabled {
     .zuros-card { border-radius: 0.75rem; }
 }
 /* Painel ZUROS: linguagem visual escura, leve e focada no conteudo. */
-.zuros-dashboard-stage { background: radial-gradient(900px 420px at 50% -120px, rgba(124,58,237,.12), transparent 70%), #09090b; }
+.zuros-dashboard-stage { background: radial-gradient(900px 420px at 50% -120px, rgba(214,255,99,.08), transparent 70%), #09090b; }
 .zuros-dashboard-content { position: relative; border-top: 1px solid rgba(255,255,255,.055); background: rgba(9,9,11,.88); }
 .zuros-sidebar-panel { background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), rgba(5,5,5,.9); }
 .zuros-sidebar-panel::before { content: ""; position: absolute; inset: 0 12% auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent); pointer-events: none; }
-.zuros-card { border-color: rgba(255,255,255,.07); background: radial-gradient(circle at 92% 0%, rgba(124,58,237,.07), transparent 34%), linear-gradient(155deg, rgba(255,255,255,.045), rgba(255,255,255,.018)); box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 18px 50px -34px rgba(0,0,0,.95); }
+.zuros-card { border-color: rgba(255,255,255,.07); background: radial-gradient(circle at 92% 0%, rgba(255,116,90,.07), transparent 34%), linear-gradient(155deg, rgba(255,255,255,.045), rgba(255,255,255,.018)); box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 18px 50px -34px rgba(0,0,0,.95); }
 .zuros-card-lit::before { opacity: .6; height: 1px; }
-.zuros-lift:hover { border-color: rgba(167,139,250,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 22px 50px -34px rgba(124,58,237,.55); }
+.zuros-lift:hover { border-color: rgba(214,255,99,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 22px 50px -34px rgba(214,255,99,.18); }
 @media (min-width: 1024px) { .zuros-dashboard-content { margin: 0 12px 12px 0; min-height: calc(100vh - 76px); border: 1px solid rgba(255,255,255,.055); border-radius: 1.25rem; overflow: clip; } }
 /* Navegação mobile inspirada no fluxo de aplicativos, mantendo a identidade ZUROS. */
 @media (max-width: 1023px) {
@@ -516,6 +516,92 @@ body {
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
+}
+
+/* Visual system refresh: a distinctive operations-console language shared by every route. */
+:root {
+    --surface-glass: rgba(18, 23, 22, 0.82);
+    --panel-line: rgba(214, 255, 99, 0.16);
+}
+
+body {
+    background-color: var(--background);
+    background-image:
+        linear-gradient(rgba(214, 255, 99, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(214, 255, 99, 0.035) 1px, transparent 1px),
+        radial-gradient(900px 520px at 80% -10%, rgba(255, 116, 90, 0.11), transparent 65%),
+        radial-gradient(780px 480px at 15% 0%, rgba(214, 255, 99, 0.08), transparent 66%);
+    background-size: 42px 42px, 42px 42px, auto, auto;
+}
+
+.zuros-dashboard-stage {
+    background:
+        linear-gradient(135deg, rgba(214, 255, 99, 0.035), transparent 24%),
+        radial-gradient(700px 460px at 95% 0%, rgba(255, 116, 90, 0.09), transparent 68%),
+        var(--background);
+}
+
+.zuros-dashboard-content {
+    background: rgba(8, 12, 11, 0.72);
+    border-color: rgba(214, 255, 99, 0.12);
+}
+
+.zuros-sidebar-panel {
+    background: linear-gradient(180deg, rgba(22, 29, 26, 0.96), rgba(7, 10, 9, 0.98));
+    border-color: rgba(214, 255, 99, 0.12);
+}
+
+.zuros-card {
+    border-color: rgba(214, 255, 99, 0.12);
+    background:
+        linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018) 45%, rgba(214,255,99,0.025)),
+        var(--surface);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.055), 0 22px 60px -42px rgba(0,0,0,0.95);
+}
+
+.zuros-card:hover,
+.card-hover:hover {
+    border-color: rgba(214, 255, 99, 0.3);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 26px 64px -40px rgba(214,255,99,0.2);
+}
+
+button:not(:disabled):hover,
+a:hover {
+    filter: saturate(1.08);
+}
+
+thead {
+    background: linear-gradient(90deg, rgba(214,255,99,0.08), rgba(255,116,90,0.05));
+}
+
+tbody tr:hover {
+    background: rgba(214, 255, 99, 0.045);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+    background: rgba(8, 12, 11, 0.72);
+    border-color: rgba(214, 255, 99, 0.14);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+select:focus,
+textarea:focus {
+    box-shadow: 0 0 0 4px rgba(214, 255, 99, 0.08), 0 0 24px rgba(214,255,99,0.08);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    main > * { animation: fade-up 0.42s ease both; }
+    main > *:nth-child(2) { animation-delay: 40ms; }
+    main > *:nth-child(3) { animation-delay: 80ms; }
+}
+
+@media (max-width: 1023px) {
+    .zuros-dashboard-content {
+        background: rgba(8, 12, 11, 0.84);
+        border-color: transparent;
+    }
 }
 #main-content {
     width: 100%;
