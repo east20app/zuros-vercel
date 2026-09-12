@@ -4062,3 +4062,105 @@ body:has(.schematic-background) { background-image: none; background-color: #0A0
 .plans-product-card.is-featured { border-color: rgba(245,166,35,.55) !important; }
 .plans-product-action { border-color: #343B48 !important; }
 .reference-clients { border-color: #232833 !important; }
+
+/* Login fixed viewport mode: compact, stable, and never mouse-scrolling on desktop. */
+.login-page-root {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100svh;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+.login-page-content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+.login-left, .login-right {
+    min-height: 0 !important;
+    height: 100%;
+    overflow: hidden;
+}
+.login-left-inner, .login-right-inner {
+    max-height: 100%;
+    padding: clamp(1.25rem, 3.5vh, 2.5rem) clamp(1.25rem, 4vw, 3.5rem) !important;
+    overflow: hidden;
+}
+.login-left-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.login-right-inner {
+    gap: clamp(.75rem, 2vh, 1.5rem) !important;
+    padding-inline: clamp(1.25rem, 3vw, 2.75rem) !important;
+}
+.login-logo-link { margin-bottom: clamp(.75rem, 2vh, 1.5rem); }
+.login-header { margin-bottom: clamp(.75rem, 2vh, 1.25rem); }
+.login-title { font-size: clamp(1.7rem, 3.2vw, 2.5rem) !important; }
+.login-subtitle { margin-top: .45rem !important; }
+.login-btn { min-height: 2.75rem !important; }
+.login-form-fields { gap: .65rem !important; }
+.login-input { height: 2.75rem !important; }
+.login-divider { margin: .8rem 0 !important; }
+.login-footer { padding-top: clamp(.75rem, 2vh, 1.5rem) !important; }
+.login-present-text { max-width: 28rem !important; }
+.login-present-title { font-size: clamp(1.45rem, 2.6vw, 2.15rem) !important; margin-bottom: .5rem !important; }
+.login-present-desc { font-size: .78rem !important; line-height: 1.4 !important; }
+.login-dashboard-mock { max-width: 28rem !important; max-height: min(46vh, 25rem); overflow: hidden; }
+.login-dash-body { padding: .7rem !important; }
+.login-dash-stats { gap: .45rem !important; }
+.login-dash-card { padding: .55rem !important; }
+.login-dash-card-value { font-size: 1rem !important; }
+.login-dash-chart { margin-top: .55rem !important; }
+.login-benefits { gap: .45rem !important; }
+.login-benefit-card { padding: .55rem !important; }
+.login-page-root * { scroll-behavior: auto !important; }
+.login-page-root a:hover, .login-page-root button:hover { transform: none !important; }
+@media (max-width: 800px) {
+    .login-page-root { position: relative; height: auto; min-height: 100svh !important; overflow: hidden !important; }
+    .login-page-content { height: auto; min-height: 100svh !important; overflow: visible !important; }
+    .login-right, .login-left { height: auto; min-height: 0 !important; overflow: visible; }
+    .login-right { min-height: 13rem !important; }
+    .login-left-inner, .login-right-inner { max-height: none; overflow: visible; }
+    .login-right-inner { padding-block: 1.25rem !important; }
+    .login-dashboard-mock { max-height: 15rem; }
+    .login-left-inner { padding-block: 1.5rem !important; }
+}
+/* Hard no-scroll contract for the login viewport. */
+html:has(.login-page-root), body:has(.login-page-root) {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden !important;
+}
+@media (max-width: 800px) {
+    .login-page-root { position: fixed; inset: 0; height: 100svh; min-height: 0 !important; }
+    .login-page-content { height: 100%; min-height: 0 !important; overflow: hidden !important; }
+    .login-page-content { display: grid !important; grid-template-rows: minmax(9rem, 30%) minmax(0, 70%); }
+    .login-right { min-height: 0 !important; height: 100%; }
+    .login-left { min-height: 0 !important; height: 100%; }
+    .login-right-inner { min-height: 0; padding: .7rem 1rem !important; gap: .45rem !important; }
+    .login-dashboard-mock { max-height: 8.5rem; }
+    .login-dash-topbar { padding: .4rem .55rem !important; }
+    .login-dash-body { padding: .45rem !important; }
+    .login-dash-chart, .login-benefits { display: none !important; }
+    .login-dash-stats { gap: .3rem !important; }
+    .login-dash-card { padding: .35rem !important; }
+    .login-dash-card-label, .login-dash-card-change { font-size: .55rem !important; }
+    .login-dash-card-value { font-size: .78rem !important; }
+    .login-dash-apps { gap: .25rem !important; }
+    .login-dash-app { padding: .3rem .4rem !important; }
+    .login-left-inner { justify-content: flex-start; padding: .85rem 1rem !important; }
+    .login-logo-link { margin-bottom: .45rem; }
+    .login-header { margin-bottom: .5rem; }
+    .login-title { font-size: 1.55rem !important; }
+    .login-subtitle { font-size: .75rem !important; }
+    .login-btn { min-height: 2.35rem !important; }
+    .login-input { height: 2.35rem !important; }
+    .login-divider { margin: .45rem 0 !important; }
+    .login-footer { padding-top: .5rem !important; }
+}
