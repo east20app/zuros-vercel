@@ -3559,3 +3559,223 @@ main > section > h1 {
     table { font-size: .8rem; }
     .dashboard-page-header, .account-heading, .sales-section-heading { gap: .75rem; }
 }
+
+
+/* ZUROS BLACK PREMIUM THEME — global presentation layer only */
+:root {
+    --z-black-void: #050505;
+    --z-black-base: #070707;
+    --z-black-surface: #0b0b0c;
+    --z-black-raised: #101011;
+    --z-black-hover: #161617;
+    --z-black-line: rgba(255, 255, 255, .09);
+    --z-black-line-strong: rgba(255, 255, 255, .16);
+    --z-black-text: #f5f5f5;
+    --z-black-muted: #a1a1aa;
+    --z-black-dim: #71717a;
+    --z-black-accent: #c7f36b;
+    --z-black-accent-strong: #ddff91;
+}
+
+html, body {
+    background: var(--z-black-void) !important;
+    color: var(--z-black-text);
+}
+
+body {
+    background-image: radial-gradient(900px 420px at 50% -260px, rgba(199, 243, 107, .045), transparent 72%) !important;
+}
+
+main, header, footer, section, article, aside {
+    border-color: var(--z-black-line);
+}
+
+/* Replace legacy blue/green-tinted shell surfaces with neutral black surfaces. */
+[class*="bg-background"],
+[class*="bg-[#070a0d]"],
+[class*="bg-[#08090b]"],
+[class*="bg-[#090d10]"],
+[class*="bg-[#090e12]"],
+[class*="bg-[#0c1115]"],
+[class*="bg-[#101415]"],
+[class*="bg-[#11181d]"],
+[class*="bg-[#151e24]"],
+[class*="bg-[#15191A]"],
+[class*="bg-[#1C2223]"],
+[class*="bg-[#232428]"],
+[class*="bg-[#1e1f22]"],
+[class*="bg-[#35373c]"],
+[class*="bg-[#4e5058]"],
+[class*="bg-zinc-950"],
+[class*="bg-zinc-900"],
+[class*="bg-gray-950"],
+[class*="bg-slate-950"] {
+    background-color: var(--z-black-surface) !important;
+}
+
+[class*="bg-black"],
+[class*="bg-black/40"],
+[class*="bg-black/50"],
+[class*="bg-black/60"] {
+    background-color: var(--z-black-void) !important;
+}
+
+.zuros-card,
+.sales-chart-wrap,
+.sales-status-strip,
+.account-card,
+.dashboard-empty,
+.dashboard-app-card-v2,
+.invoice-table,
+.auth-section,
+.reference-cta-band,
+.login-card,
+.login-form-card,
+.public-store-card,
+.store-card,
+.home-feature-card,
+.reference-feature {
+    background: var(--z-black-surface) !important;
+    border-color: var(--z-black-line) !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .28) !important;
+}
+
+.zuros-card:hover,
+.dashboard-app-card-v2:hover,
+.public-store-card:hover,
+.store-card:hover,
+.reference-feature:hover,
+.home-feature-card:hover {
+    background: var(--z-black-raised) !important;
+    border-color: var(--z-black-line-strong) !important;
+}
+
+aside.fixed,
+aside[class*="bg-background-dark"],
+.zuros-mobile-header,
+.public-nav,
+.public-navbar,
+.dashboard-header {
+    background: rgba(5, 5, 5, .96) !important;
+    border-color: var(--z-black-line) !important;
+}
+
+/* Neutralize legacy light surfaces while preserving intentional media/QR panels. */
+.login-page-root,
+.public-page,
+.home-page,
+.dashboard-page,
+.account-page,
+.admin-page,
+.config-page,
+.auth-page,
+.store-page {
+    background: transparent !important;
+}
+
+[class*="border-white"],
+[class*="border-zinc"],
+[class*="border-gray"],
+[class*="border-slate"],
+[class*="border-[#2a"],
+[class*="border-[#3b"],
+    [class*="border-[#4"] {
+    border-color: var(--z-black-line) !important;
+}
+
+[class*="text-white"],
+[class*="text-zinc-100"],
+[class*="text-zinc-200"],
+[class*="text-gray-100"],
+[class*="text-gray-200"] {
+    color: var(--z-black-text) !important;
+}
+
+[class*="text-zinc-300"],
+[class*="text-zinc-400"],
+[class*="text-gray-300"],
+[class*="text-gray-400"],
+[class*="text-slate-300"],
+[class*="text-slate-400"] {
+    color: var(--z-black-muted) !important;
+}
+
+[class*="text-zinc-500"],
+[class*="text-zinc-600"],
+[class*="text-gray-500"],
+[class*="text-gray-600"],
+[class*="text-slate-500"],
+[class*="text-slate-600"] {
+    color: var(--z-black-dim) !important;
+}
+
+[class*="bg-[var(--accent)]"],
+[class*="bg-[#00CBA4]"],
+[class*="bg-[#7c3aed]"],
+[class*="bg-[#5865f2]"],
+.home-primary-cta,
+.login-email-button,
+.dashboard-action-primary {
+    background-color: var(--z-black-accent) !important;
+    color: #080808 !important;
+}
+
+[class*="text-[var(--accent)]"],
+[class*="text-[#00CBA4]"],
+[class*="text-[#7c3aed]"],
+[class*="text-[#5865f2]"],
+.home-primary-cta:hover,
+.login-change-email:hover,
+.login-simple-back:hover {
+    color: var(--z-black-accent-strong) !important;
+}
+
+input, select, textarea {
+    background: var(--z-black-void) !important;
+    color: var(--z-black-text) !important;
+    border-color: var(--z-black-line-strong) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: rgba(199, 243, 107, .58) !important;
+    box-shadow: 0 0 0 3px rgba(199, 243, 107, .1) !important;
+}
+
+button, a[class*="bg-"] {
+    border-color: var(--z-black-line) !important;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline-color: var(--z-black-accent) !important;
+}
+
+table thead,
+[class*="bg-white/[.02]"],
+[class*="bg-white/[.04]"],
+[class*="bg-white/5"],
+[class*="bg-white/10"] {
+    background-color: rgba(255, 255, 255, .025) !important;
+}
+
+table td, table th {
+    border-color: var(--z-black-line) !important;
+}
+
+table tbody tr:hover {
+    background: rgba(199, 243, 107, .035) !important;
+}
+
+.notification-category,
+.login-simple-panel,
+.login-panel,
+.empty-state,
+.page-state,
+.public-page-state {
+    background: var(--z-black-surface) !important;
+    border-color: var(--z-black-line) !important;
+}
+
+@media (max-width: 767px) {
+    body { background-image: none !important; }
+    .zuros-card, .reference-feature, .home-feature-card, .store-card { border-radius: 8px !important; }
+}
