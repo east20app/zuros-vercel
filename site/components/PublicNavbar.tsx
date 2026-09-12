@@ -13,6 +13,7 @@ const NAV_ITEMS = [
     { label: "Sobre", href: "/sobre" },
     { label: "Status", href: "/status" },
     { label: "Dúvidas", href: "/duvidas" },
+    { label: "Suporte", href: "/suporte" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
