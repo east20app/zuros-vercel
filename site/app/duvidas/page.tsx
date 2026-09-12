@@ -22,7 +22,7 @@ export default async function QuestionsPage() {
                     <h1 className="reference-public-title">Respostas para começar <span>com clareza.</span></h1>
                     <p className="reference-public-lede mx-auto">Planos, configuração, pagamentos, suporte e operação dos seus bots em um só lugar.</p>
                 </header>
-                <section aria-label="Perguntas frequentes" className="zuros-card p-5 sm:p-8"><FaqAccordion /></section>
+                <section aria-label="Perguntas frequentes" className="zuros-card p-5 sm:p-8"><FaqAccordion full /></section>
             </main>
             <PublicFooter isAuthenticated={!!user} />
         </div>

@@ -28,7 +28,7 @@ export default async function StatusPage() {
                     <p className="reference-public-lede mx-auto">Verificações independentes, com horário e explicação para cada estado.</p>
                 </header>
                 <section className="reference-status-panel" aria-label="Status da plataforma">
-                    {services.map((service) => <div key={service.label} className="reference-status-row"><span className={tones[service.state]} /> <span className="min-w-0 flex-1"><b className="block">{service.label}</b><small className="text-zinc-500">{service.detail}</small></span><strong>{labels[service.state]}</strong></div>)}
+                    {services.map((service) => <div key={service.label} className="reference-status-row"><span className={tones[service.state]} /> <span className="min-w-0 flex-1"><b className="block">{service.label}</b><small className="text-zinc-500">{service.detail}</small></span><strong>{labels[service.state]}</strong>{service.state === "unknown" && <small className="status-unknown-note" title="Não significa problema">ⓘ sem evidência suficiente</small>}</div>)}
                 </section>
                 <p className="mt-4 text-center text-xs text-zinc-500">Última verificação: {checkedAt}. “Não verificado” significa que não há evidência suficiente nesta consulta.</p>
                 <div className="mt-8 text-center"><Link href="/" className="text-sm text-zinc-500 hover:text-white">Voltar ao início</Link></div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties, type HTMLAttributes, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from "react";
 import { Mesh, Program, Renderer, Triangle } from "ogl";
 
 const MAX_POINTS = 64;
@@ -201,6 +201,7 @@ const GlowCursor = ({
 }: GlowCursorProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [supportsGlow, setSupportsGlow] = useState(true);
     const propsRef = useRef<RuntimeConfig>({
         color,
         secondaryColor,
@@ -246,6 +247,12 @@ const GlowCursor = ({
     };
 
     useEffect(() => {
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+        if (reducedMotion || !finePointer || !enabled) {
+            setSupportsGlow(false);
+            return;
+        }
         const container = containerRef.current;
         const canvas = canvasRef.current;
         if (!container || !canvas) return;
@@ -408,7 +415,15 @@ const GlowCursor = ({
             mesh.geometry.remove();
             program.remove();
         };
-    }, [maxDevicePixelRatio]);
+    }, [enabled, maxDevicePixelRatio]);
+
+    if (!supportsGlow) return <div className={className} style={style} {...rest}>{children}</div>;
+
+    if (!supportsGlow) return <div className={className} style={style} {...rest}>{children}</div>;
+
+    if (!supportsGlow) return <div className={className} style={style} {...rest}>{children}</div>;
+
+    if (!supportsGlow) return <div className={className} style={style} {...rest}>{children}</div>;
 
     return (
         <div ref={containerRef} className={`glow-cursor${className ? ` ${className}` : ""}`} style={style} {...rest}>

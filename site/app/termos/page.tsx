@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { publicMetadata } from "@/lib/site-url";
+import { getSessionUser } from "@/lib/require-admin";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { PublicFooter } from "@/components/PublicFooter";
+import TileBackground from "@/components/TileBackground";
 
 export const metadata: Metadata = publicMetadata("Termos de Uso · ZUROS APP", "Consulte as regras de uso, cobranças, renovação e responsabilidades da plataforma ZUROS.", "/termos");
 
@@ -14,6 +18,7 @@ const sections = [
     ["Alterações e contato", "Podemos atualizar estes termos para refletir mudanças legais ou no serviço. Alterações materiais serão comunicadas pelos canais disponíveis. Dúvidas podem ser enviadas para suporte@zuros.app."],
 ];
 
-export default function TermsPage() {
-    return <main className="mx-auto max-w-3xl px-5 py-16 text-zinc-300"><Link href="/" className="text-emerald-400">← Início</Link><h1 className="mt-8 text-4xl font-semibold text-white">Termos de Uso</h1><p className="mt-4 text-sm text-zinc-500">Última atualização: 13 de agosto de 2026.</p><div className="mt-10 space-y-9">{sections.map(([title, body]) => <section key={title}><h2 className="text-xl font-semibold text-white">{title}</h2><p className="mt-3 leading-7">{body}</p></section>)}</div></main>;
+export default async function TermsPage() {
+    const user = await getSessionUser();
+    return <div className="reference-public-page min-h-screen overflow-x-clip text-white"><TileBackground /><PublicNavbar user={user} /><main className="legal-page mx-auto max-w-3xl px-5 py-16 text-zinc-300 sm:py-24"><Link href="/" className="text-emerald-400">← Início</Link><h1 className="mt-8 text-4xl font-semibold text-white">Termos de Uso</h1><p className="mt-4 text-sm text-zinc-500">Última atualização: 13 de agosto de 2026.</p><div className="mt-10 space-y-9">{sections.map(([title, body]) => <section key={title}><h2 className="text-xl font-semibold text-white">{title}</h2><p className="mt-3 leading-7">{body}</p></section>)}</div></main><PublicFooter isAuthenticated={!!user} /></div>;
 }
