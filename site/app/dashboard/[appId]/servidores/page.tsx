@@ -49,7 +49,7 @@ export default async function BotServersPage({ params }: { params: Promise<{ app
                     </div>
                     <span>Loja, automações e configurações avançadas</span>
                 </div>
-                <ServerManager appId={resolvedParams.appId} botId={bot.botId} guilds={guilds} />
+                <ServerManager appId={resolvedParams.appId} botId={bot.botId} currentServerId={bot.serverId} guilds={guilds} />
             </div>
 
             <div className="sales-chart-wrap">

@@ -1,37 +1,16 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { BotPageHero } from "@/components/BotPageHero";
 import { OrdersList } from "@/components/OrdersList";
 import { Stat } from "@/components/ui";
-import { ActionError } from "@/lib/actions/context";
-import { getVendasContext, listOrders } from "@/lib/actions/vendas.actions";
-import { requireUser } from "@/lib/require-admin";
+import { listOrders } from "@/lib/actions/vendas.actions";
+import { requireVendasContext, vendasMetadata } from "@/lib/dashboard-vendas";
 import { formatMoney } from "@/lib/status";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<Metadata> {
-    const resolvedParams = await params;
-    try {
-        const ctx = await getVendasContext(resolvedParams.appId);
-        return { title: `Pedidos · ${ctx.botName} · ZUROS APP`, description: `Pedidos do bot ${ctx.botName}.` };
-    } catch {
-        return { title: "Pedidos · ZUROS APP" };
-    }
-}
+export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<import("next").Metadata> { const { appId } = await params; return vendasMetadata(appId, "Pedidos", (botName) => `Pedidos do bot ${botName}.`); }
 
 export default async function PedidosPage({ params }: { params: Promise<{ appId: string }> }) { const resolvedParams = await params;
-    await requireUser();
-
-    let ctx;
-    try {
-        ctx = await getVendasContext(resolvedParams.appId);
-    } catch (error) {
-        if (error instanceof ActionError) {
-            notFound();
-        }
-        throw error;
-    }
+    const ctx = await requireVendasContext(resolvedParams.appId);
 
     const orders = await listOrders(resolvedParams.appId);
 

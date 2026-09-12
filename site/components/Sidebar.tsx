@@ -403,7 +403,7 @@ export function Sidebar({
               { icon: "dashboard", label: "Rendimentos", href: `/dashboard/${selectedBotId}/vendas`, exact: true, section: "Loja" },
               { icon: "invoice", label: "Produtos", href: `/dashboard/${selectedBotId}/vendas/produtos`, exact: true },
               { icon: "settings", label: "Configurar loja", href: `/dashboard/${selectedBotId}/config/loja`, exact: true },
-              { icon: "invoice", label: "Pagamentos", href: `/dashboard/${selectedBotId}/vendas/pagamentos`, exact: true },
+              { icon: "invoice", label: "Recebimento / PIX", href: `/dashboard/${selectedBotId}/vendas/pagamentos`, exact: true },
               { icon: "invoice", label: "Gerenciar tickets", href: `/dashboard/${selectedBotId}/config/tickets`, exact: true, section: "Bot" },
               { icon: "user", label: "Personalização", href: `/dashboard/${selectedBotId}/config/customizacao`, exact: true },
               { icon: "settings", label: "Automações", href: `/dashboard/${selectedBotId}/config/automacoes`, exact: true },

@@ -26,7 +26,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
             { label: "Pedidos", suffix: "/vendas/pedidos", icon: "invoice" },
             { label: "Clientes", suffix: "/vendas/clientes", icon: "user" },
             { label: "Carrinhos abertos", suffix: "/vendas/carrinhos-abertos", icon: "cart" },
-            { label: "Pagamentos", suffix: "/vendas/pagamentos", icon: "payment" },
+            { label: "Recebimento / PIX", suffix: "/vendas/pagamentos", icon: "payment" },
             { label: "Produtos", suffix: "/vendas/produtos", icon: "product" },
         ],
     },
@@ -53,9 +53,9 @@ export function UserBotWorkspaceBar({ routeId, name, productName, active }: { ro
     if (pathname === `/dashboard/${routeId}`) return null;
     return (
         <div className="user-bot-workspace-bar sticky top-16 z-30 border-b border-white/[.06] bg-black/65 px-4 backdrop-blur-2xl sm:px-8">
-            <div className="mx-auto flex max-w-7xl items-center gap-4 overflow-x-auto py-3">
+            <div className="relative mx-auto flex max-w-7xl items-center gap-4 overflow-x-auto py-3 pr-8 [scrollbar-width:thin] after:pointer-events-none after:absolute after:right-0 after:top-0 after:h-full after:w-12 after:bg-gradient-to-l after:from-black/80 after:to-transparent after:content-['']" title="Deslize horizontalmente para ver todos os módulos">
                 <Link href={`/dashboard/${routeId}`} className="flex shrink-0 items-center gap-2.5 pr-2">
-                        <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#3b82f6] text-sm font-bold text-white shadow-[0_8px_22px_rgba(59,130,246,.22)]">{name.charAt(0).toUpperCase()}</span>
+                        <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--accent)] text-sm font-bold text-[var(--accent-foreground)] shadow-[0_8px_22px_rgba(0,0,0,.22)]">{name.charAt(0).toUpperCase()}</span>
                     <span className="hidden min-w-0 sm:block">
                         <b className="block max-w-40 truncate text-xs text-white">{name}</b>
                         <small className="block max-w-40 truncate text-[10px] text-zinc-500">{productName}</small>
@@ -74,7 +74,7 @@ export function UserBotWorkspaceBar({ routeId, name, productName, active }: { ro
                                         key={item.suffix}
                                         href={href}
                                         className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition ${
-                                            selected ? "bg-[#3b82f6]/15 text-[#93c5fd]" : "text-zinc-500 hover:bg-white/[.05] hover:text-white"
+                                            selected ? "bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]" : "text-zinc-500 hover:bg-white/[.05] hover:text-white"
                                         }`}
                                     >
                                         <Icon name={item.icon} className="h-3.5 w-3.5" />

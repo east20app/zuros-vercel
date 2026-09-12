@@ -181,6 +181,8 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                                     disabled={busy}
                                     onClick={() => {
                                         const { arquivo, tipos, guild_id } = restoreState;
+                                        const wipeWarning = tipos !== "none" ? " A opção selecionada apagará dados do servidor antes da restauração." : "";
+                                        if (!window.confirm(`Restaurar o backup ${arquivo}?${wipeWarning} Esta ação altera o servidor Discord real.`)) return;
                                         setRestoreState(null);
                                         run(() => restoreBotBackup(appId, arquivo, tipos, guild_id || undefined), "Restauração solicitada. O bot executa na próxima checagem da fila.");
                                     }}
@@ -237,7 +239,9 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                                                     type="button"
                                                     className="rounded-md bg-red-600/90 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-red-500 disabled:opacity-50"
                                                     disabled={busy}
-                                                    onClick={() => run(() => deleteBotBackup(appId, b.arquivo), "Backup apagado.")}
+                                                    onClick={() => {
+                                                        if (window.confirm(`Apagar o backup ${b.arquivo}? Esta ação não pode ser desfeita.`)) void run(() => deleteBotBackup(appId, b.arquivo), "Backup apagado.");
+                                                    }}
                                                 >
                                                     Apagar
                                                 </button>

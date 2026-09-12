@@ -1,36 +1,17 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { SalesDashboard } from "@/components/SalesDashboard";
 import { BotPageHero } from "@/components/BotPageHero";
 import { Card, Stat } from "@/components/ui";
-import { ActionError } from "@/lib/actions/context";
-import { getSalesOverview, getVendasContext } from "@/lib/actions/vendas.actions";
-import { requireUser } from "@/lib/require-admin";
+import { getSalesOverview } from "@/lib/actions/vendas.actions";
+import { requireVendasContext, vendasMetadata } from "@/lib/dashboard-vendas";
 import { formatMoney } from "@/lib/status";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<Metadata> {
-    const resolvedParams = await params;
-    try {
-        const ctx = await getVendasContext(resolvedParams.appId);
-        return { title: `Vendas · ${ctx.botName} · ZUROS APP`, description: `Dashboard de vendas do bot ${ctx.botName}.` };
-    } catch {
-        return { title: "Vendas · ZUROS APP" };
-    }
-}
+export async function generateMetadata({ params }: { params: Promise<{ appId: string }> }): Promise<import("next").Metadata> { const { appId } = await params; return vendasMetadata(appId, "Rendimentos", (botName) => `Visão consolidada de vendas do bot ${botName}.`); }
 
 export default async function VendasPage({ params }: { params: Promise<{ appId: string }> }) {
     const resolvedParams = await params;
-    await requireUser();
-
-    let ctx;
-    try {
-        ctx = await getVendasContext(resolvedParams.appId);
-    } catch (error) {
-        if (error instanceof ActionError) notFound();
-        throw error;
-    }
+    const ctx = await requireVendasContext(resolvedParams.appId);
 
     const overview = await getSalesOverview(resolvedParams.appId, "7d");
 

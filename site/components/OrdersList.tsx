@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { listOrders, type OrderEntry, type OrderFilters } from "@/lib/actions/vendas.actions";
 import { STATUS_LABELS, STEP_LABELS } from "@/lib/vendas";
 import { formatMoney } from "@/lib/status";
@@ -10,6 +10,9 @@ export function OrdersList({ appId, initial }: { appId: string; initial: OrderEn
     const [filters, setFilters] = useState<OrderFilters>({});
     const [orders, setOrders] = useState<OrderEntry[]>(initial);
     const [loading, setLoading] = useState(false);
+    const [query, setQuery] = useState("");
+    const [page, setPage] = useState(1);
+    const pageSize = 20;
 
     function apply(next: OrderFilters) {
         setFilters(next);
@@ -23,9 +26,16 @@ export function OrdersList({ appId, initial }: { appId: string; initial: OrderEn
     }
 
     const selectClass = `${inputClass} w-auto py-2 text-xs`;
+    const filteredOrders = useMemo(() => {
+        const value = query.trim().toLowerCase();
+        return value ? orders.filter((order) => `${order.userId} ${order.itemName} ${order.id}`.toLowerCase().includes(value)) : orders;
+    }, [orders, query]);
+    const pageCount = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+    const visibleOrders = filteredOrders.slice((page - 1) * pageSize, page * pageSize);
 
     return (
         <div className="flex flex-col gap-4">
+            <input className={`${inputClass} max-w-sm`} placeholder="Buscar por usuário, item ou ID" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} />
             <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex rounded-lg border border-white/[.08] bg-[#232428]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,.03)]">
                     {([["", "Tudo"], ["buy", "Compras"], ["renew", "Renovações"]] as const).map(([value, label]) => (
@@ -85,7 +95,7 @@ export function OrdersList({ appId, initial }: { appId: string; initial: OrderEn
                                 </tr>
                             </thead>
                             <tbody>
-                                {orders.map((order) => (
+                                {visibleOrders.map((order) => (
                                     <tr key={`${order.type}-${order.id}`} className="border-b border-zinc-900 text-zinc-300 transition last:border-0 hover:bg-zinc-900/40">
                                         <td className="p-4 whitespace-nowrap">{new Date(order.createdAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
                                         <td className="p-4">
@@ -109,6 +119,7 @@ export function OrdersList({ appId, initial }: { appId: string; initial: OrderEn
                     </div>
                 </Card>
             )}
+            {filteredOrders.length > pageSize && <div className="flex items-center justify-between text-xs text-zinc-500"><span>Mostrando {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filteredOrders.length)} de {filteredOrders.length}</span><div className="flex gap-2"><button type="button" className="rounded border border-white/10 px-3 py-1.5 disabled:opacity-40" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>Anterior</button><button type="button" className="rounded border border-white/10 px-3 py-1.5 disabled:opacity-40" disabled={page >= pageCount} onClick={() => setPage((value) => value + 1)}>Próxima</button></div></div>}
         </div>
     );
 }

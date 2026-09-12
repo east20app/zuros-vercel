@@ -7,15 +7,17 @@ import { getErrorMessage } from "@/lib/errors";
 import { Button, Spinner } from "./ui";
 import { useToast } from "./Toast";
 
-export function ServerManager({ appId, botId, guilds }: { appId: string; botId: string; guilds: BotGuildOption[] }) {
+export function ServerManager({ appId, botId, currentServerId, guilds }: { appId: string; botId: string; currentServerId: string | null; guilds: BotGuildOption[] }) {
     const router = useRouter();
     const { push } = useToast();
-    const [serverId, setServerId] = useState(guilds[0]?.id || "");
+    const [serverId, setServerId] = useState(currentServerId || guilds[0]?.id || "");
     const [saving, setSaving] = useState(false);
     const inviteUrl = botId ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(botId)}&permissions=0&scope=bot%20applications.commands` : "";
 
     async function save() {
         if (!serverId) return;
+        const selected = guilds.find((guild) => guild.id === serverId);
+        if (serverId !== currentServerId && !window.confirm(`Definir “${selected?.name || serverId}” como servidor principal? As configurações do painel passarão a valer somente para esse servidor.`)) return;
         setSaving(true);
         try {
             await changeAppMainServer(appId, serverId);

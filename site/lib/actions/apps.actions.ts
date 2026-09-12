@@ -191,7 +191,7 @@ function getMetrics(currentApplicationCampos: SdkApplication) {
     };
 }
 
-export async function getBotIdentity(appId: string): Promise<{ id: string; name: string; botId: string; status: AppStatus; productName: string }> {
+export async function getBotIdentity(appId: string): Promise<{ id: string; name: string; botId: string; serverId: string | null; status: AppStatus; productName: string }> {
     const discordId = await requireSessionUser();
     const application = await getApplicationPopulated(appId);
     if (String(application.ownerId) !== discordId) {
@@ -201,6 +201,7 @@ export async function getBotIdentity(appId: string): Promise<{ id: string; name:
         id: application.botId || String(application._id),
         name: application.name,
         botId: application.botId || "",
+        serverId: application.serverId || null,
         status: application.status,
         productName: application.productId?.name || "Sem produto",
     };

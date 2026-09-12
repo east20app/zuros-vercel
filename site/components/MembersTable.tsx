@@ -1,0 +1,14 @@
+"use client";
+import Image from "next/image";
+import { useMemo, useState } from "react";
+
+type Member = { id: string; username: string; displayName: string; avatar: string | null; bot: boolean; roles: string[]; joinedAt: string | null };
+export function MembersTable({ members }: { members: Member[] }) {
+    const [query, setQuery] = useState("");
+    const [page, setPage] = useState(1);
+    const size = 25;
+    const filtered = useMemo(() => { const q = query.trim().toLowerCase(); return q ? members.filter((m) => `${m.displayName} ${m.username} ${m.id}`.toLowerCase().includes(q)) : members; }, [members, query]);
+    const pages = Math.max(1, Math.ceil(filtered.length / size));
+    const visible = filtered.slice((page - 1) * size, page * size);
+    return <div className="space-y-3"><input className="h-10 w-full max-w-sm rounded-lg border border-white/10 bg-zinc-950 px-3 text-sm text-white outline-none focus:border-[var(--accent)]" placeholder="Buscar por nome, usuário ou ID" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} /><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="border-b border-zinc-800 text-xs uppercase tracking-wide text-zinc-500"><th className="p-4">Usuário</th><th className="p-4">ID Discord</th><th className="p-4">Tipo</th><th className="p-4">Entrada no servidor</th><th className="p-4">Cargos</th></tr></thead><tbody>{visible.map((member) => <tr key={member.id} className="border-b border-zinc-900 text-zinc-300"><td className="p-4"><span className="flex items-center gap-3">{member.avatar ? <Image src={member.avatar} alt="" width={32} height={32} className="h-8 w-8 rounded-full" unoptimized /> : <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)]">{member.displayName.slice(0, 1).toUpperCase()}</span>}<span><strong>{member.displayName}</strong><small className="block text-zinc-500">@{member.username}</small></span></span></td><td className="p-4 font-mono text-xs text-zinc-400">{member.id}</td><td className="p-4">{member.bot ? "Bot" : "Usuário"}</td><td className="p-4">{member.joinedAt ? new Date(member.joinedAt).toLocaleDateString("pt-BR") : "—"}</td><td className="p-4">{member.roles.length || "—"}</td></tr>)}</tbody></table></div>{filtered.length > size && <div className="flex items-center justify-between text-xs text-zinc-500"><span>{filtered.length} resultado(s)</span><div className="flex gap-2"><button type="button" className="rounded border border-white/10 px-3 py-1.5 disabled:opacity-40" disabled={page === 1} onClick={() => setPage(page - 1)}>Anterior</button><button type="button" className="rounded border border-white/10 px-3 py-1.5 disabled:opacity-40" disabled={page >= pages} onClick={() => setPage(page + 1)}>Próxima</button></div></div>}</div>;
+}
