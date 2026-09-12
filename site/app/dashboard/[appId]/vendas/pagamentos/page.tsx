@@ -43,7 +43,7 @@ export default async function PagamentosPage({ params }: { params: Promise<{ app
                 </div>
                 <div className="grid gap-3">
                     <div className="max-w-md"><Card className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-lg bg-emerald-500/10 text-emerald-300"><Icon name="payment" /></span><div><b className="text-sm text-white">PIX</b><p className="text-xs text-zinc-500">Única forma de pagamento ativa, conforme a versão atual do DROX.</p></div></Card></div>
-                    <Card className="max-w-md border-[#7c3aed]/20 bg-[#7c3aed]/[.05] text-sm text-zinc-400">As credenciais ficam ocultas na tela e são enviadas somente para a configuração do seu bot.</Card>
+                    <Card className="max-w-md border-[#3b82f6]/20 bg-[#3b82f6]/[.05] text-sm text-zinc-400">As credenciais ficam ocultas na tela e são enviadas somente para a configuração do seu bot.</Card>
                 </div>
             </div>
             <div className="sales-chart-wrap">
