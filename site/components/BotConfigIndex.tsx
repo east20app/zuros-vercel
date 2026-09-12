@@ -51,7 +51,7 @@ export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
         <div className="rounded-2xl border border-white/[.1] bg-[#101012] overflow-hidden">
             <div className="border-b border-white/[.06] bg-white/[.025] px-5 py-5 sm:px-6">
                 <div className="flex items-center gap-3">
-                    <span className="grid h-11 w-11 place-items-center rounded-full bg-[#7c3aed] text-white"><Icon name="bot" /></span>
+                    <span className="grid h-11 w-11 place-items-center rounded-full bg-[#3b82f6] text-white"><Icon name="bot" /></span>
                     <div>
                         <h2 className="font-semibold text-white">Painel de controle</h2>
                         <p className="mt-0.5 text-sm text-[#b5bac1]">Gerencie seu bot como no comando <code className="rounded bg-black/20 px-1.5 py-0.5 text-[#dbdee1]">/painel</code> do DROX.</p>

@@ -176,7 +176,7 @@ const clamp = (value: number, min: number, max: number): number => Math.min(Math
 
 const GlowCursor = ({
     color = "#67E8F9",
-    secondaryColor = "#A78BFA",
+    secondaryColor = "#93C5FD",
     trailLength = 40,
     trailWidth = 8,
     trailTaper = 0.8,

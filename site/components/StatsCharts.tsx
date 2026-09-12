@@ -19,10 +19,10 @@ const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: { intersect: false, mode: "index" as const },
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: "#0b171d", titleColor: "#f2f6f0", bodyColor: "#b8c8c5", borderColor: "rgba(214,255,99,.35)", borderWidth: 1 } },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: "#0b171d", titleColor: "#f2f6f0", bodyColor: "#b8c8c5", borderColor: "rgba(59,130,246,.35)", borderWidth: 1 } },
     scales: {
         x: { grid: { display: false }, ticks: { color: "#7f939c" }, border: { display: false } },
-        y: { beginAtZero: true, grid: { color: "rgba(214,236,241,.07)" }, ticks: { color: "#7f939c" }, border: { display: false } },
+        y: { beginAtZero: true, grid: { color: "rgba(59,130,246,.07)" }, ticks: { color: "#7f939c" }, border: { display: false } },
     },
 };
 
@@ -40,12 +40,12 @@ export function StatsCharts({ extracts, releases, applications }: { extracts: Ex
     }), [extracts]);
     const salesConfig = useMemo<ChartConfiguration>(() => ({
         type: "line",
-        data: { labels: days.map((day) => day.label), datasets: [{ data: days.map((day) => day.value), borderColor: "#d6ff63", backgroundColor: "rgba(214,255,99,.14)", fill: true, tension: .35, pointBackgroundColor: "#d6ff63", pointRadius: 3 }] },
+        data: { labels: days.map((day) => day.label), datasets: [{ data: days.map((day) => day.value), borderColor: "#3b82f6", backgroundColor: "rgba(59,130,246,.14)", fill: true, tension: .35, pointBackgroundColor: "#3b82f6", pointRadius: 3 }] },
         options: { ...chartOptions, plugins: { ...chartOptions.plugins, tooltip: { ...chartOptions.plugins.tooltip, callbacks: { label: (context) => ` ${Number(context.raw).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` } } } },
     }), [days]);
     const volumeConfig = useMemo<ChartConfiguration>(() => ({
         type: "bar",
-        data: { labels: ["Aplicações", "Releases"], datasets: [{ data: [applications, releases], backgroundColor: ["rgba(214,255,99,.72)", "rgba(255,116,90,.72)"], borderColor: ["#d6ff63", "#ff745a"], borderWidth: 1, borderRadius: 8 }] },
+        data: { labels: ["Aplicações", "Releases"], datasets: [{ data: [applications, releases], backgroundColor: ["rgba(59,130,246,.72)", "rgba(255,116,90,.72)"], borderColor: ["#3b82f6", "#ff745a"], borderWidth: 1, borderRadius: 8 }] },
         options: chartOptions,
     }), [applications, releases]);
 
