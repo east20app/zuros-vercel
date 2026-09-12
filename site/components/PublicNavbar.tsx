@@ -28,7 +28,7 @@ export function PublicNavbar({ user, pendingCount = 0 }: { user?: { name?: strin
     return (
         <header className="public-nav-wrap sticky top-0 z-40">
             <div className="px-5 pt-4 sm:px-8 sm:pt-5">
-                <div className="public-nav mx-auto flex h-[4.5rem] w-full max-w-7xl items-center justify-between gap-6 px-2 sm:px-4">
+                <div className="public-nav mx-auto flex h-[4.75rem] w-full max-w-7xl items-center justify-between gap-6 px-2 sm:px-4">
                     <Link href="/" onClick={close} aria-label="ZUROS — início" className="public-brand group inline-flex items-center gap-3">
                         <BrandLogo priority className="h-8 w-28 sm:h-9 sm:w-36" />
                         <span className="public-brand-sub hidden border-l border-white/15 pl-3 text-[9px] font-semibold uppercase tracking-[.22em] text-zinc-500 lg:inline">Control room<br />for communities</span>
