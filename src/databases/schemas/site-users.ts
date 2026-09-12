@@ -2,6 +2,8 @@ import mongoose, { Schema, model } from "mongoose";
 
 export interface ISiteUser {
     discordId: string;
+    linkedDiscordId?: string;
+    discordIdentityCompleted?: boolean;
     name: string;
     username?: string;
     globalName?: string;
@@ -20,6 +22,9 @@ export interface ISiteUser {
     locale?: string;
     emailVerified?: boolean;
     mfaEnabled?: boolean;
+    totpSecretEncrypted?: string;
+    totpEnabled?: boolean;
+    totpRecoveryHashes?: string[];
     premiumType?: number;
     flags?: number;
     publicFlags?: number;
@@ -35,6 +40,8 @@ export interface ISiteUser {
 
 const schema = new Schema<ISiteUser>({
     discordId: { type: String, required: true, unique: true, index: true },
+    linkedDiscordId: { type: String, index: true },
+    discordIdentityCompleted: { type: Boolean, default: false },
     name: { type: String, required: true, default: "Usuário Discord" },
     username: { type: String },
     globalName: { type: String },
@@ -53,6 +60,9 @@ const schema = new Schema<ISiteUser>({
     locale: { type: String },
     emailVerified: { type: Boolean },
     mfaEnabled: { type: Boolean },
+    totpSecretEncrypted: { type: String, select: false },
+    totpEnabled: { type: Boolean, default: false },
+    totpRecoveryHashes: [{ type: String, select: false }],
     premiumType: { type: Number },
     flags: { type: Number },
     publicFlags: { type: Number },

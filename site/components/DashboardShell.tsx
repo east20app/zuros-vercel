@@ -1,10 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sidebar, type SidebarUser } from "./Sidebar";
 import { DashboardOnboarding, MobileDashboardNav } from "./DashboardOnboarding";
 import { BotActivityNotificationWatcher } from "./BotActivityNotificationWatcher";
+import { getRequiredDiscordIdentity } from "@/lib/actions/identity.actions";
 
 export function DashboardShell({
     user,
@@ -20,9 +21,16 @@ export function DashboardShell({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const automaticFocus = /^\/dashboard\/[^/]+\/config(?:\/|$)/.test(pathname);
     const [manualCollapsed, setManualCollapsed] = useState<boolean | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    useEffect(() => {
+        if (pathname === "/dashboard/discord") return;
+        void getRequiredDiscordIdentity().then((identity) => {
+            if (identity.required) router.replace("/dashboard/discord");
+        }).catch(() => undefined);
+    }, [pathname, router]);
     useEffect(() => {
         const saved = localStorage.getItem("sidebar-collapsed") ?? localStorage.getItem("zuros-sidebar-collapsed");
         if (saved !== null) setManualCollapsed(saved === "true");

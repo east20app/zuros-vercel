@@ -44,6 +44,12 @@ export function AdminNav({ stores, storeId }: { stores: StoreView[]; storeId: st
                 >
                     Configurações
                 </Link>
+                <Link
+                    href="/admin/support"
+                    className="rounded-lg px-3 py-1.5 text-sm text-zinc-400 transition hover:bg-zinc-900/70 hover:text-white"
+                >
+                    Suporte
+                </Link>
             </div>
 
             <nav className="flex flex-wrap gap-1 border-b border-zinc-800/80">
