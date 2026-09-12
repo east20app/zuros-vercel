@@ -280,7 +280,7 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
                 onClick={onExpand}
                 title="Expandir menu"
                 aria-label="Expandir menu"
-                className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--accent)]/25 text-[var(--accent-strong)] transition hover:bg-[var(--accent)]/10 hover:text-white"
+                className="grid h-10 w-10 place-items-center rounded-xl border text-[var(--accent-strong)] transition hover:bg-[var(--accent)]/10 hover:text-white"
             >
                 <SidebarIcon name="right" className="h-5 w-5" />
             </button>
@@ -428,7 +428,7 @@ export function Sidebar({
                 onClick={onToggleCollapsed}
                 title="Recolher menu"
                 aria-label="Recolher menu"
-                className="absolute right-2 top-2 hidden h-8 w-8 place-items-center rounded-lg border border-zinc-700 bg-surface text-zinc-300 transition hover:bg-zinc-800 hover:text-white lg:grid"
+                className="absolute right-2 top-2 hidden h-8 w-8 place-items-center rounded-lg bg-surface text-zinc-300 transition hover:bg-zinc-800 hover:text-white lg:grid"
             >
                 <SidebarIcon name="left" />
             </button>
@@ -440,7 +440,7 @@ export function Sidebar({
                     href="/dashboard/account"
                     onClick={() => setOpen(false)}
                     className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
-                        account ? "sidebar-link-active border-[var(--accent)]/20 bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link border-zinc-800 bg-background text-zinc-400 hover:border-zinc-700 hover:bg-white/[.04] hover:text-white"
+                        account ? "sidebar-link-active bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link bg-background text-zinc-400 hover:bg-white/[.04] hover:text-white"
                     }`}
                 >
                     <span className={`grid h-5 w-5 shrink-0 place-items-center transition-colors ${account ? "text-[var(--accent)]" : "text-zinc-500 group-hover:text-zinc-300"}`}>
@@ -466,7 +466,7 @@ export function Sidebar({
                         onClick={() => setOpen(false)}
                         href={link.href}
                         className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
-                            isActive ? "sidebar-link-active border-[var(--accent)]/20 bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link border-transparent text-zinc-400 hover:bg-white/[.04] hover:text-white"
+                            isActive ? "sidebar-link-active bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link text-zinc-400 hover:bg-white/[.04] hover:text-white"
                         }`}
                     >
                         <span className={`grid h-5 w-5 shrink-0 place-items-center transition-colors ${isActive ? "text-[var(--accent)]" : "text-zinc-500 group-hover:text-zinc-300"}`}>
@@ -485,13 +485,13 @@ export function Sidebar({
             </nav>
 
             {!admin && !account && !selectedBotId && (
-                <div className="mt-5 border-t border-zinc-900 pt-4">
+                <div className="mt-5 pt-4">
                     <BotsNav onNavigate={() => setOpen(false)} />
                 </div>
             )}
 
             {!admin && !account && (
-                <div className="mt-5 border-t border-zinc-900 pt-4">
+                <div className="mt-5 pt-4">
                     <p className="sidebar-section-label mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">Ajuda</p>
                     <Link href={authLicenseId ? `/dashboard/auth/${authLicenseId}` : selectedBotId ? `/dashboard/${selectedBotId}?tour=1` : "/dashboard?tour=1"} onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
                         <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Conheça o painel ZUROS
@@ -514,7 +514,7 @@ export function Sidebar({
                 onClick={() => signOut({ callbackUrl: "/" })}
                 title="Sair da conta"
                 aria-label="Sair da conta"
-                className="mt-3 flex shrink-0 items-center gap-3 rounded-xl border border-zinc-800 bg-background p-3 text-left transition hover:border-zinc-700 hover:bg-zinc-900"
+                className="mt-3 flex shrink-0 items-center gap-3 rounded-xl bg-background p-3 text-left transition hover:bg-zinc-900"
             >
                 <UserAvatar user={user} />
                 <span className="min-w-0 flex-1">
@@ -534,7 +534,7 @@ export function Sidebar({
                 <>
                     <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} title={headerTitle} />
                     <MobileMenuButton onOpen={() => setOpen(true)} />
-                    <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl border border-white/[.07] bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
+                    <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
                         <CompactRail pathname={pathname} user={user} onExpand={onToggleCollapsed} />
                     </div>
                     <MobileDrawer open={open} onClose={() => setOpen(false)}>
@@ -547,13 +547,13 @@ export function Sidebar({
             <>
                 <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} title={headerTitle} />
                 <MobileMenuButton onOpen={() => setOpen(true)} />
-                <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl border border-white/[.07] bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
+                <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
                     <button
                         type="button"
                         onClick={onToggleCollapsed}
                         title="Expandir menu"
                         aria-label="Expandir menu"
-                        className="absolute right-2 top-16 z-50 grid h-8 w-8 place-items-center rounded-lg border border-zinc-700 bg-surface text-zinc-300 hover:text-white"
+                        className="absolute right-2 top-16 z-50 grid h-8 w-8 place-items-center rounded-lg bg-surface text-zinc-300 hover:text-white"
                     >
                         »
                     </button>
@@ -570,7 +570,7 @@ export function Sidebar({
         <>
             <TopHeader leftOffsetClass="lg:left-64" pendingCount={pendingCount} title={headerTitle} />
             <MobileMenuButton onOpen={() => setOpen(true)} />
-            <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-60 overflow-hidden rounded-2xl border border-white/[.07] bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">{FullPanel}</div>
+            <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-60 overflow-hidden rounded-2xl bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">{FullPanel}</div>
             <MobileDrawer open={open} onClose={() => setOpen(false)}>
                 {FullPanel}
             </MobileDrawer>

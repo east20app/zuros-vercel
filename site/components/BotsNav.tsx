@@ -171,10 +171,10 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
             </p>
 
             {activeApp && (
-                <div className="mb-2 flex items-center gap-2 rounded-xl border border-magenta-500/25 bg-magenta-500/10 px-3 py-2.5">
-                    <i className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-magenta-400 shadow-[0_0_8px_rgba(235,69,158,.9)]" />
+                <div className="mb-2 flex items-center gap-2 rounded-xl bg-blue-500/10 px-3 py-2.5">
+                    <i className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,.9)]" />
                     <div className="min-w-0">
-                        <p className="truncate text-[10px] font-medium uppercase tracking-wider text-magenta-300">Bot ativo</p>
+                        <p className="truncate text-[10px] font-medium uppercase tracking-wider text-blue-300">Bot ativo</p>
                         <p className="truncate text-xs font-semibold text-white">{activeApp.name}</p>
                     </div>
                 </div>
@@ -188,7 +188,7 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
                         placeholder="Buscar bot..."
-                        className="w-full rounded-lg border border-zinc-800 bg-background px-3 py-2 text-xs text-white placeholder:text-zinc-500"
+                        className="w-full rounded-lg bg-background px-3 py-2 text-xs text-white placeholder:text-zinc-500"
                     />
                     {query && (
                         <button
@@ -235,8 +235,8 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
                                     aria-controls={`bot-nav-${routeId}`}
                                     className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition ${
                                         isActive
-                                            ? "border border-magenta-500/25 bg-magenta-500/10 text-white"
-                                            : "border border-transparent text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
+                                            ? "bg-blue-500/10 text-blue-100"
+                                            : "text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
                                     }`}
                                 >
                                     <svg aria-hidden="true" viewBox="0 0 20 20" className={`h-3.5 w-3.5 shrink-0 fill-none stroke-current text-zinc-500 transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
@@ -246,7 +246,7 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
                                     <span className="min-w-0 flex-1 truncate font-medium">{app.name}</span>
                                 </button>
                                 {open && (
-                                    <div id={`bot-nav-${routeId}`} className="ml-4 mt-1 space-y-0.5 border-l border-zinc-800/80 pl-3 animate-fade-in">
+                                    <div id={`bot-nav-${routeId}`} className="ml-4 mt-1 space-y-0.5 pl-3 animate-fade-in">
                                         {getAppRoutes(routeId).map(({ label, href }) => (
                                             <NavSubLink
                                                 key={href}
