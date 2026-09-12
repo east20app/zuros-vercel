@@ -210,7 +210,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
                         eyebrow="PAINEL / VISÃO GERAL"
                         title={app.name}
                         description={`${app.productName} · v${app.version}`}
-                        actions={<Button href={`/dashboard/${routeId}/vendas`}>Painel de vendas</Button>}
+                        actions={<div className="flex flex-wrap gap-2"><Button href={`/dashboard/${routeId}/usuarios`}>Usuários Discord</Button><Button href={`/dashboard/${routeId}/vendas`}>Painel de vendas</Button></div>}
                     />
                 </div>
             </div>

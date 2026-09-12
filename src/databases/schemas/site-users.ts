@@ -25,6 +25,8 @@ export interface ISiteUser {
     totpSecretEncrypted?: string;
     totpEnabled?: boolean;
     totpRecoveryHashes?: string[];
+    mfaChallengeAt?: Date;
+    mfaVerifiedAt?: Date;
     premiumType?: number;
     flags?: number;
     publicFlags?: number;
@@ -63,6 +65,8 @@ const schema = new Schema<ISiteUser>({
     totpSecretEncrypted: { type: String, select: false },
     totpEnabled: { type: Boolean, default: false },
     totpRecoveryHashes: [{ type: String, select: false }],
+    mfaChallengeAt: { type: Date },
+    mfaVerifiedAt: { type: Date },
     premiumType: { type: Number },
     flags: { type: Number },
     publicFlags: { type: Number },
