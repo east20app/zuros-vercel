@@ -80,7 +80,7 @@ export const authOptions: AuthOptions = {
                 }
                 await databases.siteUsers.updateOne(
                     { _id: user._id },
-                    { $set: { emailVerified: true, lastLoginAt: new Date() }, $inc: { loginCount: 1 }, $unset: { emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "", emailLoginSendCount: "", emailLoginSendWindowStart: "" } },
+                    { $set: { emailVerified: true, lastLoginAt: new Date(), mfaChallengeAt: new Date() }, $unset: { mfaVerifiedAt: "", emailLoginCodeHash: "", emailLoginCodeExpiresAt: "", emailLoginCodeRequestedAt: "", emailLoginCodeAttempts: "", emailLoginSendCount: "", emailLoginSendWindowStart: "" }, $inc: { loginCount: 1 } },
                 );
                 return { id: user.discordId, name: user.name || "Usuário", email: user.email || email, image: user.image || null };
             },
@@ -168,9 +168,10 @@ export const authOptions: AuthOptions = {
                         ...(accessToken ? { accessTokenEncrypted: accessToken } : {}),
                         ...(refreshToken ? { refreshTokenEncrypted: refreshToken } : {}),
                         tokenExpiresAt: account?.expires_at ? new Date(account.expires_at * 1000) : undefined,
+                        mfaChallengeAt: now,
                         authorizedGuildJoin: String(account?.scope || "").split(" ").includes("guilds.join"),
                         lastLoginAt: now,
-                    }, $setOnInsert: { firstLoginAt: now }, $inc: { loginCount: 1 } },
+                    }, $unset: { mfaVerifiedAt: "" }, $setOnInsert: { firstLoginAt: now }, $inc: { loginCount: 1 } },
                     { upsert: true, setDefaultsOnInsert: false }
                 );
             } catch (error) {

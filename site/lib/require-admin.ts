@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import type { Session } from "next-auth";
 import { authOptions } from "./auth";
+import databases from "@root/src/databases";
 
 async function resolveSession(): Promise<Session | null> {
     // Tentativas com backoff curto: o contexto de requisição do Next pode não
@@ -31,5 +32,7 @@ export async function getSessionUser(): Promise<{ discordId: string; name?: stri
 export async function requireUser() {
     const user = await getSessionUser();
     if (!user) redirect("/login");
+    const security = await databases.siteUsers.findOne({ discordId: user.discordId }, { totpEnabled: 1, mfaChallengeAt: 1, mfaVerifiedAt: 1 }).lean();
+    if (security?.totpEnabled && security.mfaChallengeAt && (!security.mfaVerifiedAt || security.mfaVerifiedAt < security.mfaChallengeAt)) redirect("/login/mfa");
     return user;
 }
