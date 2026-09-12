@@ -47,7 +47,7 @@ export function ProtectionDashboard({ data }: { data: Record<string, unknown> })
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#7c3aed]/15 text-[#949cf7]"><Icon name="shield" /></span>
+                        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#3b82f6]/15 text-[#93c5fd]"><Icon name="shield" /></span>
                         <h3 className="text-sm font-semibold text-white">Escudo de proteção</h3>
                     </div>
                     <p className="mt-1 text-sm text-[#b5bac1]">{label}</p>

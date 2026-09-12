@@ -20,8 +20,8 @@ function getStatusKind(app: AppSummary): StatusKind {
 
 const STATUS_STYLES: Record<StatusKind, { label: string; className: string }> = {
     error: { label: "Erro na atualização", className: "bg-red-500 shadow-[0_0_8px_rgba(242,63,67,.9)]" },
-    grace: { label: "Período de carência", className: "bg-amber-400 shadow-[0_0_8px_rgba(240,178,50,.9)]" },
-    expiring: { label: "Expira em breve", className: "bg-amber-400 shadow-[0_0_8px_rgba(240,178,50,.9)]" },
+    grace: { label: "Período de carência", className: "bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,.9)]" },
+    expiring: { label: "Expira em breve", className: "bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,.9)]" },
     active: { label: "Ativo", className: "bg-emerald-500 shadow-[0_0_8px_rgba(35,165,89,.9)]" },
 };
 
@@ -62,7 +62,7 @@ function NavSubLink({ href, label, isActive, onNavigate }: { href: string; label
             href={href}
             onClick={onNavigate}
             aria-current={isActive ? "page" : undefined}
-            className={`block rounded-lg px-3 py-1.5 text-xs transition ${
+            className={`block rounded-none px-3 py-1.5 text-xs transition ${
                 isActive ? "bg-zinc-900 text-white" : "text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
             }`}
         >
@@ -171,7 +171,7 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
             </p>
 
             {activeApp && (
-                <div className="mb-2 flex items-center gap-2 rounded-xl bg-blue-500/10 px-3 py-2.5">
+                <div className="mb-2 flex items-center gap-2 rounded-none bg-blue-500/10 px-3 py-2.5">
                     <i className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,.9)]" />
                     <div className="min-w-0">
                         <p className="truncate text-[10px] font-medium uppercase tracking-wider text-blue-300">Bot ativo</p>
@@ -188,7 +188,7 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
                         placeholder="Buscar bot..."
-                        className="w-full rounded-lg bg-background px-3 py-2 text-xs text-white placeholder:text-zinc-500"
+                        className="w-full rounded-none bg-background px-3 py-2 text-xs text-white placeholder:text-zinc-500"
                     />
                     {query && (
                         <button
@@ -206,14 +206,14 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
             <nav className="sidebar-scrollbar min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
                 {!loaded ? (
                     <div className="space-y-2 px-2 pt-1">
-                        <div className="skeleton h-9 rounded-xl" />
-                        <div className="skeleton h-9 rounded-xl" />
-                        <div className="skeleton h-9 rounded-xl" />
+                        <div className="skeleton h-9 rounded-none" />
+                        <div className="skeleton h-9 rounded-none" />
+                        <div className="skeleton h-9 rounded-none" />
                     </div>
                 ) : error ? (
                     <div className="px-3 py-3 text-xs text-zinc-400">
                         <p>Não foi possível carregar os bots.</p>
-                        <button type="button" onClick={() => void refresh()} className="mt-2 font-medium text-[#a78bfa] hover:text-white">
+                        <button type="button" onClick={() => void refresh()} className="mt-2 font-medium text-[#93c5fd] hover:text-white">
                             Tentar novamente
                         </button>
                     </div>
@@ -227,13 +227,13 @@ export function BotsNav({ onNavigate }: { onNavigate?: () => void }) {
                         const open = openIds.has(routeId);
                         const isActive = routeId === activeAppId || app.id === activeAppId;
                         return (
-                            <div key={app.id} className="overflow-hidden rounded-xl">
+                            <div key={app.id} className="overflow-hidden rounded-none">
                                 <button
                                     type="button"
                                     onClick={() => toggle(routeId)}
                                     aria-expanded={open}
                                     aria-controls={`bot-nav-${routeId}`}
-                                    className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition ${
+                                    className={`flex w-full items-center gap-2 rounded-none px-3 py-2.5 text-left text-sm transition ${
                                         isActive
                                             ? "bg-blue-500/10 text-blue-100"
                                             : "text-zinc-400 hover:bg-zinc-900/60 hover:text-white"

@@ -88,7 +88,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                     </div>
                     <button
                         type="button"
-                        className="rounded-lg bg-[#7c3aed] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#6d28d9] disabled:opacity-50"
+                        className="rounded-lg bg-[#3b82f6] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50"
                         disabled={busy}
                         onClick={() => run(() => saveBotBackupAuto(appId, { ...auto, backup_auto_ativo: !auto.backup_auto_ativo }), "Status do backup automático atualizado.")}
                     >
@@ -103,7 +103,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                             type="number"
                             min={1}
                             max={2880}
-                            className="rounded-lg border border-white/[.08] bg-[#232428]/80 px-3 py-2 text-sm text-white outline-none focus:border-[#7c3aed]"
+                            className="rounded-lg border border-white/[.08] bg-[#232428]/80 px-3 py-2 text-sm text-white outline-none focus:border-[#3b82f6]"
                             value={auto.backup_auto_minutos}
                             onChange={(e) => setAuto({ ...auto, backup_auto_minutos: Number(e.target.value) })}
                         />
@@ -128,7 +128,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                                 key={opt.value}
                                 type="button"
                                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                                    opt.checked ? "border-[#7c3aed] bg-[#7c3aed]/15 text-[#c4b5fd]" : "border-white/10 text-zinc-500 hover:bg-white/[.05] hover:text-white"
+                                    opt.checked ? "border-[#3b82f6] bg-[#3b82f6]/15 text-[#bfdbfe]" : "border-white/10 text-zinc-500 hover:bg-white/[.05] hover:text-white"
                                 }`}
                                 disabled={busy}
                                 onClick={() => toggleExclude(opt.value)}
@@ -148,7 +148,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                     </div>
                     <button
                         type="button"
-                        className="rounded-lg bg-[#7c3aed] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#6d28d9] disabled:opacity-50"
+                        className="rounded-lg bg-[#3b82f6] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50"
                         disabled={busy}
                         onClick={() => run(() => createBotBackup(appId), "Backup solicitado. O bot cria na próxima checagem da fila.")}
                     >
@@ -161,7 +161,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                         <p className="text-xs font-medium text-zinc-400">Restaurar <code className="text-zinc-200">{restoreState.arquivo}</code></p>
                         <div className="mt-3 grid gap-3 sm:grid-cols-3">
                             <select
-                                className="rounded-lg border border-white/[.08] bg-[#232428]/80 px-3 py-2 text-sm text-white outline-none focus:border-[#7c3aed]"
+                                className="rounded-lg border border-white/[.08] bg-[#232428]/80 px-3 py-2 text-sm text-white outline-none focus:border-[#3b82f6]"
                                 value={restoreState.tipos}
                                 onChange={(e) => setRestoreState({ ...restoreState, tipos: e.target.value })}
                             >
@@ -170,7 +170,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                             <input
                                 type="text"
                                 placeholder="ID do servidor alvo (opcional)"
-                                className="rounded-lg border border-white/[.08] bg-[#232428]/80 px-3 py-2 text-sm text-white outline-none focus:border-[#7c3aed]"
+                                className="rounded-lg border border-white/[.08] bg-[#232428]/80 px-3 py-2 text-sm text-white outline-none focus:border-[#3b82f6]"
                                 value={restoreState.guild_id}
                                 onChange={(e) => setRestoreState({ ...restoreState, guild_id: e.target.value })}
                             />
@@ -216,7 +216,7 @@ export function BackupsPanel({ appId, initial, auto: initialAuto }: { appId: str
                                 {backups.map((b) => (
                                     <tr key={b.arquivo} className="border-b border-white/[.04] last:border-0 hover:bg-white/[.02]">
                                         <td className="p-3">
-                                            <code className="break-all text-xs text-[#c4b5fd]">{b.arquivo.replace(".json", "")}</code>
+                                            <code className="break-all text-xs text-[#bfdbfe]">{b.arquivo.replace(".json", "")}</code>
                                             <span className="block text-[10px] text-zinc-500">{b.guild}</span>
                                         </td>
                                         <td className="p-3 text-xs text-zinc-400">{fmtDate(b.timestamp)}</td>

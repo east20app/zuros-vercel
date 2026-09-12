@@ -156,7 +156,7 @@ function UserAvatar({ user }: { user?: SidebarUser }) {
 function Logo({ compact = false }: { compact?: boolean }) {
     return (
         <Link href="/dashboard" aria-label="ZUROS" className={`flex ${compact ? "h-11 w-11 items-center justify-center overflow-hidden" : "h-12 items-center px-2"}`}>
-            {compact ? <BrandLogo compact className="h-9 w-9 rounded-lg" /> : <BrandLogo className="h-9 w-36" />}
+            {compact ? <BrandLogo compact className="h-9 w-9 rounded-none" /> : <BrandLogo className="h-9 w-36" />}
         </Link>
     );
 }
@@ -164,13 +164,13 @@ function Logo({ compact = false }: { compact?: boolean }) {
 /** Fixed top bar shown above the main content; offsets to clear whichever rail is docked on desktop. */
 function TopHeader({ leftOffsetClass, pendingCount, title }: { leftOffsetClass: string; pendingCount: number; title: string }) {
     return (
-        <header className={`zuros-mobile-header fixed inset-x-0 top-0 z-30 h-16 border-b border-white/[.06] bg-black/70 backdrop-blur-xl ${leftOffsetClass}`}>
+        <header className={`zuros-mobile-header fixed inset-x-0 top-0 z-30 h-16   bg-black/70 backdrop-blur-xl ${leftOffsetClass}`}>
             <div className="flex h-full items-center pl-28 pr-5 sm:pr-7 lg:pl-7"><span className="text-xs font-semibold uppercase tracking-[.18em] text-zinc-400">{title}</span></div>
             {pendingCount > 0 && (
                 <Link
                     href="/dashboard/invoices"
                     aria-label={`Ver ${pendingCount} fatura${pendingCount > 1 ? "s" : ""} pendente${pendingCount > 1 ? "s" : ""}`}
-                    className="absolute right-6 top-3.5 grid h-9 w-9 place-items-center rounded-xl border border-zinc-800 text-zinc-400"
+                    className="absolute right-6 top-3.5 grid h-9 w-9 place-items-center rounded-none   text-zinc-400"
                 >
                     <Icon name="bell" className="h-4 w-4" />
                     <span aria-hidden="true" className="absolute -right-1 -top-1 rounded-full bg-white px-1.5 text-[9px] font-bold text-black">
@@ -189,7 +189,7 @@ function MobileMenuButton({ onOpen }: { onOpen: () => void }) {
             type="button"
             onClick={onOpen}
             aria-label="Abrir menu"
-            className="zuros-mobile-menu-button fixed left-4 top-3 z-50 inline-flex h-10 items-center gap-2 rounded-xl border border-white/[.08] bg-white/[.045] px-3 text-xs font-medium text-white shadow-lg shadow-black/20 backdrop-blur-xl lg:hidden"
+            className="zuros-mobile-menu-button fixed left-4 top-3 z-50 inline-flex h-10 items-center gap-2 rounded-none   bg-white/[.045] px-3 text-xs font-medium text-white shadow-lg shadow-black/20 backdrop-blur-xl lg:hidden"
         >
             <Icon name="menu" className="h-4 w-4" />
             <span>Menu</span>
@@ -203,10 +203,10 @@ function MobileDrawer({ open, onClose, children }: { open: boolean; onClose: () 
     return (
         <div className="zuros-mobile-drawer fixed inset-0 z-[60] lg:hidden">
             <button aria-label="Fechar menu" className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative flex h-full w-full flex-col border-r border-white/[.08] bg-black/95 shadow-2xl">
-                <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/[.06] px-5">
+            <div className="relative flex h-full w-full flex-col   bg-black/95 shadow-2xl">
+                <header className="flex h-16 shrink-0 items-center justify-between   px-5">
                     <h2 className="text-xl font-bold text-white">Menu</h2>
-                    <button type="button" onClick={onClose} aria-label="Fechar menu" className="grid h-10 w-10 place-items-center rounded-xl text-3xl font-light text-zinc-400 hover:bg-white/[.05] hover:text-white">×</button>
+                    <button type="button" onClick={onClose} aria-label="Fechar menu" className="grid h-10 w-10 place-items-center rounded-none text-3xl font-light text-zinc-400 hover:bg-white/[.05] hover:text-white">×</button>
                 </header>
                 <div className="min-h-0 flex-1">{children}</div>
             </div>
@@ -216,13 +216,13 @@ function MobileDrawer({ open, onClose, children }: { open: boolean; onClose: () 
 
 function ConfigRail({ storeId, pathname, user }: { storeId: string; pathname: string; user: SidebarUser }) {
     return (
-        <aside className="flex h-full flex-col items-center gap-1 border-r border-zinc-800 bg-background-dark px-2 py-4">
+        <aside className="flex h-full flex-col items-center gap-1   bg-background-dark px-2 py-4">
             <Logo compact />
             <Link
                 href={`/dashboard/${storeId}`}
                 aria-label="Voltar para o bot"
                 title="Voltar para o bot"
-                className="mt-1 grid h-10 w-10 place-items-center rounded-xl text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
+                className="mt-1 grid h-10 w-10 place-items-center rounded-none text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
             >
                 ←
             </Link>
@@ -239,8 +239,8 @@ function ConfigRail({ storeId, pathname, user }: { storeId: string; pathname: st
                             href={href}
                             title={`${item.label} — ${meta.description}`}
                             aria-label={item.label}
-                            className={`grid h-10 w-10 place-items-center rounded-xl text-sm transition ${
-                                active ? "border border-[var(--accent)]/35 bg-[var(--accent)]/10 text-[var(--accent-strong)]" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"
+                            className={`grid h-10 w-10 place-items-center rounded-none text-sm transition ${
+                                active ? "  bg-[var(--accent)]/10 text-[var(--accent-strong)]" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"
                             }`}
                         >
                             <Icon name={meta.icon} className="h-4 w-4" />
@@ -257,7 +257,7 @@ function ConfigRail({ storeId, pathname, user }: { storeId: string; pathname: st
                     onClick={() => signOut({ callbackUrl: "/" })}
                     title="Sair"
                     aria-label="Sair"
-                    className="grid h-10 w-10 place-items-center rounded-xl text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
+                    className="grid h-10 w-10 place-items-center rounded-none text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
                 >
                     <UserAvatar user={user} />
                 </button>
@@ -280,7 +280,7 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
                 onClick={onExpand}
                 title="Expandir menu"
                 aria-label="Expandir menu"
-                className="grid h-10 w-10 place-items-center rounded-xl border text-[var(--accent-strong)] transition hover:bg-[var(--accent)]/10 hover:text-white"
+                className="grid h-10 w-10 place-items-center rounded-none  text-[var(--accent-strong)] transition hover:bg-[var(--accent)]/10 hover:text-white"
             >
                 <SidebarIcon name="right" className="h-5 w-5" />
             </button>
@@ -291,7 +291,7 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
                         href={item.href}
                         title={item.label}
                         aria-label={item.label}
-                        className={`grid h-10 w-10 place-items-center rounded-xl transition ${
+                        className={`grid h-10 w-10 place-items-center rounded-none transition ${
                             routeIsActive(pathname, item.href) ? "bg-zinc-900 text-white shadow-inner" : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
                         }`}
                     >
@@ -304,7 +304,7 @@ function CompactRail({ pathname, user, onExpand }: { pathname: string; user: Sid
                 onClick={() => signOut({ callbackUrl: "/" })}
                 title="Sair"
                 aria-label="Sair"
-                className="grid h-10 w-10 place-items-center rounded-xl text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
+                className="grid h-10 w-10 place-items-center rounded-none text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
             >
                 <SidebarIcon name="logout" className="h-5 w-5" />
                 <span className="sr-only">{user.name}</span>
@@ -428,7 +428,7 @@ export function Sidebar({
                 onClick={onToggleCollapsed}
                 title="Recolher menu"
                 aria-label="Recolher menu"
-                className="absolute right-2 top-2 hidden h-8 w-8 place-items-center rounded-lg bg-surface text-zinc-300 transition hover:bg-zinc-800 hover:text-white lg:grid"
+                className="absolute right-2 top-2 hidden h-8 w-8 place-items-center rounded-none bg-surface text-zinc-300 transition hover:bg-zinc-800 hover:text-white lg:grid"
             >
                 <SidebarIcon name="left" />
             </button>
@@ -439,7 +439,7 @@ export function Sidebar({
                 <Link
                     href="/dashboard/account"
                     onClick={() => setOpen(false)}
-                    className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
+                    className={`group flex items-center gap-3 rounded-none  px-3 py-3 text-sm transition ${
                         account ? "sidebar-link-active bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link bg-background text-zinc-400 hover:bg-white/[.04] hover:text-white"
                     }`}
                 >
@@ -465,7 +465,7 @@ export function Sidebar({
                     <Link
                         onClick={() => setOpen(false)}
                         href={link.href}
-                        className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
+                        className={`group flex items-center gap-3 rounded-none  px-3 py-3 text-sm transition ${
                             isActive ? "sidebar-link-active bg-[var(--accent-soft)] text-[var(--accent-strong)]" : "sidebar-link text-zinc-400 hover:bg-white/[.04] hover:text-white"
                         }`}
                     >
@@ -493,13 +493,13 @@ export function Sidebar({
             {!admin && !account && (
                 <div className="mt-5 pt-4">
                     <p className="sidebar-section-label mb-2 px-3 text-[10px] font-medium uppercase tracking-[.22em] text-zinc-600">Ajuda</p>
-                    <Link href={authLicenseId ? `/dashboard/auth/${authLicenseId}` : selectedBotId ? `/dashboard/${selectedBotId}?tour=1` : "/dashboard?tour=1"} onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                    <Link href={authLicenseId ? `/dashboard/auth/${authLicenseId}` : selectedBotId ? `/dashboard/${selectedBotId}?tour=1` : "/dashboard?tour=1"} onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-none px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
                         <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Conheça o painel ZUROS
                     </Link>
-                    <Link href="/#beneficios" onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                    <Link href="/#beneficios" onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-none px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
                         <SidebarIcon name="tutorial" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Tutoriais
                     </Link>
-                    <Link href="/#suporte" onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
+                    <Link href="/#suporte" onClick={() => setOpen(false)} className="sidebar-help-link group flex items-center gap-3 rounded-none px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-900/50 hover:text-white">
                         <SidebarIcon name="help" className="h-4 w-4 shrink-0 transition-colors group-hover:text-zinc-300" />Suporte
                     </Link>
                 </div>
@@ -514,7 +514,7 @@ export function Sidebar({
                 onClick={() => signOut({ callbackUrl: "/" })}
                 title="Sair da conta"
                 aria-label="Sair da conta"
-                className="mt-3 flex shrink-0 items-center gap-3 rounded-xl bg-background p-3 text-left transition hover:bg-zinc-900"
+                className="mt-3 flex shrink-0 items-center gap-3 rounded-none bg-background p-3 text-left transition hover:bg-zinc-900"
             >
                 <UserAvatar user={user} />
                 <span className="min-w-0 flex-1">
@@ -534,7 +534,7 @@ export function Sidebar({
                 <>
                     <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} title={headerTitle} />
                     <MobileMenuButton onOpen={() => setOpen(true)} />
-                    <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
+                    <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-none bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
                         <CompactRail pathname={pathname} user={user} onExpand={onToggleCollapsed} />
                     </div>
                     <MobileDrawer open={open} onClose={() => setOpen(false)}>
@@ -547,13 +547,13 @@ export function Sidebar({
             <>
                 <TopHeader leftOffsetClass="lg:left-20" pendingCount={pendingCount} title={headerTitle} />
                 <MobileMenuButton onOpen={() => setOpen(true)} />
-                <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-2xl bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
+                <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-16 overflow-hidden rounded-none bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">
                     <button
                         type="button"
                         onClick={onToggleCollapsed}
                         title="Expandir menu"
                         aria-label="Expandir menu"
-                        className="absolute right-2 top-16 z-50 grid h-8 w-8 place-items-center rounded-lg bg-surface text-zinc-300 hover:text-white"
+                        className="absolute right-2 top-16 z-50 grid h-8 w-8 place-items-center rounded-none bg-surface text-zinc-300 hover:text-white"
                     >
                         »
                     </button>
@@ -570,7 +570,7 @@ export function Sidebar({
         <>
             <TopHeader leftOffsetClass="lg:left-64" pendingCount={pendingCount} title={headerTitle} />
             <MobileMenuButton onOpen={() => setOpen(true)} />
-            <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-60 overflow-hidden rounded-2xl bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">{FullPanel}</div>
+            <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-60 overflow-hidden rounded-none bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">{FullPanel}</div>
             <MobileDrawer open={open} onClose={() => setOpen(false)}>
                 {FullPanel}
             </MobileDrawer>

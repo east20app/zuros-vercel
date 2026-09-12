@@ -14,7 +14,7 @@ const RANGES: Array<{ key: SalesRange; label: string }> = [
     { key: "tudo", label: "Tudo" },
 ];
 
-const PALETTE = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#60a5fa", "#a1a1aa", "#71717a", "#34d399", "#fb7185", "#94a3b8"];
+const PALETTE = ["#3b82f6", "#22c55e", "#3b82f6", "#ef4444", "#60a5fa", "#a1a1aa", "#71717a", "#34d399", "#fb7185", "#94a3b8"];
 
 export function SalesDashboard({ appId, productName, initial }: { appId: string; productName: string; initial: SalesOverview }) {
     const [range, setRange] = useState<SalesRange>("7d");

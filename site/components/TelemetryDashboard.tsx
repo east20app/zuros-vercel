@@ -20,7 +20,7 @@ const serviceOptions: { value: ServiceFilter; label: string }[] = [
 function statusPill(state?: string) {
     if (state === "online") return { dot: "bg-[#23a559]", glow: "shadow-[0_0_12px_#23a559]", label: "Online" };
     if (state === "degraded") return { dot: "bg-[#f0b232]", glow: "", label: "Degradado" };
-    if (state === "starting") return { dot: "bg-[#d6ff63]", glow: "", label: "Iniciando" };
+    if (state === "starting") return { dot: "bg-[#3b82f6]", glow: "", label: "Iniciando" };
     return { dot: "bg-[#949ba4]", glow: "", label: "Offline" };
 }
 
