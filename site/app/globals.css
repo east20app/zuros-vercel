@@ -497,6 +497,110 @@ body { width: 100%; min-height: 100dvh; overscroll-behavior-x: none; }
     .zuros-mobile-menu-button { top: calc(.75rem + env(safe-area-inset-top)); }
     .zuros-dashboard-stage { padding-top: calc(4rem + env(safe-area-inset-top)); min-height: 100dvh; }
 }
+/* ZUROS / SIGNATURE SYSTEM — última camada visual, sem alterar estrutura ou comportamento */
+:root {
+    --background: #080b11;
+    --background-dark: #05070b;
+    --surface: #101722;
+    --surface-raised: #172131;
+    --surface-hover: #1d2a3d;
+    --border: #263449;
+    --border-strong: #3a4d68;
+    --muted: #9aa9bc;
+    --muted-dim: #65758a;
+    --accent: #6f9cff;
+    --accent-strong: #a9c2ff;
+    --accent-dim: #4e78d1;
+    --accent-soft: rgba(111, 156, 255, .14);
+    --accent-glow: rgba(111, 156, 255, .28);
+    --foreground: #f4f7fb;
+    --z-bg: #080b11;
+    --z-surface: #101722;
+    --z-surface-2: #121c2b;
+    --z-surface-3: #172131;
+    --z-border: rgba(171, 198, 238, .16);
+    --z-border-hover: rgba(171, 198, 238, .34);
+    --z-text: #f4f7fb;
+    --z-text-secondary: #aab8ca;
+    --z-text-muted: #718196;
+    --z-primary: #6f9cff;
+    --z-primary-hover: #88adff;
+    --z-primary-dark: #4e78d1;
+    --z-radius-card: 1rem;
+    --z-shadow-card: 0 24px 70px rgba(0, 0, 0, .34);
+    --background-glow: rgba(111, 156, 255, .12);
+}
+
+[data-theme="light"] {
+    --background: #f3f6fb;
+    --background-dark: #e7edf6;
+    --surface: #ffffff;
+    --surface-raised: #f7faff;
+    --surface-hover: #edf3fc;
+    --border: #d7e0ee;
+    --border-strong: #b9c8dc;
+    --muted: #52647b;
+    --muted-dim: #718198;
+    --accent: #315fc5;
+    --accent-strong: #21499f;
+    --accent-dim: #668be0;
+    --accent-soft: rgba(49, 95, 197, .1);
+    --accent-glow: rgba(49, 95, 197, .2);
+    --foreground: #142033;
+}
+
+html { background: var(--background); }
+body {
+    background-color: var(--background);
+    background-image: linear-gradient(rgba(111,156,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(111,156,255,.035) 1px, transparent 1px), radial-gradient(900px 560px at 78% -12%, rgba(111,156,255,.16), transparent 64%), radial-gradient(760px 520px at 8% 18%, rgba(60,105,185,.10), transparent 68%);
+    background-size: 44px 44px, 44px 44px, auto, auto;
+}
+
+.reference-public-page, .reference-home, .reference-plans {
+    position: relative;
+    isolation: isolate;
+    background: transparent;
+}
+.reference-public-page::before, .reference-home::before, .reference-plans::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(120deg, rgba(255,255,255,.025), transparent 28%), radial-gradient(600px 300px at 50% 0%, rgba(111,156,255,.08), transparent 72%);
+}
+
+.public-nav-wrap { background: linear-gradient(to bottom, rgba(8,11,17,.96), rgba(8,11,17,.72), transparent); }
+.public-nav { min-height: 4.5rem; border: 1px solid rgba(171,198,238,.13); border-radius: 1.25rem; background: rgba(16,23,34,.76); box-shadow: 0 18px 60px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.06); backdrop-filter: blur(18px); }
+.public-nav::after { display: none; }
+.public-nav-link { color: var(--muted); font-size: .7rem; letter-spacing: .12em; }
+.public-nav-link::after { bottom: -1.55rem; height: 2px; background: var(--accent); }
+.public-nav-link:hover, .public-nav-link.is-active { color: var(--foreground); }
+.public-nav-cta { border: 1px solid var(--accent); border-radius: .7rem; background: var(--accent); color: #07101d; box-shadow: 0 10px 30px -16px var(--accent); }
+.public-nav-cta:hover { background: var(--accent-strong); box-shadow: 0 14px 34px -14px var(--accent); }
+
+.zuros-card { border-color: rgba(171,198,238,.16); border-radius: 1rem; background: linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.018) 58%), var(--surface); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), var(--z-shadow-card); }
+.zuros-card:hover, .card-hover:hover { border-color: rgba(111,156,255,.44); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 26px 80px -42px rgba(111,156,255,.28); }
+.zuros-lift:hover { border-color: rgba(111,156,255,.44); box-shadow: 0 24px 60px -36px rgba(111,156,255,.28); }
+button:not(:disabled):hover, a:hover { filter: none; }
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea { background: rgba(8,11,17,.62); border-color: rgba(171,198,238,.18); border-radius: .7rem; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(111,156,255,.12); }
+thead { background: rgba(111,156,255,.08); }
+tbody tr:hover { background: rgba(111,156,255,.07); }
+
+.legal-shell { border: 1px solid rgba(171,198,238,.16); border-radius: 1.5rem; background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.018) 48%), rgba(16,23,34,.82); padding: clamp(1.25rem, 4vw, 3rem); box-shadow: var(--z-shadow-card); }
+.legal-back { display: inline-flex; align-items: center; color: var(--accent-strong); font-size: .8rem; font-weight: 700; letter-spacing: .02em; }
+.legal-back:hover { color: var(--foreground); }
+.legal-kicker { margin-top: 2.5rem; color: var(--accent); font-size: .68rem; font-weight: 800; letter-spacing: .18em; }
+.legal-title { margin-top: .75rem; color: var(--foreground); font-size: clamp(2.2rem, 5vw, 4.5rem); font-weight: 700; line-height: .98; letter-spacing: -.065em; }
+.legal-updated { margin-top: 1rem; color: var(--muted-dim); font-size: .78rem; }
+.legal-intro { max-width: 42rem; margin-top: 2rem; color: var(--muted); font-size: 1rem; line-height: 1.8; }
+.legal-copy { margin-top: 3rem; display: grid; gap: 2.25rem; }
+.legal-copy section { border-top: 1px solid var(--border); padding-top: 1.5rem; }
+.legal-copy h2 { color: var(--foreground); font-size: 1.05rem; font-weight: 700; letter-spacing: -.02em; }
+.legal-copy p { max-width: 48rem; margin-top: .75rem; color: var(--muted); font-size: .95rem; line-height: 1.9; }
+
 @media (max-width: 767px) {
     *, *::before, *::after { box-sizing: border-box; }
     body, #main-content, .zuros-dashboard-stage, .zuros-dashboard-content, main { width: 100%; max-width: 100%; min-width: 0; }
