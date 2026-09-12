@@ -15,7 +15,14 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
     await requireUser();
-    const apps = await listMyApps();
+    let apps: Awaited<ReturnType<typeof listMyApps>> = [];
+    let appsLoadError = false;
+    try {
+        apps = await listMyApps();
+    } catch (error) {
+        appsLoadError = true;
+        console.error("[dashboard-home] Falha ao carregar aplicações", error);
+    }
     const sorted = [...apps].sort((a, b) => {
         const rank = (app: (typeof apps)[number]) => {
             let value = 0;
@@ -63,6 +70,7 @@ export default async function DashboardPage() {
                 </article>
             </section>
 
+            {appsLoadError && <div role="alert" className="support-notice mt-5"><strong>Não foi possível carregar suas aplicações agora.</strong><span className="ml-2">Atualize a página e tente novamente.</span></div>}
             <section className="dashboard-apps-section dashboard-apps-section-clean" aria-labelledby="dashboard-apps-heading">
                 <div className="dashboard-apps-heading">
                     <h2 id="dashboard-apps-heading">Aplicações</h2>
