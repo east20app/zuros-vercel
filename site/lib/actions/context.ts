@@ -35,6 +35,8 @@ export async function getSessionUser(): Promise<{ discordId: string } | null> {
 }
 
 export async function requireSessionUser(discordIdOverride?: string): Promise<string> {
+    // O override é usado somente pelas rotas internas autenticadas do bot;
+    // páginas e Server Actions do painel sempre chamam sem argumento.
     if (discordIdOverride?.trim()) {
         await ensureDatabaseConnection();
         return discordIdOverride.trim();

@@ -40,6 +40,10 @@ function emailCodeHash(email: string, code: string): string {
     return crypto.createHmac("sha256", process.env.NEXTAUTH_SECRET || "dev-insecure-secret").update(`${email}:${code}`).digest("hex");
 }
 
+function emailIdentityId(email: string): string {
+    return `email:${crypto.createHash("sha256").update(email).digest("hex").slice(0, 40)}`;
+}
+
 const authUrl = validatedAuthUrl();
 // Sem barra final: uma divergência aqui muda o nome do cookie de sessão
 // (`next-auth.session-token` vs `__Secure-next-auth.session-token`) e derruba
@@ -67,7 +71,7 @@ export const authOptions: AuthOptions = {
                 const email = credentials?.email?.trim().toLowerCase();
                 const code = credentials?.code?.trim();
                 if (!email || !code || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code)) return null;
-                const user = await databases.siteUsers.findOne({ email }).select("+emailLoginCodeHash +emailLoginCodeExpiresAt +emailLoginCodeAttempts");
+                const user = await databases.siteUsers.findOne({ discordId: emailIdentityId(email), email }).select("+emailLoginCodeHash +emailLoginCodeExpiresAt +emailLoginCodeAttempts");
                 if (!user?.emailLoginCodeHash || !user.emailLoginCodeExpiresAt || user.emailLoginCodeExpiresAt.getTime() < Date.now()) return null;
                 if ((user.emailLoginCodeAttempts || 0) >= 5) return null;
                 const expected = emailCodeHash(email, code);
@@ -137,8 +141,9 @@ export const authOptions: AuthOptions = {
         async signIn({ user, account, profile }) {
             if (!user.id) return false;
             try {
-                const existingByEmail = user.email ? await databases.siteUsers.findOne({ email: user.email }, { discordId: 1 }).lean() : null;
-                const identityId = existingByEmail?.discordId || user.id;
+                // Discord login must always keep Discord's own subject as the
+                // owner identity; an equal e-mail must never merge accounts.
+                const identityId = user.id;
                 const accessToken = account?.access_token ? encryptOAuthToken(account.access_token) : undefined;
                 const refreshToken = account?.refresh_token ? encryptOAuthToken(account.refresh_token) : undefined;
                 const discordProfile = (profile || {}) as Record<string, unknown>;
@@ -177,15 +182,16 @@ export const authOptions: AuthOptions = {
             } catch (error) {
                 console.error("[auth] Não foi possível registrar o login Discord.", error instanceof Error ? error.message : "Erro desconhecido");
             }
-            await sendLoginAlert({ userId: user.email ? ((await databases.siteUsers.findOne({ email: user.email }, { discordId: 1 }).lean())?.discordId || user.id) : user.id, method: account?.provider === "discord" ? "Discord" : "e-mail", context: loginContextFromHeaders(await headers()) }).catch((error) => console.error("[auth] Falha ao enviar alerta de login:", error instanceof Error ? error.message : "erro desconhecido"));
+            await sendLoginAlert({ userId: user.id, method: account?.provider === "discord" ? "Discord" : "e-mail", context: loginContextFromHeaders(await headers()) }).catch((error) => console.error("[auth] Falha ao enviar alerta de login:", error instanceof Error ? error.message : "erro desconhecido"));
             return true;
         },
         // Persiste a identidade inteira no JWT. Assim a sessão sobrevive a
         // re-hidratações do token sem depender de nova consulta ao provedor.
         async jwt({ token, user }) {
             if (user) {
-                const existingByEmail = user.email ? await databases.siteUsers.findOne({ email: user.email }, { discordId: 1 }).lean() : null;
-                token.discordId = existingByEmail?.discordId || user.id;
+                // The authenticated provider subject is the only source of
+                // authorization. Never replace it by a record found by email.
+                token.discordId = user.id;
                 if (user.name) token.name = user.name;
                 if (user.email) token.email = user.email;
                 if (user.image) token.picture = user.image;
@@ -194,7 +200,10 @@ export const authOptions: AuthOptions = {
         },
         async session({ session, token }) {
             if (session.user) {
-                session.user.discordId = token.discordId || "";
+                // `sub` é o identificador real emitido pelo provider e também
+                // corrige sessões antigas que tenham recebido um discordId
+                // indevido por um lookup legado baseado apenas em e-mail.
+                session.user.discordId = token.sub || token.discordId || "";
                 // Fallbacks garantem que a sessão continua "autenticada" mesmo se
                 // o token não carregar o perfil completo (ex.: JWT antigo).
                 if (!session.user.name && token.name) session.user.name = token.name;

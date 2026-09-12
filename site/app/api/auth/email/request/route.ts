@@ -55,7 +55,10 @@ export async function POST(request: Request) {
 
         const smtp = smtpConfig();
         const users = databases.siteUsers;
-        let user = await users.findOne({ email }).select("+emailLoginCodeRequestedAt +emailLoginSendCount +emailLoginSendWindowStart");
+        const identityId = emailUserId(email);
+        // E-mail é uma identidade separada do Discord. Não reutilizar um
+        // usuário Discord que possua o mesmo e-mail, evitando herdar seus bots.
+        let user = await users.findOne({ discordId: identityId, email }).select("+emailLoginCodeRequestedAt +emailLoginSendCount +emailLoginSendWindowStart");
         const nowMs = Date.now();
 
         if (user?.emailLoginCodeRequestedAt && nowMs - user.emailLoginCodeRequestedAt.getTime() < REQUEST_COOLDOWN_MS) {
@@ -72,7 +75,7 @@ export async function POST(request: Request) {
         const now = new Date(nowMs);
         if (!user) {
             user = await users.create({
-                discordId: emailUserId(email),
+                discordId: identityId,
                 name: email.split("@")[0].slice(0, 80) || "Usuário",
                 email,
                 authorizedGuildJoin: false,
