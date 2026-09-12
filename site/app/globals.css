@@ -4022,3 +4022,43 @@ body:has(.schematic-background) { background-image: none; background-color: #0A0
 
 /* The schematic background replaces the public/login body texture when present. */
 body:has(.schematic-background) { background-image: none; background-color: #0A0B0D; }
+
+/* Final public layout guard: legacy !important rules must not override the control-room system. */
+.reference-home .home-title span,
+.reference-public-page .reference-public-title span,
+.reference-plans-intro h1 span { color: #F5A623 !important; text-shadow: none !important; }
+.reference-home .home-primary-cta,
+.reference-home .reference-cta-link,
+.reference-plans .home-primary-cta,
+.reference-public-page .home-primary-cta,
+.public-nav-cta { background: #F5A623 !important; border-color: #F5A623 !important; color: #0A0B0D !important; box-shadow: 0 8px 24px rgba(245,166,35,.16) !important; }
+.reference-home .home-primary-cta:hover,
+.reference-home .reference-cta-link:hover,
+.reference-plans .home-primary-cta:hover,
+.reference-public-page .home-primary-cta:hover,
+.public-nav-cta:hover { background: #FFC45E !important; color: #0A0B0D !important; }
+.reference-home .home-secondary-cta { background: #131519 !important; border-color: #343B48 !important; color: #EDEEF0 !important; }
+.reference-home .home-secondary-cta:hover { background: #1C1F24 !important; border-color: #F5A623 !important; color: #F5A623 !important; }
+.reference-home .reference-hero-copy .home-title { color: #EDEEF0 !important; }
+.reference-home .reference-dashboard-mock,
+.reference-home .reference-dashboard-mock * { box-sizing: border-box; }
+/* The form and telemetry are grid children; each must occupy its entire 50% track. */
+.login-page-content { width: 100%; min-width: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+.login-left, .login-right { width: 100% !important; min-width: 0; max-width: none !important; }
+.login-left-inner, .login-right-inner { width: 100% !important; max-width: 40rem !important; min-width: 0; box-sizing: border-box; }
+.login-present-highlight { background: none !important; -webkit-background-clip: initial !important; background-clip: initial !important; -webkit-text-fill-color: #F5A623 !important; color: #F5A623 !important; }
+.login-dashboard-mock { width: 100%; max-width: 34rem; }
+@media (max-width: 800px) {
+    .login-left, .login-right { width: 100% !important; }
+    .login-page-content { display: flex !important; }
+}
+
+.reference-home .home-secondary-cta,
+.reference-home .home-secondary-cta:hover { background: #131519 !important; border: 1px solid #343B48 !important; color: #EDEEF0 !important; box-shadow: none !important; }
+.reference-home .home-secondary-cta:hover { border-color: #F5A623 !important; color: #F5A623 !important; }
+.public-nav { background: #131519 !important; border-color: #232833 !important; }
+.reference-feature { border-color: #232833 !important; background: #131519 !important; }
+.plans-product-card { border-color: #232833 !important; background: #131519 !important; }
+.plans-product-card.is-featured { border-color: rgba(245,166,35,.55) !important; }
+.plans-product-action { border-color: #343B48 !important; }
+.reference-clients { border-color: #232833 !important; }

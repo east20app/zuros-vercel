@@ -381,8 +381,8 @@ export function LoginForm() {
                                     >
                                         <defs>
                                             <linearGradient id="lg-fill" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor="rgba(124,58,237,0.25)" />
-                                                <stop offset="100%" stopColor="rgba(124,58,237,0)" />
+                                                <stop offset="0%" stopColor="rgba(245,166,35,0.25)" />
+                                                <stop offset="100%" stopColor="rgba(245,166,35,0)" />
                                             </linearGradient>
                                         </defs>
                                         <path
@@ -392,7 +392,7 @@ export function LoginForm() {
                                         <path
                                             d="M0,80 C40,70 80,50 120,55 C160,60 200,30 240,35 C280,40 320,20 360,25 L400,18"
                                             fill="none"
-                                            stroke="rgba(124,58,237,0.6)"
+                                            stroke="rgba(245,166,35,0.6)"
                                             strokeWidth="2"
                                         />
                                     </svg>
