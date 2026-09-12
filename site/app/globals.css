@@ -3779,3 +3779,48 @@ table tbody tr:hover {
     body { background-image: none !important; }
     .zuros-card, .reference-feature, .home-feature-card, .store-card { border-radius: 8px !important; }
 }
+
+
+/* BORDERLESS NAVIGATION — menu surfaces stay clean; active state uses color only */
+.zuros-sidebar-panel,
+.zuros-mobile-drawer > div,
+aside.fixed,
+aside[class*="bg-background-dark"] {
+    border: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+}
+
+.zuros-sidebar-panel .sidebar-link,
+.zuros-sidebar-panel .sidebar-link-active,
+.zuros-sidebar-panel .sidebar-help-link,
+.zuros-sidebar-panel > button[title="Sair da conta"],
+.zuros-sidebar-panel > button[title="Sair da conta"]:hover,
+.zuros-sidebar-panel a,
+.zuros-sidebar-panel button,
+.user-bot-workspace-bar nav a,
+.reference-mock-nav a,
+aside nav a,
+aside nav button {
+    border: 0 !important;
+    border-color: transparent !important;
+    outline: 0;
+}
+
+.zuros-sidebar-panel .sidebar-link-active,
+.zuros-sidebar-panel a[aria-current="page"],
+.zuros-sidebar-panel a.is-active,
+aside nav a[aria-current="page"] {
+    border: 0 !important;
+    box-shadow: inset 3px 0 0 var(--z-black-accent), none !important;
+}
+
+.zuros-sidebar-panel .sidebar-link:hover,
+.zuros-sidebar-panel .sidebar-help-link:hover,
+.zuros-sidebar-panel > button[title="Sair da conta"]:hover,
+.user-bot-workspace-bar nav a:hover,
+aside nav a:hover,
+aside nav button:hover {
+    border: 0 !important;
+    box-shadow: none !important;
+}
