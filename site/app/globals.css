@@ -3554,3 +3554,75 @@ tbody tr:hover { background: rgba(214,255,99,.06); }
     .zuros-card:hover, .reference-feature:hover, .home-feature-card:hover, .store-card:hover { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) { body::before { display: none; } }
+
+/* --------------------------------------------------------------------------
+   ZUROS / ATLAS — redesign visual integral
+   Mantém toda a estrutura e comportamento existentes; altera somente a camada visual.
+   -------------------------------------------------------------------------- */
+:root {
+    --atlas-bg: #081015;
+    --atlas-panel: #0e1a21;
+    --atlas-panel-raised: #13242c;
+    --atlas-line: rgba(180, 220, 224, .16);
+    --atlas-line-strong: rgba(214, 255, 99, .48);
+    --atlas-text: #f1f6f4;
+    --atlas-muted: #8da1a8;
+    --atlas-lime: #d6ff63;
+    --atlas-coral: #ff806a;
+}
+
+html { background: var(--atlas-bg); }
+body {
+    background: var(--atlas-bg);
+    background-image:
+        linear-gradient(90deg, rgba(214,255,99,.045) 1px, transparent 1px),
+        linear-gradient(rgba(214,255,99,.045) 1px, transparent 1px),
+        radial-gradient(900px 500px at 10% -8%, rgba(214,255,99,.11), transparent 62%),
+        radial-gradient(760px 560px at 100% 18%, rgba(255,128,106,.09), transparent 62%);
+    background-size: 64px 64px, 64px 64px, auto, auto;
+    color: var(--atlas-text);
+}
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(115deg, transparent 0 48%, rgba(255,255,255,.018) 48.1% 48.2%, transparent 48.3%); }
+
+h1, h2, h3, h4, .font-display { font-family: "Arial Narrow", "Inter", sans-serif; font-weight: 700; letter-spacing: -.06em; }
+
+/* Todas as superfícies passam a seguir a mesma hierarquia editorial. */
+.zuros-card, .reference-feature, .home-feature-card, .sales-chart-wrap, .sales-recent-card, .store-card {
+    border: 1px solid var(--atlas-line);
+    border-radius: 0.55rem;
+    background: linear-gradient(145deg, rgba(19,36,44,.96), rgba(8,17,22,.98));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 24px 70px -48px #000;
+}
+.zuros-card::before, .reference-feature::before, .home-feature-card::before { content: ""; position: absolute; left: 0; top: 0; width: 4.5rem; height: 2px; background: var(--atlas-lime); box-shadow: 0 0 18px rgba(214,255,99,.4); }
+.zuros-card::after, .reference-feature::after, .home-feature-card::after { background: linear-gradient(120deg, rgba(214,255,99,.07), transparent 28%); }
+.zuros-card:hover, .reference-feature:hover, .home-feature-card:hover, .store-card:hover { border-color: var(--atlas-line-strong); transform: translateY(-3px); box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 30px 80px -48px rgba(214,255,99,.28); }
+
+/* Navegação com aparência de produto próprio, não de template. */
+.public-nav-wrap { background: linear-gradient(to bottom, rgba(8,16,21,.97), rgba(8,16,21,.72), transparent); }
+.public-nav { border: 1px solid var(--atlas-line); border-top: 0; border-radius: 0 0 .65rem .65rem; background: rgba(10, 20, 26, .88); box-shadow: 0 24px 60px -46px rgba(214,255,99,.55); backdrop-filter: blur(22px); }
+.public-nav::after { width: 30%; background: var(--atlas-lime); }
+.public-nav-link { color: var(--atlas-muted); font-size: .68rem; letter-spacing: .16em; }
+.public-nav-link:hover, .public-nav-link.is-active { color: var(--atlas-lime); }
+.public-nav-cta, .home-primary-cta, .store-card-action { border-radius: .45rem; background: var(--atlas-lime); color: #081015; box-shadow: 0 14px 34px -18px rgba(214,255,99,.8); }
+.public-nav-cta:hover, .home-primary-cta:hover, .store-card-action:hover { background: #edffad; transform: translateY(-2px); }
+
+/* Botões e controles: mesma assinatura em todas as páginas. */
+button, a { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), a[class*="border"], .public-nav-cta { letter-spacing: .015em; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea { border-radius: .45rem; background: rgba(5,12,16,.78); border-color: var(--atlas-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.025); }
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover, select:hover, textarea:hover { border-color: rgba(214,255,99,.34); }
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus, select:focus, textarea:focus { border-color: var(--atlas-lime); box-shadow: 0 0 0 3px rgba(214,255,99,.12), 0 10px 30px -22px rgba(214,255,99,.7); }
+
+.zuros-dashboard-stage { background: transparent; }
+.zuros-dashboard-content { background: linear-gradient(135deg, rgba(6,14,18,.88), rgba(9,20,25,.72)); border-color: var(--atlas-line); }
+.zuros-sidebar-panel { background: linear-gradient(180deg, #10212a, #071015 78%); border-right-color: var(--atlas-line); box-shadow: 18px 0 55px -42px rgba(214,255,99,.45); }
+.zuros-sidebar-panel a[aria-current="page"], .zuros-sidebar-panel a.is-active { border-radius: .4rem; background: var(--atlas-lime); color: #081015; box-shadow: 0 10px 26px -18px rgba(214,255,99,.8); }
+.zuros-sidebar-panel a:not([aria-current="page"]):hover { border-radius: .4rem; background: rgba(214,255,99,.09); color: var(--atlas-lime); }
+thead { background: rgba(214,255,99,.08); } tbody tr { border-bottom-color: var(--atlas-line); } tbody tr:hover { background: rgba(214,255,99,.07); }
+
+@media (max-width: 767px) {
+    body { background-size: 42px 42px, 42px 42px, auto, auto; }
+    .public-nav { border-radius: 0; }
+    .zuros-card, .reference-feature, .home-feature-card, .store-card { border-radius: .5rem; }
+    .zuros-card:hover, .reference-feature:hover, .home-feature-card:hover, .store-card:hover { transform: none; }
+}
