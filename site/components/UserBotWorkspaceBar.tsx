@@ -14,10 +14,11 @@ interface NavItem {
 const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
     {
         label: "Principal",
-        items: [
-            { label: "Visão geral", suffix: "", icon: "dashboard", exact: true },
-            { label: "Servidores", suffix: "/servidores", icon: "apps" },
-        ],
+            items: [
+                { label: "Visão geral", suffix: "", icon: "dashboard", exact: true },
+                { label: "Servidores", suffix: "/servidores", icon: "apps" },
+                { label: "Identidade e acesso", suffix: "/identidade", icon: "shield" },
+            ],
     },
     {
         label: "Vendas",

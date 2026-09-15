@@ -1,6 +1,5 @@
 import fs from "fs/promises";
-import { GridFSBucket } from "mongodb";
-import { connection } from "mongoose";
+import mongoose, { connection } from "mongoose";
 import connectDatabase from "../databases/connection";
 
 const bucketName = "productReleases";
@@ -10,7 +9,7 @@ const uploadFilename = (uploadId: string, index: number) => `uploads/${uploadId}
 async function bucket() {
     await connectDatabase();
     if (!connection.db) throw new Error("Banco de dados indisponível para armazenar a release.");
-    return new GridFSBucket(connection.db, { bucketName });
+    return new mongoose.mongo.GridFSBucket(connection.db, { bucketName });
 }
 
 export async function saveReleaseBuffer(productId: string, version: string, data: Buffer): Promise<string> {

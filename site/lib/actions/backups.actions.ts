@@ -32,6 +32,15 @@ export interface BackupQueueItem {
     status?: "done" | "erro";
     mensagem?: string;
 }
+const BACKUP_EXCLUDES = new Set(["channels", "categories", "roles", "members", "emojis", "stickers", "messages"]);
+function safeBackupName(value: string): string {
+    const name = String(value || "");
+    if (!name || name !== name.split(/[\\/]/).pop() || name.includes("..") || !/^[\w.-]+\.json$/i.test(name)) throw new ActionError("Arquivo de backup inválido.");
+    return name;
+}
+function normalizeExcludes(values: unknown): string[] {
+    return Array.isArray(values) ? [...new Set(values.map(String).filter((value) => BACKUP_EXCLUDES.has(value)))] : [];
+}
 
 async function ownedActiveApplication(appId: string) {
     const discordId = await requireSessionUser();
@@ -63,7 +72,7 @@ export async function getBotBackups(appId: string): Promise<{ backups: BackupEnt
     const auto: BackupAutoConfig = {
         backup_auto_ativo: Boolean(autoRaw.backup_auto_ativo) || false,
         backup_auto_minutos: typeof autoRaw.backup_auto_minutos === "number" ? autoRaw.backup_auto_minutos : 360,
-        backup_auto_exclude: Array.isArray(autoRaw.backup_auto_exclude) ? (autoRaw.backup_auto_exclude as string[]) : [],
+        backup_auto_exclude: normalizeExcludes(autoRaw.backup_auto_exclude),
     };
     const fila = readItems(filaDoc).filter((q): q is BackupQueueItem => !!q && typeof q === "object");
     return { backups, auto, fila };
@@ -85,14 +94,23 @@ export async function createBotBackup(appId: string): Promise<{ ok: true }> {
 
 export async function deleteBotBackup(appId: string, arquivo: string): Promise<{ ok: true }> {
     const { botId } = await ownedActiveApplication(appId);
-    await enqueueRequest(botId, { tipo: "delete", arquivo });
+    const name = safeBackupName(arquivo);
+    const backups = readItems(await getBotDocument(botId, "backs"));
+    if (!backups.some((entry) => entry && typeof entry === "object" && (entry as BackupEntry).arquivo === name)) throw new ActionError("Backup não encontrado.");
+    await enqueueRequest(botId, { tipo: "delete", arquivo: name });
     revalidatePath(`/dashboard/${appId}/backups`);
     return { ok: true };
 }
 
 export async function restoreBotBackup(appId: string, arquivo: string, tipos = "all", guildId?: string): Promise<{ ok: true }> {
     const { botId } = await ownedActiveApplication(appId);
-    await enqueueRequest(botId, { tipo: "restore", arquivo, tipos, guild_id: guildId || undefined });
+    const name = safeBackupName(arquivo);
+    const backups = readItems(await getBotDocument(botId, "backs"));
+    if (!backups.some((entry) => entry && typeof entry === "object" && (entry as BackupEntry).arquivo === name)) throw new ActionError("Backup não encontrado.");
+    if (!["none", "all", ...BACKUP_EXCLUDES].includes(tipos)) throw new ActionError("Opção de restauração inválida.");
+    const normalizedGuild = guildId ? String(guildId) : undefined;
+    if (normalizedGuild && !/^\d{15,25}$/.test(normalizedGuild)) throw new ActionError("Servidor Discord inválido.");
+    await enqueueRequest(botId, { tipo: "restore", arquivo: name, tipos, guild_id: normalizedGuild });
     revalidatePath(`/dashboard/${appId}/backups`);
     return { ok: true };
 }
@@ -102,7 +120,7 @@ export async function saveBotBackupAuto(appId: string, auto: BackupAutoConfig): 
     await saveBotDocument(botId, "backup_configs", {
         backup_auto_ativo: Boolean(auto.backup_auto_ativo),
         backup_auto_minutos: Math.max(1, Math.min(2880, Math.round(Number(auto.backup_auto_minutos) || 360))),
-        backup_auto_exclude: Array.isArray(auto.backup_auto_exclude) ? auto.backup_auto_exclude : [],
+        backup_auto_exclude: normalizeExcludes(auto.backup_auto_exclude),
     });
     revalidatePath(`/dashboard/${appId}/backups`);
     return { ok: true };

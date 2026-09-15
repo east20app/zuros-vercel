@@ -385,7 +385,7 @@ new InteractionHandler({
                     throw new Error("Você precisa fornecer um código de cupom.");
                 }
 
-                const coupon = await databases.coupons.findOne({ code: couponCode });
+                const coupon = await databases.coupons.findOne({ code: couponCode.toUpperCase(), storeId: cart.storeId });
                 if (!coupon) {
                     throw new Error("Cupom inválido ou não encontrado.");
                 }
@@ -422,7 +422,7 @@ new InteractionHandler({
                 // que o permitido). Agora o decremento é atômico e condicional: só
                 // consome o uso se `remainingUses > 0` no momento exato do update.
                 const claimedCoupon = await databases.coupons.findOneAndUpdate(
-                    { code: couponCode, remainingUses: { $gt: 0 } },
+                    { code: couponCode.toUpperCase(), storeId: cart.storeId, remainingUses: { $gt: 0 } },
                     { $inc: { remainingUses: -1 } }
                 );
 

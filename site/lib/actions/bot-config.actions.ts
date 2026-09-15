@@ -21,6 +21,22 @@ function logDroxFailure(operation: "read" | "write", moduleName: BotConfigModule
     console.error("[DROX_CONFIG] Falha técnica sanitizada", { operation, module: moduleName, cause: sanitizedTechnicalCause(error) });
 }
 
+const SECRET_FIELD = /token|secret|password|senha|api[_-]?key|private[_-]?key|cert(_file)?|credential/i;
+function redactPaymentSecrets(value: unknown): unknown {
+    if (Array.isArray(value)) return value.map(redactPaymentSecrets);
+    if (!value || typeof value !== "object") return value;
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, SECRET_FIELD.test(key) ? "" : redactPaymentSecrets(item)]));
+}
+function preservePaymentSecrets(existing: unknown, incoming: unknown): unknown {
+    if (Array.isArray(incoming)) return incoming;
+    if (!incoming || typeof incoming !== "object") return incoming;
+    const oldRecord = existing && typeof existing === "object" && !Array.isArray(existing) ? existing as Record<string, unknown> : {};
+    return Object.fromEntries(Object.entries(incoming as Record<string, unknown>).map(([key, item]) => {
+        if (SECRET_FIELD.test(key) && !String(item || "").trim()) return [key, oldRecord[key]];
+        return [key, preservePaymentSecrets(oldRecord[key], item)];
+    }));
+}
+
 async function ownedActiveApplication(appId: string) {
     const discordId = await requireSessionUser();
     const identifier = /^[a-f\d]{24}$/i.test(appId) ? { $or: [{ _id: appId }, { botId: appId }, { appId }] } : { botId: appId };
@@ -37,6 +53,7 @@ export async function getBotConfig(appId: string, modulo: string): Promise<Recor
     if (!process.env.VERCEL) startBotConfigSyncWatcher();
     try { return Object.fromEntries(await Promise.all(Object.entries(mapping).map(async ([alias, docId]) => {
         const document = (await getBotDocument(botId, docId)) || droxDefaultFor(docId);
+        if (docId === "payment_configs") return [alias, redactPaymentSecrets(document)];
         if (docId !== "cloud_data" || !document || typeof document !== "object" || Array.isArray(document)) return [alias, document];
         const cloud = structuredClone(document) as Record<string, unknown>;
         const auth = cloud.zuros_auth && typeof cloud.zuros_auth === "object" && !Array.isArray(cloud.zuros_auth) ? cloud.zuros_auth as Record<string, unknown> : {};
@@ -85,6 +102,10 @@ export async function saveBotConfig(appId: string, modulo: string, data: Record<
     try { await Promise.all(Object.entries(mapping).map(async ([alias, docId]) => {
         if (moduleName === "cloud" && alias === "tasks") return; // Histórico somente leitura; o worker do bot é o único escritor.
         let nextDocument = parsed.data[alias] ?? droxDefaultFor(docId);
+        if (docId === "payment_configs") {
+            const existing = await getBotDocument(botId, docId);
+            nextDocument = preservePaymentSecrets(existing, nextDocument) as Record<string, unknown>;
+        }
         if (docId === "cloud_data") {
             const existing = await getBotDocument(botId, docId) || {};
             const existingAuth = existing.zuros_auth && typeof existing.zuros_auth === "object" && !Array.isArray(existing.zuros_auth) ? existing.zuros_auth as Record<string, unknown> : {};

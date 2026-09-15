@@ -78,12 +78,13 @@ new InteractionHandler({
                 }
 
                 if (confirm.toLowerCase() === "sim"){
-                    await changeBalance({ 
-                        action: "add", 
-                        amount: buyCart.price, 
-                        origin: "sales", 
+                    await changeBalance({
+                        action: "add",
+                        amount: buyCart.finalPrice || buyCart.price,
+                        origin: "sales",
                         description: `Carrinho aprovado por ${interaction.user.tag} (${interaction.user.id})`,
                         storeId: storeConfig._id.toString(),
+                        operationKey: `sale:manual:buy:${buyCart._id}`,
                     });
                 }
 
@@ -95,6 +96,11 @@ new InteractionHandler({
 
                 buyCart.status = "opened";
                 buyCart.step = "payment-confirmed";
+                buyCart.confirmedAt = new Date();
+                buyCart.confirmedBy = `discord:${interaction.user.id}`;
+                buyCart.paymentSource = "manual";
+                buyCart.paymentProvider = "manual";
+                buyCart.deliveryState = "payment_confirmed";
                 await buyCart.save();
 
                 const messageData = await getCartMessage(interaction.channel.id);
@@ -124,12 +130,13 @@ new InteractionHandler({
                 }
 
                 if (confirm.toLowerCase() === "sim"){
-                    await changeBalance({ 
-                        action: "add", 
-                        amount: renewCart.price, 
-                        origin: "sales", 
+                    await changeBalance({
+                        action: "add",
+                        amount: renewCart.finalPrice || renewCart.price,
+                        origin: "sales",
                         description: `Renovação aprovada por ${interaction.user.tag} (${interaction.user.id})`,
                         storeId: storeConfig._id.toString(),
+                        operationKey: `sale:manual:renew:${renewCart._id}`,
                     });
                 }
 
@@ -138,7 +145,7 @@ new InteractionHandler({
                 renewCart.step = "payment-confirmed";
                 await renewCart.save();
 
-                const application = await databases.applications.findById(renewCart.applicationId);
+                const application = await databases.applications.findOne({ _id: renewCart.applicationId, storeId: renewCart.storeId });
                 if (application) {
                     if (renewCart.lifetime) {
                         application.lifetime = true;

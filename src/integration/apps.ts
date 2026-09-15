@@ -13,7 +13,7 @@ export const HOSTED_BOT_API_URL = "https://api.droxbot.com.br";
 type PopulatedApplication = IApplications & { productId: IProducts; storeId: IStores };
 type StoreSdk = NonNullable<Awaited<ReturnType<typeof sdkWrapper.getInstance>>>["instance"];
 type CamposApplication = Awaited<ReturnType<StoreSdk["getApplication"]>>;
-type ApplicationUpdate = Parameters<CamposApplication["updateApplication"]>[0];
+type ApplicationUpdate = { appName: string; memoryMB?: number; runtimeEnvironment?: "python" | "nodejs"; startupCommand?: string; environmentVariables?: Array<{ key: string; value: string }> };
 
 function runtimeEnvironment(runtime?: string): "python" | "nodejs" {
     return runtime?.toLowerCase().includes("node") ? "nodejs" : "python";

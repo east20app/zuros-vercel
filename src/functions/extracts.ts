@@ -6,6 +6,7 @@ interface IChangeBalance {
     origin: "sales" | "manual";
     action: "add" | "remove";
     description?: string;
+    operationKey?: string;
 }
 
 /**
@@ -20,7 +21,7 @@ interface IChangeBalance {
  * 4) `amount` não era validado (podia ser negativo/NaN, invertendo a lógica).
  */
 export const changeBalance = async (data: IChangeBalance) => {
-    const { amount, origin, action, description, storeId } = data;
+    const { amount, origin, action, description, storeId, operationKey } = data;
 
     if (action !== "add" && action !== "remove") {
         throw new Error("Ação inválida. Use 'add' ou 'remove'.");
@@ -32,6 +33,14 @@ export const changeBalance = async (data: IChangeBalance) => {
 
     if (!Number.isFinite(amount) || amount <= 0) {
         throw new Error("Valor inválido para alteração de saldo.");
+    }
+
+    if (operationKey) {
+        const claimed = await databases.extracts.create({ operationKey, origin, action, amount, description, storeId, createdAt: new Date() }).catch((error: any) => {
+            if (error?.code === 11000) return null;
+            throw error;
+        });
+        if (!claimed) return;
     }
 
     const filter: Record<string, any> = { _id: storeId };
@@ -47,7 +56,13 @@ export const changeBalance = async (data: IChangeBalance) => {
         filter.balance = { $gte: amount };
     }
 
-    const update = await databases.stores.updateOne(filter, balanceUpdate);
+    let update: Awaited<ReturnType<typeof databases.stores.updateOne>>;
+    try {
+        update = await databases.stores.updateOne(filter, balanceUpdate);
+    } catch (error) {
+        if (operationKey) await databases.extracts.deleteOne({ operationKey }).catch(() => undefined);
+        throw error;
+    }
 
     if (update.matchedCount === 0) {
         // Não achou o documento -> ou a loja não existe, ou (no caso de
@@ -58,20 +73,13 @@ export const changeBalance = async (data: IChangeBalance) => {
         );
 
         if (!storeExists) {
+            if (operationKey) await databases.extracts.deleteOne({ operationKey }).catch(() => undefined);
             throw new Error("Loja não encontrada.");
         }
+        if (operationKey) await databases.extracts.deleteOne({ operationKey }).catch(() => undefined);
 
         throw new Error("Saldo insuficiente.");
     }
 
-    const extractData = {
-        origin,
-        action,
-        amount,
-        description,
-        storeId,
-        createdAt: new Date(),
-    };
-
-    await databases.extracts.create(extractData);
+    if (!operationKey) await databases.extracts.create({ origin, action, amount, description, storeId, createdAt: new Date() });
 };

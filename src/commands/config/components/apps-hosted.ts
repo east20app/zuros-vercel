@@ -583,7 +583,7 @@ new InteractionHandler({
                     await sdkCampos.instance.stopApplication({ appId: application.appId! }).catch(() => null )
                 }
 
-                await currentApplicationCampos.updateApplication({
+                await (currentApplicationCampos as any).updateApplication({
                     appName: currentApplicationCampos.data.name,
                     memoryMB: currentApplicationCampos.data.allocatedMemoryMB,
                     runtimeEnvironment: (product.runtimeEnvironment?.toLowerCase().includes("node") ? "nodejs" : "python") as "python" | "nodejs",
@@ -718,7 +718,7 @@ new InteractionHandler({
                     await sdkCampos.instance.stopApplication({ appId: application.appId! }).catch(() => null )
                 }
 
-                await currentApplicationCampos.updateApplication({
+                await (currentApplicationCampos as any).updateApplication({
                     appName: currentApplicationCampos.data.name,
                     memoryMB: currentApplicationCampos.data.allocatedMemoryMB,
                     runtimeEnvironment: (product.runtimeEnvironment?.toLowerCase().includes("node") ? "nodejs" : "python") as "python" | "nodejs",

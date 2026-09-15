@@ -98,13 +98,13 @@ const SETTINGS_LABELS: Record<string, string> = {
     notificacoes: "Notificações", blacklist: "Bloquear usuários",
 };
 const PAYMENT_LABELS: Record<string, string> = {
-    pix_manual: "Pix Manual", mercado_pago: "Mercado Pago", efibank: "Efi Bank", pushinpay: "Pushin Pay",
+    zuros_wallet: "Zuros Wallet", pix_manual: "Pix Manual", mercado_pago: "Mercado Pago", efibank: "Efi Bank", pushinpay: "Pushin Pay",
     misticpay: "MisticPay", sync_wallet: "Sync Wallet", livepix: "Live Pix", pagbank: "PagBank", picpay: "PicPay",
     stripe: "Stripe", nowpayments: "NowPayments", coinbase: "Coinbase", asaas: "Asaas", paypal: "PayPal",
     nubank: "Nubank", nubank_imap: "Nubank IMAP", inter: "Inter", bitcoin: "Bitcoin", litecoin: "Litecoin", ethereum: "Ethereum",
 };
 const PAYMENT_CATEGORIES = {
-    pix: ["sync_wallet", "pix_manual", "mercado_pago", "efibank", "pagbank", "picpay", "pushinpay", "misticpay", "asaas", "nubank_imap"],
+    pix: ["zuros_wallet", "sync_wallet", "pix_manual", "mercado_pago", "efibank", "pagbank", "picpay", "pushinpay", "misticpay", "asaas", "nubank_imap"],
     card: ["stripe", "paypal", "asaas"],
     crypto: ["coinbase", "nowpayments"],
 } as const;

@@ -9,7 +9,7 @@ import QRCode from "qrcode";
 import { QrCodePix } from 'qrcode-pix';
 
 import { IProducts } from "@root/src/databases/schemas/products";
-import { emojis, checkRateLimit, V2Reply } from "@root/src/functions";
+import { emojis, checkRateLimit, getUserHasPermissionOnStore, PermissionsStore, V2Reply } from "@root/src/functions";
 import { ApplicationCommandOptionType, AttachmentBuilder, ButtonStyle, GuildEmojiRoleManager, InteractionResponse, Message, TextInputStyle } from "discord.js";
 import { CreateButton, CreateModal, CreateRow, CreateSelect, InteractionHandler, SlashCommand } from "fast-discord-js";
 import { IStores } from "@root/src/databases/schemas/stores";
@@ -20,6 +20,16 @@ import { releaseExists, redeployWithNewToken } from "@root/src/functions/hosted-
 
 const RENEW_CART_EXPIRES_MINUTES = 30; 
 const PIX_TAX = 1.2;
+
+async function getAuthorizedApplication(appId: string, userId: string) {
+    const application = await databases.applications.findById(appId).populate("storeId").populate("productId");
+    if (!application) return null;
+    const store = application.storeId as unknown as IStores | null;
+    if (!store) return null;
+    const owner = String(application.ownerId || "") === userId;
+    const admin = await getUserHasPermissionOnStore({ userId, storeId: String(store._id), permission: PermissionsStore.ADMIN }).catch(() => false);
+    return owner || admin ? application : null;
+}
 
 new SlashCommand({
     name: "apps",
@@ -153,7 +163,7 @@ new InteractionHandler({
     customId: "settings-app",
 
     run: async (client, interaction, appId) => {
-        const application = await databases.applications.findById(appId).populate("productId");
+        const application = await getAuthorizedApplication(appId, interaction.user.id);
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -209,7 +219,7 @@ new InteractionHandler({
             }
         }
 
-        const application = await databases.applications.findById(appId).populate("storeId").populate("productId");
+        const application = await getAuthorizedApplication(appId, interaction.user.id);
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -229,7 +239,7 @@ new InteractionHandler({
                 title: "Alterar Token da Aplicação",
                 customId: `change-token:${appId}:submit-modal`,
                 inputs: [
-                    { label: "Novo Token", customId: "newToken", required: true, placeholder: "Digite o novo token da aplicação", value: application.token }
+                    { label: "Novo Token", customId: "newToken", required: true, placeholder: "Digite o novo token da aplicação", value: "" }
                 ]
             })
 
@@ -288,7 +298,7 @@ new InteractionHandler({
                     await sdkCampos.instance.stopApplication({ appId: application.appId! }).catch(() => null )
                 }
 
-                await currentApplicationCampos.updateApplication({
+                await (currentApplicationCampos as any).updateApplication({
                     appName: currentApplicationCampos.data.name,
                     memoryMB: currentApplicationCampos.data.allocatedMemoryMB,
                     runtimeEnvironment: (product.runtimeEnvironment?.toLowerCase().includes("node") ? "nodejs" : "python") as "python" | "nodejs",
@@ -349,7 +359,7 @@ new InteractionHandler({
             return interaction.reply({ content: "`❌`・Este comando só pode ser usado através de um botão.", flags: 64 });
         }
 
-        const application = await databases.applications.findById(appId).populate("storeId")
+        const application = await getAuthorizedApplication(appId, interaction.user.id)
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -405,7 +415,7 @@ new InteractionHandler({
             return interaction.reply({ content: "`❌`・Este comando só pode ser usado através de um botão.", flags: 64 });
         }
 
-        const application = await databases.applications.findById(appId).populate("storeId");
+        const application = await getAuthorizedApplication(appId, interaction.user.id);
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -462,7 +472,7 @@ new InteractionHandler({
             return interaction.reply({ content: "`❌`・Este comando só pode ser usado através de um botão.", flags: 64 });
         }
 
-        const application = await databases.applications.findById(appId).populate("storeId");
+        const application = await getAuthorizedApplication(appId, interaction.user.id);
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -515,7 +525,7 @@ new InteractionHandler({
     customId: "change-name",
 
     run: async (client, interaction, appId, action) => {
-        const application = await databases.applications.findById(appId);
+        const application = await getAuthorizedApplication(appId, interaction.user.id);
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -560,7 +570,7 @@ new InteractionHandler({
     customId: "select-server",
 
     run: async (client, interaction, appId, action) => {
-        const application = await databases.applications.findById(appId).populate("storeId").populate("productId");
+        const application = await getAuthorizedApplication(appId, interaction.user.id);
         if (!application) {
             return interaction.reply({ content: "`❌`・Aplicação não encontrada.", flags: 64 });
         }
@@ -653,7 +663,7 @@ new InteractionHandler({
                     await sdkCampos.instance.stopApplication({ appId: application.appId! }).catch(() => null);
                 }
 
-                await currentApplicationCampos.updateApplication({
+                await (currentApplicationCampos as any).updateApplication({
                     appName: currentApplicationCampos.data.name,
                     memoryMB: currentApplicationCampos.data.allocatedMemoryMB,
                     runtimeEnvironment: (product.runtimeEnvironment?.toLowerCase().includes("node") ? "nodejs" : "python") as "python" | "nodejs",
@@ -694,6 +704,8 @@ new InteractionHandler({
                 });
 
                 await currentApplicationCampos.start().catch(() => null);
+                application.serverId = newServerId;
+                await application.save();
 
                 await client.invokeInteraction(`settings-app:${application._id}`, interaction as any);
                 await interaction.followUp({ content: "`✅`・Servidor principal alterado com sucesso!", flags: 64 });
@@ -1004,7 +1016,7 @@ new InteractionHandler({
                     throw new Error("Você precisa fornecer um código de cupom.");
                 }
 
-                const coupon = await databases.coupons.findOne({ code: couponCode });
+                const coupon = await databases.coupons.findOne({ code: couponCode.trim().toUpperCase(), storeId: cart.storeId });
                 if (!coupon) {
                     throw new Error("Cupom inválido ou não encontrado.");
                 }
@@ -1018,7 +1030,7 @@ new InteractionHandler({
                 }
 
                 const userRoles = interaction.member?.roles as unknown as GuildEmojiRoleManager;
-                if (coupon.roles) {
+                if (coupon.roles && coupon.roles.length > 0) {
                     if (!userRoles.cache.some(role => coupon.roles?.includes(role.id))) {
                         const rolesMention = coupon.roles.map(role => `<@&${role}>`).join(", ");
                         throw new Error(`Esse cupom só pode ser utilizado por membros com os cargos: ${rolesMention}`);
@@ -1043,7 +1055,11 @@ new InteractionHandler({
                 cart.coupon = coupon._id as any;
                 await cart.save();
 
-                await databases.coupons.updateOne({ code: couponCode }, { $inc: { remainingUses: -1 } });
+                const claimedCoupon = await databases.coupons.findOneAndUpdate(
+                    { _id: coupon._id, storeId: cart.storeId, remainingUses: { $gt: 0 } },
+                    { $inc: { remainingUses: -1 } },
+                );
+                if (!claimedCoupon) throw new Error("Este cupom acabou de esgotar. Tente novamente.");
 
                 const messageData = await getCartMessageRenew(cart._id.toString());
                 await interaction.message?.edit(messageData);

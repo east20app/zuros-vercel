@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { applyRenewCoupon, generateRenewPayment, pollRenewCart, startRenew } from "@/lib/actions/apps.actions";
+import { applyRenewCoupon, cancelRenewCart, generateRenewPayment, pollRenewCart, startRenew } from "@/lib/actions/apps.actions";
 import type { RenewPrices } from "@/lib/types";
 import { getErrorMessage } from "@/lib/errors";
 import { useCopyPixCode, usePixPolling, type PixPollState } from "@/hooks/usePixPayment";
@@ -43,7 +43,7 @@ export function RenewPanel({
     usePixPolling({
         active: step === "pix",
         poll: () => pollRenewCart(cartIdRef.current as string),
-        isConfirmed: (cart: PixPollState) => cart.status === "llosed" && cart.step === "payment-confirmed",
+        isConfirmed: (cart: PixPollState) => cart.status === "closed" && cart.step === "payment-confirmed",
         isTerminal: (cart: PixPollState) => cart.status === "cancelled" || cart.status === "expired",
         onConfirmed: () => {
             setStep("waiting");
@@ -84,8 +84,17 @@ export function RenewPanel({
         }
     }
 
-    function cancelPayment() {
-        setStep("choose");
+    async function cancelPayment() {
+        const cartId = cartIdRef.current;
+        if (!cartId) { setStep("choose"); return; }
+        try {
+            await cancelRenewCart(cartId);
+            cartIdRef.current = null;
+            setStep("choose");
+            push("Pagamento cancelado.");
+        } catch (error) {
+            push(getErrorMessage(error, "Não foi possível cancelar o pagamento."), "error");
+        }
     }
 
     return (

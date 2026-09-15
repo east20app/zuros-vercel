@@ -815,6 +815,20 @@ export async function pollRenewCart(cartId: string, discordIdOverride?: string):
     };
 }
 
+export async function cancelRenewCart(cartId: string): Promise<{ ok: true }> {
+    const discordId = await requireSessionUser();
+    const cart = await databases.cartsRenew.findOne({ _id: cartId, userId: discordId });
+    if (!cart) throw new ActionError("Carrinho não encontrado ou sem permissão.");
+    if (cart.status === "closed") throw new ActionError("Este pagamento já foi confirmado.");
+    if (["cancelled", "expired"].includes(cart.status)) return { ok: true };
+    await databases.cartsRenew.updateOne(
+        { _id: cart._id, userId: discordId, status: { $nin: ["closed", "cancelled", "expired"] } },
+        { $set: { status: "cancelled", step: "select-days" } },
+    );
+    revalidatePath(`/dashboard/${String(cart.applicationId)}`);
+    return { ok: true };
+}
+
 export async function listAppExtracts(appId: string): Promise<ExtractEntry[]> {
     const discordId = await requireSessionUser();
     const application = await assertOwnsApp(appId, discordId);
