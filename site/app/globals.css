@@ -4164,3 +4164,62 @@ html:has(.login-page-root), body:has(.login-page-root) {
     .login-divider { margin: .45rem 0 !important; }
     .login-footer { padding-top: .5rem !important; }
 }
+/* Responsive repair: compact login proportions and non-overlapping bot navigation. */
+.login-page-content {
+    display: grid !important;
+    grid-template-columns: minmax(18rem, 42%) minmax(0, 58%) !important;
+    align-items: stretch;
+}
+.login-left-inner {
+    width: min(100%, 30rem) !important;
+    margin-inline: auto;
+    padding: clamp(2rem, 7vh, 5rem) clamp(1.25rem, 4vw, 3rem) !important;
+    transform: translateY(clamp(1rem, 4vh, 3rem));
+}
+.login-right-inner {
+    width: min(100%, 52rem) !important;
+    margin-inline: auto;
+    padding: clamp(2rem, 7vh, 5rem) clamp(1.5rem, 5vw, 5rem) !important;
+}
+.login-btn { width: min(100%, 26rem) !important; min-height: 2.65rem !important; height: 2.65rem !important; font-size: .82rem !important; }
+.login-input { width: min(100%, 26rem) !important; height: 2.65rem !important; font-size: .85rem !important; }
+.login-form-fields { width: min(100%, 26rem) !important; }
+.login-dashboard-mock { max-width: 39rem !important; }
+.login-present-title { max-width: 28rem; font-size: clamp(1.7rem, 3vw, 2.65rem) !important; }
+.login-present-desc { max-width: 30rem; font-size: .9rem !important; }
+
+.user-bot-workspace-bar { overflow: hidden !important; }
+.user-bot-workspace-bar > div { min-width: 0 !important; overflow-x: auto !important; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.user-bot-workspace-bar nav { width: max-content !important; min-width: max-content !important; flex: 0 0 auto !important; }
+.user-bot-workspace-bar nav > span { display: flex !important; flex: 0 0 auto !important; min-width: max-content !important; white-space: nowrap !important; }
+.user-bot-workspace-bar nav a { flex: 0 0 auto !important; min-width: max-content !important; white-space: nowrap !important; }
+.drox-automation-save-hint { flex: 0 0 auto; color: #8b9199; font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+
+@media (max-width: 800px) {
+    html:has(.login-page-root), body:has(.login-page-root) { height: auto !important; min-height: 100%; overflow-x: hidden !important; overflow-y: auto !important; }
+    .login-page-root { position: relative !important; inset: auto !important; height: auto !important; min-height: 100svh !important; overflow: visible !important; }
+    .login-page-content { display: flex !important; flex-direction: column !important; min-height: 100svh !important; height: auto !important; overflow: visible !important; }
+    .login-right { order: 1 !important; height: auto !important; min-height: 9.75rem !important; border-bottom: 1px solid #232833; overflow: visible !important; }
+    .login-left { order: 2 !important; height: auto !important; min-height: 0 !important; overflow: visible !important; }
+    .login-present-text, .login-benefits { display: none !important; }
+    .login-right-inner { min-height: 9.75rem !important; padding: 1rem !important; justify-content: center !important; overflow: visible !important; }
+    .login-dashboard-mock { width: min(100%, 23rem) !important; max-height: 8rem !important; margin: 0 auto !important; }
+    .login-left-inner { width: min(100%, 26rem) !important; padding: 1.5rem 1.1rem 2rem !important; transform: none !important; justify-content: flex-start !important; }
+    .login-logo-link { margin-bottom: 1rem !important; }
+    .login-header { margin-bottom: 1rem !important; }
+    .login-title { font-size: 1.8rem !important; }
+    .login-subtitle { font-size: .82rem !important; }
+    .login-btn, .login-input, .login-form-fields { width: 100% !important; max-width: none !important; }
+    .login-btn { min-height: 2.65rem !important; height: 2.65rem !important; }
+    .login-input { height: 2.65rem !important; }
+    .user-bot-workspace-bar { position: sticky !important; top: 0 !important; z-index: 40 !important; padding-inline: .5rem !important; }
+    .user-bot-workspace-bar > div { gap: .5rem !important; padding-block: .5rem !important; }
+    .user-bot-workspace-bar > div > a { min-width: 7rem !important; }
+    .user-bot-workspace-bar nav { gap: .35rem !important; }
+    .user-bot-workspace-bar nav > span { gap: .25rem !important; padding-left: .5rem !important; }
+    .user-bot-workspace-bar nav > span > span { display: none !important; }
+    .user-bot-workspace-bar nav a { padding: .5rem .65rem !important; font-size: .68rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .login-left-inner, .login-btn, .login-input { transform: none !important; transition: none !important; }
+}

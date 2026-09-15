@@ -10,6 +10,7 @@ import { LojaEditor } from "./config/LojaEditor";
 import { ProtectionEditor } from "./config/ProtectionEditor";
 import { AutomationsEditor } from "./config/AutomationsEditor";
 import { CloudEditor } from "./config/CloudEditor";
+import { CustomizacaoEditor } from "./config/CustomizacaoEditor";
 import { ProtectionDashboard } from "./ProtectionDashboard";
 import { Button, Empty, Field, Spinner, inputClass } from "./ui";
 import { Icon } from "./Icon";
@@ -143,13 +144,6 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
         }
         return false;
     };
-    const toggleSection = (alias: string, current: unknown, next: boolean) => {
-        if (current && typeof current === "object" && !Array.isArray(current)) {
-            const obj = current as Record<string, unknown>;
-            const key = Object.hasOwn(obj, "status") ? "status" : Object.hasOwn(obj, "enabled") ? "enabled" : "ativado";
-            onChange([alias, key], next);
-        }
-    };
     return <div className="drox-automations-ui space-y-6">
         <div className="drox-automation-summary"><span><i /> {entries.filter(([, c]) => isSectionActive(undefined, c)).length}/{entries.length} ativos</span><small>Configurações sincronizadas com o módulo do DROX.</small></div>
         <section className="drox-automation-group"><h3>{BOT_MODULE_META[modulo].name}</h3><div className="drox-automation-card">
@@ -163,7 +157,7 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
                             <span className="drox-automation-copy"><b>{labelsForModule[alias] || labelFor(alias)}</b><small>{active ? "Ativa" : "Desativada"}</small></span>
                         </button>
                         <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setSelected(open ? "" : alias)} aria-label={`${open ? "Fechar" : "Abrir"} ${labelsForModule[alias] || labelFor(alias)}`}>⌄</button>
-                        <label className={`drox-switch ${active ? "is-on" : ""}`}><input type="checkbox" checked={active} onChange={(event) => toggleSection(alias, current, event.target.checked)} aria-label={`${active ? "Desativar" : "Ativar"} ${labelsForModule[alias] || labelFor(alias)}`} /><span /></label>
+                        <span className="drox-automation-save-hint">Editar</span>
                     </div>
                     {open && <div className="drox-automation-details"><p className="drox-automation-details-title">Configuração</p>{current && typeof current === "object" && !Array.isArray(current) ? Object.keys(current).length ? <DynamicFields value={current as Record<string, unknown>} roles={roles} channels={channels} path={[alias]} onChange={onChange} /> : <div className="rounded-xl border border-dashed border-white/[.1] p-8 text-center"><p className="text-sm text-[#b5bac1]">Nenhum item configurado.</p><p className="mt-1 text-xs text-[#949ba4]">Quando o DROX criar esta configuração, ela aparecerá aqui.</p></div> : <p className="text-sm text-[#949ba4]">Esta opção ainda não possui dados configuráveis.</p>}</div>}
                 </article>;
@@ -194,14 +188,6 @@ function ConfiguracoesEditor({ value, roles, channels, onChange }: { value: Reco
         }
         return false;
     };
-    const toggleSection = (key: string, document: unknown, next: boolean) => {
-        if (document && typeof document === "object" && !Array.isArray(document)) {
-            const doc = document as Record<string, unknown>;
-            if (key === "antifake" || Object.hasOwn(doc, "enabled")) onChange([key, "enabled"], next);
-            else if (Object.hasOwn(doc, "ativado")) onChange([key, "ativado"], next);
-            else if (Object.hasOwn(doc, "ativo")) onChange([key, "ativo"], next);
-        }
-    };
     return <div className="drox-automations-ui space-y-6">
         <div className="drox-automation-summary"><span><i /> {sections.filter((key) => isActive(key, value[key])).length}/{sections.length} ativos</span><small>Configurações sincronizadas com o módulo do DROX.</small></div>
         <section className="drox-automation-group"><h3>Configurações</h3><div className="drox-automation-card">
@@ -212,7 +198,7 @@ function ConfiguracoesEditor({ value, roles, channels, onChange }: { value: Reco
                         <span className="drox-automation-copy"><b>{SETTINGS_LABELS[key]}</b><small>{active ? "Ativa" : "Desativada"}</small></span>
                     </button>
                     <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setSelected(open ? "" : key)} aria-label={`${open ? "Fechar" : "Abrir"} ${SETTINGS_LABELS[key]}`}>⌄</button>
-                    <label className={`drox-switch ${active ? "is-on" : ""}`}><input type="checkbox" checked={active} onChange={(event) => toggleSection(key, document, event.target.checked)} aria-label={`${active ? "Desativar" : "Ativar"} ${SETTINGS_LABELS[key]}`} /><span /></label>
+                    <span className="drox-automation-save-hint">Editar</span>
                 </div>
                 {open && <div className="drox-automation-details"><p className="drox-automation-details-title">Configuração</p>{key === "pagamentos" && document && typeof document === "object" && !Array.isArray(document) ? <PaymentProviderEditor value={document as Record<string, unknown>} status={(value.pagamentosStatus as Record<string, unknown>) || {}} onChange={onChange} /> : document && typeof document === "object" && !Array.isArray(document) ? <DynamicFields value={document as Record<string, unknown>} roles={roles} channels={channels} path={[key]} onChange={onChange} /> : <p className="text-sm text-[#949ba4]">Esta opção ainda não possui configuração.</p>}</div>}
             </article>; })}
@@ -267,5 +253,5 @@ export function BotModuleEditor({ storeId, modulo, productsOnly = false }: { sto
     if (api.loading) return <div aria-label="Carregando configuração"><div className="flex items-center gap-3"><div className="skeleton h-11 w-11 rounded-2xl" /><div className="space-y-2"><div className="skeleton h-4 w-44 rounded-lg" /><div className="skeleton h-3 w-64 rounded-lg" /></div></div><div className="mt-6 space-y-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="skeleton h-24 rounded-2xl border border-white/[.04]" />)}</div></div>;
     if (api.error || !draft) return <div><Empty icon="!" title={api.error?.status === 403 ? "Acesso negado" : "Não foi possível conectar ao bot"} text={api.error?.message || "O bot está offline. As alterações ficam bloqueadas até ele responder."} action={<Button onClick={() => void api.reload()}>Tentar novamente</Button>} /></div>;
     if (modulo === "protecao") return <div><SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} /><div className="flex flex-col gap-6"><ProtectionDashboard data={draft} /><ProtectionEditor value={draft} roles={roles} channels={channels} onChange={setDraft} /></div></div>;
-    return <div><SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} /><div className="min-w-0">{modulo === "loja" ? <LojaEditor appId={storeId} value={draft} roles={roles} channels={channels} onChange={setDraft} productsOnly={productsOnly} persist={async (next) => { try { await api.save(next); push("Alteração salva com sucesso"); } catch (error) { push((error as BotConfigError).message || "Não foi possível salvar", "error"); await api.reload(); } }} /> : modulo === "configuracoes" ? <ConfiguracoesEditor value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : modulo === "automacoes" ? <AutomationsEditor value={draft} roles={roles} channels={channels} onChange={setDraft} /> : modulo === "cloud" ? <CloudEditor value={draft} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : <GenericModuleEditor modulo={modulo} value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} />}</div></div>;
+    return <div><SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} /><div className="min-w-0">{modulo === "loja" ? <LojaEditor appId={storeId} value={draft} roles={roles} channels={channels} onChange={setDraft} productsOnly={productsOnly} persist={async (next) => { try { await api.save(next); push("Alteração salva com sucesso"); } catch (error) { push((error as BotConfigError).message || "Não foi possível salvar", "error"); await api.reload(); } }} /> : modulo === "configuracoes" ? <ConfiguracoesEditor value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : modulo === "automacoes" ? <AutomationsEditor value={draft} roles={roles} channels={channels} onChange={setDraft} /> : modulo === "customizacao" ? <CustomizacaoEditor value={draft} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : modulo === "cloud" ? <CloudEditor value={draft} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : <GenericModuleEditor modulo={modulo} value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} />}</div></div>;
 }

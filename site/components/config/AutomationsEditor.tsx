@@ -65,7 +65,6 @@ export function AutomationsEditor({ value, roles, channels, onChange }: { value:
     const setDoc = (next: Doc) => onChange({ ...value, [selected]: next });
     const guildId = channels[0]?.guildId || null;
     const enabled = (id: string) => { const item = asDoc(value[id]); return bool(item.ativado ?? item.status); };
-    const toggleAutomation = (id: string, next: boolean) => { const item = asDoc(value[id]); onChange({ ...value, [id]: { ...item, ...(Object.hasOwn(item, "status") ? { status: next } : { ativado: next }) } }); };
     const activeCount = SECTIONS.filter(([id]) => enabled(id)).length;
     const automationGroups: Array<[string, Array<typeof SECTIONS[number]>]> = [
         ["Inteligência artificial", SECTIONS.filter(([id]) => id === "aiChat" || id === "aiModerator")],
@@ -99,7 +98,7 @@ export function AutomationsEditor({ value, roles, channels, onChange }: { value:
                         <span className={`drox-automation-icon ${active ? "is-active" : ""}`}>{automationIcon(id)}</span><span className="drox-automation-copy"><b>{name}</b><small>{active ? "Ativa" : "Desativada"}</small></span>
                     </button>
                     <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setSelected(open ? "" : id)} aria-label={`${open ? "Fechar" : "Abrir"} configuração de ${name}`}>⌄</button>
-                    <label className={`drox-switch ${active ? "is-on" : ""}`}><input type="checkbox" checked={active} onChange={(event) => toggleAutomation(id, event.target.checked)} aria-label={`${active ? "Desativar" : "Ativar"} ${name}`} /><span /></label>
+                    <span className="drox-automation-save-hint">Editar</span>
                 </div>
                 {open && <div className="drox-automation-details"><p className="drox-automation-details-title">Configuração</p>{content}</div>}
             </article>; })}
