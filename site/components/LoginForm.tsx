@@ -59,14 +59,20 @@ export function LoginForm() {
 
     useEffect(() => {
         if (status === "authenticated") {
-            router.replace("/dashboard");
+            router.replace(callbackUrl);
         }
-    }, [status, router]);
+    }, [status, router, callbackUrl]);
 
     async function handleDiscordSignIn() {
         setStarting(true);
-        await signIn("discord", { callbackUrl });
-        setStarting(false);
+        setEmailError("");
+        try {
+            await signIn("discord", { callbackUrl });
+        } catch {
+            setEmailError("Não conseguimos abrir o Discord. Tente novamente.");
+        } finally {
+            setStarting(false);
+        }
     }
 
     async function requestCode(event?: React.FormEvent) {
@@ -137,6 +143,8 @@ export function LoginForm() {
                     "Código inválido, expirado ou com muitas tentativas. Solicite um novo código."
                 );
             }
+        } catch {
+            setEmailError("Não conseguimos confirmar o código. Tente novamente.");
         } finally {
             setStarting(false);
         }
@@ -146,331 +154,67 @@ export function LoginForm() {
 
     return (
         <>
-            {/* ─── LEFT COLUMN: LOGIN FORM ─── */}
-            <div className="login-left">
-                <div className="login-left-inner">
-                    <Link
-                        href="/"
-                        aria-label="ZUROS — início"
-                        className="login-logo-link"
-                    >
-                        <BrandLogo
-                            priority
-                            className="h-8 w-32"
-                        />
-                    </Link>
-
-                    <div className="login-header">
-                        <span className="login-eyebrow">
-                            PAINEL ZUROS
-                        </span>
-                        <h1 id="login-title" className="login-title">
-                            Iniciar sessão
-                        </h1>
-                        <p className="login-subtitle">
-                            Acesse sua conta para continuar.
-                        </p>
+            <header className="auth-topbar">
+                <Link href="/" aria-label="ZUROS — início"><BrandLogo priority /></Link>
+                <Link href="/suporte" className="auth-help">Precisa de ajuda?</Link>
+            </header>
+            <div className="auth-layout">
+                <aside className="auth-story" aria-label="Sobre o painel">
+                    <p className="auth-eyebrow">FEITO PARA O SEU DISCORD</p>
+                    <h2>Seu servidor.<br />Do seu jeito.</h2>
+                    <p>Cuide dos seus bots, acompanhe os pedidos e deixe as mensagens com a cara da sua comunidade.</p>
+                    <ul>
+                        <li><span aria-hidden="true">01</span><div><strong>Um lugar para configurar</strong><p>Mensagens, canais e preferências do seu bot.</p></div></li>
+                        <li><span aria-hidden="true">02</span><div><strong>Sua loja por perto</strong><p>Produtos, pedidos e pagamentos pelo painel.</p></div></li>
+                        <li><span aria-hidden="true">03</span><div><strong>Ajuda quando precisar</strong><p>Abra uma conversa com o suporte pela sua conta.</p></div></li>
+                    </ul>
+                    <Link href="/planos" className="auth-story-link">Conheça os bots da ZUROS <span aria-hidden="true">→</span></Link>
+                </aside>
+                <section className="auth-panel" aria-labelledby="login-title">
+                    <div className="auth-form">
+                        <div className="auth-heading">
+                            <p className="auth-eyebrow">SUA CONTA ZUROS</p>
+                            <h1 id="login-title">{emailStep === "code" ? "Confira seu e-mail" : "Bom ter você por aqui."}</h1>
+                            <p>{emailStep === "code" ? "Digite o código que enviamos para continuar." : "Entre para cuidar dos seus bots e da sua loja."}</p>
+                        </div>
+                        {error && <div role="alert" className="auth-message is-error">{ERROR_MESSAGES[error] || ERROR_MESSAGES.Default}</div>}
+                        {emailError && <div role="alert" className="auth-message is-error">{emailError}</div>}
+                        {message && <div role="status" className="auth-message is-success">{message}</div>}
+                        <button type="button" onClick={() => void handleDiscordSignIn()} disabled={loading} className="auth-button auth-discord">
+                            <DiscordIcon /><span>Entrar com Discord</span>
+                        </button>
+                        <div className="auth-divider"><span>ou continue com e-mail</span></div>
+                        {emailStep === "email" ? (
+                            <form onSubmit={requestCode} className="auth-fields" aria-busy={loading}>
+                                <label htmlFor="login-email">Endereço de e-mail</label>
+                                <input id="login-email" type="email" required autoComplete="email" inputMode="email" autoCapitalize="none" spellCheck={false} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" className="auth-input" disabled={loading} />
+                                <p className="auth-field-hint">Enviamos um código de acesso. Você não precisa de senha.</p>
+                                <button type="submit" className="auth-button auth-primary" disabled={loading}>
+                                    {loading ? <Spinner /> : null}{starting ? "Enviando…" : "Receber código de acesso"}
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={verifyCode} className="auth-fields" aria-busy={loading}>
+                                <label htmlFor="login-code">Código de verificação</label>
+                                <input id="login-code" type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required autoComplete="one-time-code" autoFocus value={code} onChange={(event) => {
+                                    const next = event.target.value.replace(/\D/g, "").slice(0, 6);
+                                    setCode(next);
+                                    if (next.length === 6) void verifyCode(undefined, next);
+                                }} placeholder="000000" className="auth-input auth-code" disabled={loading} />
+                                <button type="submit" className="auth-button auth-primary" disabled={loading || code.length !== 6}>
+                                    {loading ? <Spinner /> : null}{starting ? "Confirmando…" : "Entrar na minha conta"}
+                                </button>
+                                <div className="auth-resend">
+                                    <button type="button" disabled={loading || resendLeft > 0} onClick={() => void requestCode()}>{resendLeft > 0 ? `Reenviar em ${resendLeft}s` : "Reenviar código"}</button>
+                                    <button type="button" disabled={loading} onClick={() => { setEmailStep("email"); setCode(""); setMessage(""); setEmailError(""); setResendAt(0); }}>Usar outro e-mail</button>
+                                </div>
+                            </form>
+                        )}
+                        <p className="auth-terms">Ao continuar, você concorda com os <Link href="/termos">Termos de uso</Link> e a <Link href="/privacidade">Política de privacidade</Link>.</p>
                     </div>
-
-                    {error && (
-                        <div role="alert" className="login-message login-message--error">
-                            {ERROR_MESSAGES[error] || ERROR_MESSAGES.Default}
-                        </div>
-                    )}
-
-                    {emailError && (
-                        <div role="alert" className="login-message login-message--error">
-                            {emailError}
-                        </div>
-                    )}
-
-                    {message && (
-                        <div role="status" className="login-message login-message--success">
-                            {message}
-                        </div>
-                    )}
-
-                    {loading ? (
-                        <div className="login-loading" aria-label="Processando">
-                            <Spinner />
-                        </div>
-                    ) : (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handleDiscordSignIn}
-                                className="login-btn login-btn--discord"
-                            >
-                                <DiscordIcon />
-                                <span>Entrar com Discord</span>
-                            </button>
-
-                            <div className="login-divider">
-                                <span>OU E-MAIL</span>
-                            </div>
-
-                            {emailStep === "email" ? (
-                                <form onSubmit={requestCode} className="login-form-fields">
-                                    <label className="login-field-label" htmlFor="login-email">
-                                        ENDEREÇO DE E-MAIL
-                                    </label>
-                                    <input
-                                        id="login-email"
-                                        type="email"
-                                        required
-                                        autoComplete="email"
-                                        autoFocus
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="seu@email.com"
-                                        className="login-input"
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="login-btn login-btn--primary"
-                                    >
-                                        Enviar código
-                                    </button>
-                                </form>
-                            ) : (
-                                <form onSubmit={verifyCode} className="login-form-fields">
-                                    <label className="login-field-label" htmlFor="login-code">
-                                        CÓDIGO DE VERIFICAÇÃO
-                                    </label>
-                                    <input
-                                        id="login-code"
-                                        type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]{6}"
-                                        maxLength={6}
-                                        required
-                                        autoComplete="one-time-code"
-                                        autoFocus
-                                        value={code}
-                                        onChange={(e) => {
-                                            const next = e.target.value
-                                                .replace(/\D/g, "")
-                                                .slice(0, 6);
-                                            setCode(next);
-                                            if (next.length === 6) {
-                                                void verifyCode(undefined, next);
-                                            }
-                                        }}
-                                        placeholder="000000"
-                                        className="login-input login-input--code"
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="login-btn login-btn--primary"
-                                    >
-                                        Confirmar código
-                                    </button>
-                                    <div className="login-resend-row">
-                                        {resendLeft > 0 ? (
-                                            <span
-                                                className="login-change-email"
-                                                role="status"
-                                                aria-live="polite"
-                                            >
-                                                Reenviar código em {resendLeft}s
-                                            </span>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                className="login-change-email"
-                                                onClick={() => void requestCode()}
-                                            >
-                                                Reenviar código
-                                            </button>
-                                        )}
-                                        <span className="login-resend-sep">·</span>
-                                        <button
-                                            type="button"
-                                            className="login-change-email"
-                                            onClick={() => {
-                                                setEmailStep("email");
-                                                setCode("");
-                                                setMessage("");
-                                                setEmailError("");
-                                                setResendAt(0);
-                                            }}
-                                        >
-                                            Usar outro e-mail
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-                        </>
-                    )}
-
-                    <div className="login-footer">
-                        <Link href="/termos" className="login-footer-link">
-                            Termos
-                        </Link>
-                        <span className="login-footer-sep">·</span>
-                        <Link href="/privacidade" className="login-footer-link">
-                            Privacidade
-                        </Link>
-                        <span className="login-footer-sep">·</span>
-                        <span className="login-footer-copy">
-                            © 2026 ZUROS
-                        </span>
-                    </div>
-                </div>
+                </section>
             </div>
-
-            {/* ─── RIGHT COLUMN: PRESENTATION ─── */}
-            <div className="login-right">
-                <div className="login-right-inner">
-                    <div className="login-present-text">
-                        <span className="login-present-badge">ZUROS</span>
-                        <h2 className="login-present-title">
-                            Gerencie suas aplicações em{" "}
-                            <span className="login-present-highlight">um só lugar.</span>
-                        </h2>
-                        <p className="login-present-desc">
-                            Uma plataforma completa para gerenciar seus bots,
-                            aplicações, vendas e operações com simplicidade.
-                        </p>
-                    </div>
-
-                    <div className="login-dashboard-mock">
-                        <div className="login-dash-topbar">
-                            <span className="login-dash-logo-text">ZUROS</span>
-                            <span className="login-dash-status">
-                                <span className="login-dash-status-dot" />
-                                Online
-                            </span>
-                        </div>
-
-                        <div className="login-dash-body">
-                            <div className="login-dash-stats">
-                                <div className="login-dash-card">
-                                    <span className="login-dash-card-label">Vendas</span>
-                                    <span className="login-dash-card-value">R$ 4.280</span>
-                                    <span className="login-dash-card-change login-dash-card-change--up">
-                                        +24.8%
-                                    </span>
-                                </div>
-                                <div className="login-dash-card">
-                                    <span className="login-dash-card-label">Usuários</span>
-                                    <span className="login-dash-card-value">1.293</span>
-                                    <span className="login-dash-card-change login-dash-card-change--up">
-                                        +12.3%
-                                    </span>
-                                </div>
-                                <div className="login-dash-card">
-                                    <span className="login-dash-card-label">Bots</span>
-                                    <span className="login-dash-card-value">8 Ativos</span>
-                                    <span className="login-dash-card-change">
-                                        Todos online
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="login-dash-chart">
-                                <div className="login-dash-chart-header">
-                                    <span>Atividade</span>
-                                    <span className="login-dash-chart-period">7 dias</span>
-                                </div>
-                                <div className="login-dash-chart-area">
-                                    <svg
-                                        viewBox="0 0 400 100"
-                                        preserveAspectRatio="none"
-                                        className="login-dash-chart-svg"
-                                    >
-                                        <defs>
-                                            <linearGradient id="lg-fill" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor="rgba(245,166,35,0.25)" />
-                                                <stop offset="100%" stopColor="rgba(245,166,35,0)" />
-                                            </linearGradient>
-                                        </defs>
-                                        <path
-                                            d="M0,80 C40,70 80,50 120,55 C160,60 200,30 240,35 C280,40 320,20 360,25 L400,18 L400,100 L0,100 Z"
-                                            fill="url(#lg-fill)"
-                                        />
-                                        <path
-                                            d="M0,80 C40,70 80,50 120,55 C160,60 200,30 240,35 C280,40 320,20 360,25 L400,18"
-                                            fill="none"
-                                            stroke="rgba(245,166,35,0.6)"
-                                            strokeWidth="2"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div className="login-dash-apps">
-                                <div className="login-dash-app">
-                                    <span className="login-dash-app-icon">🛒</span>
-                                    <div className="login-dash-app-info">
-                                        <span className="login-dash-app-name">ZUROS Store</span>
-                                        <span className="login-dash-app-status login-dash-app-status--on">
-                                            Online
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="login-dash-app">
-                                    <span className="login-dash-app-icon">🔐</span>
-                                    <div className="login-dash-app-info">
-                                        <span className="login-dash-app-name">ZUROS Auth</span>
-                                        <span className="login-dash-app-status login-dash-app-status--on">
-                                            Online
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="login-dash-app">
-                                    <span className="login-dash-app-icon">📊</span>
-                                    <div className="login-dash-app-info">
-                                        <span className="login-dash-app-name">ZUROS Panel</span>
-                                        <span className="login-dash-app-status login-dash-app-status--on">
-                                            Online
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="login-benefits">
-                        <div className="login-benefit-card">
-                            <div className="login-benefit-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                                    <line x1="8" y1="21" x2="16" y2="21" />
-                                    <line x1="12" y1="17" x2="12" y2="21" />
-                                </svg>
-                            </div>
-                            <span className="login-benefit-title">Aplicações</span>
-                            <span className="login-benefit-desc">
-                                Gerencie suas aplicações.
-                            </span>
-                        </div>
-                        <div className="login-benefit-card">
-                            <div className="login-benefit-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="16 18 22 12 16 6" />
-                                    <polyline points="8 6 2 12 8 18" />
-                                </svg>
-                            </div>
-                            <span className="login-benefit-title">Automação</span>
-                            <span className="login-benefit-desc">
-                                Simplifique seus processos.
-                            </span>
-                        </div>
-                        <div className="login-benefit-card">
-                            <div className="login-benefit-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                </svg>
-                            </div>
-                            <span className="login-benefit-title">Controle</span>
-                            <span className="login-benefit-desc">
-                                Tenha tudo organizado.
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <footer className="auth-bottom"><span>© {new Date().getFullYear()} ZUROS</span><Link href="/">Voltar ao site</Link></footer>
         </>
     );
 }
