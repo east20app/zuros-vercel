@@ -28,7 +28,7 @@ export const BOT_CONFIG_MODULES = {
         inviteTracker: "automations_invite_tracker", lockUnlock: "automations_lock_unlock", autoMessage: "automations_msg_auto", nuke: "automations_nuke",
         reactions: "automations_reactions", repost: "automations_repost", autoResponse: "automations_response_auto",
         suggestions: "automations_suggestions", topics: "automations_topics",
-        disparadorDm: "automations_disparador_dm", forms: "automations_forms",
+        disparadorDm: "automations_disparador_dm",
         autorole: "automations_autorole", cartas: "automations_cartas",
         welcomeMention: "automations_mencao_boas_vindas", departures: "automations_saidas",
     },
@@ -37,9 +37,7 @@ export const BOT_CONFIG_MODULES = {
     mensagens: { announce: "messages_anunciar", templates: "messages_templates1", directMessage: "enviar_dm_editor" },
     extensions: {
         config: "extensions_config", droxgen: "extensions_droxgen", boostData: "extensions_boost_data",
-        boostStock: "extensions_boost_stock", subscriptions: "extensions_subscriptions",
-        boostSubscriptions: "extensions_boost_subscriptions",
-        pendingPayments: "extensions_pending_payments", paymentHistory: "extensions_payment_history",
+        boostStock: "extensions_boost_stock",
     },
     configuracoes: {
         cargos: "cargos", canais: "canais", pagamentos: "payment_configs", pagamentosStatus: "pagamentos", antifake: "antifake_config",

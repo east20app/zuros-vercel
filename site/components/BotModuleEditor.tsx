@@ -142,10 +142,8 @@ const MODULE_SECTION_LABELS: Partial<Record<BotConfigModule, Record<string, stri
     cloud: { config: "Credenciais e verificação", tasks: "Tarefas OAuth2", gifts: "Presentes" },
     mensagens: { announce: "Anúncios", templates: "Modelos de mensagens", directMessage: "Editor de mensagem direta" },
     extensions: {
-        config: "Ativação de extensões", droxgen: "DROX Gen", boostData: "Zuros Boost · dados",
-        boostStock: "Zuros Boost · estoque", subscriptions: "Assinaturas pagas",
-        boostSubscriptions: "Assinaturas do Zuros Boost",
-        pendingPayments: "Pagamentos pendentes", paymentHistory: "Histórico de pagamentos",
+        config: "Ativação de extensões", droxgen: "Zuros Gen", boostData: "Zuros Boost · dados",
+        boostStock: "Zuros Boost · estoque",
     },
 };
 

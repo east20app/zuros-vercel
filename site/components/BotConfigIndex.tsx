@@ -20,7 +20,7 @@ const PANEL_OPTIONS: PanelOption[] = [
     { label: "Proteção do Servidor", description: "Anti-raid, privatizações e monitoramento", icon: "shield", module: "protecao" },
     { label: "Sorteios", description: "Mensagens e regras de participação", icon: "coupon", module: "giveaways" },
     { label: "Configurações", description: "Cargos, canais, pagamentos, anti-fake e blacklist", icon: "settings", module: "configuracoes" },
-    { label: "Extensões", description: "Ativação, DROX Gen, boost e assinaturas", icon: "apps", module: "extensions" },
+    { label: "Extensões", description: "Zuros Gen e Zuros Boost", icon: "apps", module: "extensions" },
 ];
 
 const GROUPS: Array<[string, string[]]> = [

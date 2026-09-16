@@ -71,7 +71,6 @@ test("automacoes maps every real DROX automation document", () => {
         suggestions: "automations_suggestions",
         topics: "automations_topics",
         disparadorDm: "automations_disparador_dm",
-        forms: "automations_forms",
         autorole: "automations_autorole",
         cartas: "automations_cartas",
         welcomeMention: "automations_mencao_boas_vindas",
@@ -98,10 +97,6 @@ test("extensions maps every real DROX extension document", () => {
         droxgen: "extensions_droxgen",
         boostData: "extensions_boost_data",
         boostStock: "extensions_boost_stock",
-        boostSubscriptions: "extensions_boost_subscriptions",
-        subscriptions: "extensions_subscriptions",
-        pendingPayments: "extensions_pending_payments",
-        paymentHistory: "extensions_payment_history",
     });
 });
 

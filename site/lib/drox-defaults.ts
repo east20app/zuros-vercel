@@ -189,7 +189,6 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     },
     automations_topics: { ativado: false, topicos: [], immune_role_id: null },
     automations_disparador_dm: { ativado: false, tokens: [], mensagem: {} },
-    automations_forms: { ativado: false, forms: {} },
     automations_autorole: { ativado: false, cargos: [] },
     automations_cartas: { ativado: false, canal_id: null, allow_anonymous: true },
     automations_mencao_boas_vindas: { ativado: false, mensagem: "{user}", canal_id: null, tempo_segundos: 5 },
@@ -214,10 +213,6 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     extensions_droxgen: { enabled: true, integrated_user_id: null, integrated_user: null, livestock: {} },
     extensions_boost_data: { enabled: false },
     extensions_boost_stock: { tokens: [] },
-    extensions_subscriptions: {},
-    extensions_boost_subscriptions: {},
-    extensions_pending_payments: {},
-    extensions_payment_history: {},
 
     // --- Customização ---
     custom_colors: { primary: "#ffffff", secondary: "#6c757d", success: "#28a745", danger: "#dc3545", warning: "#ffc107" },
