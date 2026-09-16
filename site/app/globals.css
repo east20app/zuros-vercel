@@ -16,8 +16,8 @@
     --muted-dim: #70797A;
 
     --accent: #3b82f6;
-    --accent-strong: #e6ff9c;
-    --accent-dim: #9cbc36;
+    --accent-strong: #60a5fa;
+    --accent-dim: #2563eb;
     --accent-soft: rgba(59, 130, 246, 0.12);
     --accent-glow: rgba(59, 130, 246, 0.26);
 
@@ -42,8 +42,8 @@
     --z-text-secondary: #A3ADA9;
     --z-text-muted: #6F7976;
     --z-primary: #3b82f6;
-    --z-primary-hover: #E2FF8A;
-    --z-primary-dark: #B9E84E;
+    --z-primary-hover: #60A5FA;
+    --z-primary-dark: #2563EB;
     --z-danger: #F23F43;
     --z-warning: #F5B942;
     --z-success: #23A559;
@@ -165,10 +165,10 @@ h4,
 .zuros-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.075);
     border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 20px 55px -38px rgba(0,0,0,.95), 0 0 0 1px rgba(59,130,246,.02);
+    background: linear-gradient(145deg, rgba(28,34,35,.94), rgba(16,20,21,.98));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 16px 42px -34px rgba(0,0,0,.95);
     transition: border-color .22s ease, background-color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
 .zuros-card-lit::before {
@@ -4578,6 +4578,7 @@ html:has(.login-page-root), body:has(.login-page-root) {
     .auth-panel { align-items: flex-start; padding: 1.75rem 1.25rem 2.5rem; }
     .auth-topbar, .auth-bottom { padding-inline: 1.25rem; }
 }
+.zuros-card:hover { border-color: rgba(255,255,255,.12); }
 
 /* Login refinado: composição assimétrica, formulário compacto e leitura natural. */
 .auth-page {
@@ -4676,4 +4677,46 @@ html:has(.login-page-root), body:has(.login-page-root) {
     .auth-heading { margin-bottom: 1rem; }
     .auth-heading h1 { font-size: 1.72rem; }
     .auth-bottom { display: none; }
+}
+
+/* Acabamento compartilhado do dashboard: cartões, formulários e tabelas. */
+.zuros-dashboard-content {
+    --dashboard-card: rgba(18, 22, 24, .9);
+    --dashboard-card-raised: rgba(24, 29, 31, .94);
+    --dashboard-line: rgba(255, 255, 255, .075);
+}
+.zuros-dashboard-content main { width: 100%; }
+.zuros-dashboard-content :where(.card, .drox-automation-card, .sales-summary, .bot-page-hero) {
+    border-color: var(--dashboard-line);
+}
+.zuros-dashboard-content .drox-automation-card {
+    overflow: hidden;
+    border-radius: .75rem;
+    background: var(--dashboard-card);
+    box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.zuros-dashboard-content .drox-automation-item + .drox-automation-item { border-top-color: var(--dashboard-line); }
+.zuros-dashboard-content .drox-automation-row { min-height: 4.25rem; }
+.zuros-dashboard-content .drox-automation-copy b { font-size: .86rem; letter-spacing: -.01em; }
+.zuros-dashboard-content .drox-automation-copy small { margin-top: .2rem; color: #858e96; line-height: 1.35; }
+.zuros-dashboard-content :where(input, select, textarea) {
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.zuros-dashboard-content :where(input, select, textarea):focus {
+    box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+}
+.zuros-dashboard-content table { border-collapse: separate; border-spacing: 0; }
+.zuros-dashboard-content thead { background: rgba(255,255,255,.025); }
+.zuros-dashboard-content th { color: #7f8991; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.zuros-dashboard-content tbody tr { transition: background-color .12s ease; }
+.zuros-dashboard-content tbody tr:hover { background: rgba(255,255,255,.018); }
+.zuros-dashboard-content .bot-page-hero h1,
+.zuros-dashboard-content .bot-identity h1 { text-wrap: balance; }
+
+@media (max-width: 640px) {
+    .zuros-dashboard-content :where(main) { padding-inline: 1rem; }
+    .zuros-dashboard-content .drox-automation-summary { align-items: flex-start; gap: .35rem; }
+    .zuros-dashboard-content .drox-automation-row { min-height: 3.9rem; }
+    .zuros-dashboard-content .drox-automation-details { padding: 1rem; }
+    .zuros-dashboard-content .bot-page-hero { padding: 1.1rem; }
 }

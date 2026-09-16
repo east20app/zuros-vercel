@@ -455,7 +455,7 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                 </div>
             </Section>
 
-            <Section title="Sistema de saldo" subtitle="Mesmas regras de saldo, bônus e painel de depósito usadas pelo DROX no Discord">
+            <Section title="Sistema de saldo" subtitle="Mesmas regras de saldo, bônus e painel de depósito usadas pelo Zuros Bot no Discord">
                 <div className="grid gap-3 md:grid-cols-2">
                     <ToggleRow label="Sistema de saldo ativado" hint="Permite usar saldo nas compras e receber depósitos" checked={bool(doc("balanceConfig").enabled)} onChange={togglePersist("balanceConfig", "enabled")} />
                     <Field label="Tipo de bônus"><select className={inputClass} value={str(getPath(doc("balanceConfig"), ["bonus", "type"]), "disabled")} onChange={(e) => setDoc("balanceConfig", setPath(doc("balanceConfig"), ["bonus", "type"], e.target.value))}><option value="disabled">Desativado</option><option value="percentage">Percentual</option><option value="fixed">Valor fixo</option></select></Field>
@@ -511,7 +511,7 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                     )}
                 </div>
             </Section>
-            <Section title="Clientes" subtitle="Condecorações por gasto e auto-cargo exercidos pelo DROX no Discord">
+            <Section title="Clientes" subtitle="Condecorações por gasto e cargo automático aplicados pelo Zuros Bot no Discord">
                 <div className="grid gap-3 md:grid-cols-2">
                     <ToggleRow label="Auto cargo de cliente" hint="Aplica automaticamente a condecoração conforme o gasto do cliente" checked={bool(customersSettings.auto_role)} onChange={(v) => setDoc("customers", { ...customersDoc, settings: { ...customersSettings, auto_role: v } }, true)} />
                     <Field label="Cargo base do cliente" hint="Aplicado a todos os clientes que compraram"><RoleSelect roles={roles} value={str(customersSettings.base_role)} onChange={(next) => setDoc("customers", { ...customersDoc, settings: { ...customersSettings, base_role: next || null } }, true)} /></Field>
@@ -675,7 +675,7 @@ function ProductModalBody({ productId, raw, onChange, onOpenCampo, onRemoveCampo
 
             <div>
                 <div className="mb-4 w-full rounded-xl border border-zinc-800 bg-black/20 p-4">
-                        <div className="mb-3 flex items-center justify-between"><div><h3 className="text-sm font-medium text-zinc-200">Categorias ({Object.keys(categorias).length})</h3><p className="mt-1 text-xs text-zinc-500">Mesmos grupos exibidos pelo DROX.</p></div><Button size="sm" onClick={() => { const id = generateId(); set(["categorias"], { ...categorias, [id]: { id, name: "Nova categoria", emoji: null, pre_description: null, description: null } }); }}>Nova categoria</Button></div>
+                        <div className="mb-3 flex items-center justify-between"><div><h3 className="text-sm font-medium text-zinc-200">Categorias ({Object.keys(categorias).length})</h3><p className="mt-1 text-xs text-zinc-500">Mesmos grupos exibidos pelo Zuros Bot.</p></div><Button size="sm" onClick={() => { const id = generateId(); set(["categorias"], { ...categorias, [id]: { id, name: "Nova categoria", emoji: null, pre_description: null, description: null } }); }}>Nova categoria</Button></div>
                         {Object.entries(categorias).length === 0 ? <Empty text="Nenhuma categoria cadastrada." /> : <div className="space-y-3">{Object.entries(categorias).map(([categoryId, rawCategory]) => { const category = asRecord(rawCategory); const updateCategory = (key: string, next: unknown) => set(["categorias"], { ...categorias, [categoryId]: { ...category, id: categoryId, [key]: next } }); return <div key={categoryId} className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-950/50 p-3 md:grid-cols-2"><Field label="Nome"><input className={inputClass} value={str(category.name)} onChange={(e) => updateCategory("name", e.target.value)} /></Field><Field label="Emoji"><input className={inputClass} value={str(category.emoji)} onChange={(e) => updateCategory("emoji", e.target.value || null)} /></Field><Field label="Pré-descrição"><input className={inputClass} value={str(category.pre_description)} onChange={(e) => updateCategory("pre_description", e.target.value || null)} /></Field><Field label="Descrição"><textarea className={inputClass} rows={2} value={str(category.description)} onChange={(e) => updateCategory("description", e.target.value || null)} /></Field><button type="button" className="text-left text-xs text-red-400" onClick={() => set(["categorias"], Object.fromEntries(Object.entries(categorias).filter(([id]) => id !== categoryId)))}>Excluir categoria</button></div>; })}</div>}
                     </div>
                 <div className="mb-3 flex items-center justify-between">
@@ -937,7 +937,7 @@ function SaldoSection({ value, onChange }: { value: Doc; onChange: (next: Doc) =
     const filtered = query.trim() ? users.filter(({ id }) => id.includes(query.trim())) : users;
 
     return (
-        <Section title="Saldo dos usuários" subtitle="Saldos e movimentações de cada membro (loja_saldo_users), mesmas regras do comando de admin do DROX">
+        <Section title="Saldo dos usuários" subtitle="Saldos e movimentações de cada membro, com as mesmas regras do comando administrativo do Zuros Bot">
             <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
                 <div className="rounded-xl border border-zinc-800 bg-black/30 p-3"><p className="text-xs text-zinc-500">Usuários com saldo</p><p className="mt-0.5 text-lg font-semibold text-white">{stats.users}</p></div>
                 <div className="rounded-xl border border-zinc-800 bg-black/30 p-3"><p className="text-xs text-zinc-500">Saldo total</p><p className="mt-0.5 text-lg font-semibold text-emerald-300">{formatBRL(stats.balance)}</p></div>

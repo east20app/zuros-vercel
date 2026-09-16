@@ -8,14 +8,14 @@ import { Icon, type IconName } from "./Icon";
 
 type PanelOption = { label: string; description: string; icon: IconName; module?: BotConfigModule; path?: "vendas" };
 
-// Mesma ordem e mesmas entradas de commands/admin/painel.py do DROX.
+// Mesma ordem e mesmos nomes do /painel do Zuros Bot.
 const PANEL_OPTIONS: PanelOption[] = [
     { label: "Configurar Loja", description: "Produtos, estoque, categorias e cupons", icon: "store", module: "loja" },
-    { label: "Gerenciar Ticket", description: "Painéis, categorias, mensagens e equipe", icon: "ticket", module: "tickets" },
-    { label: "Ver Rendimento", description: "Vendas, pedidos, carrinhos e clientes do bot", icon: "dashboard", path: "vendas" },
+    { label: "Configurar Ticket", description: "Painéis, categorias, mensagens e equipe", icon: "ticket", module: "tickets" },
+    { label: "Ver Rendimentos", description: "Vendas, pedidos, carrinhos e clientes do bot", icon: "dashboard", path: "vendas" },
     { label: "Personalização", description: "Cores, perfil, status e modo de exibição", icon: "bot", module: "customizacao" },
     { label: "Automações", description: "Boas-vindas, contadores, respostas e integrações", icon: "settings", module: "automacoes" },
-    { label: "DROX Cloud", description: "OAuth2, verificação, tarefas e presentes", icon: "apps", module: "cloud" },
+    { label: "ZurosCloud", description: "OAuth2, verificação, tarefas e presentes", icon: "apps", module: "cloud" },
     { label: "Mensagens", description: "Anúncios, mensagens diretas e modelos", icon: "bell", module: "mensagens" },
     { label: "Proteção do Servidor", description: "Anti-raid, privatizações e monitoramento", icon: "shield", module: "protecao" },
     { label: "Sorteios", description: "Mensagens e regras de participação", icon: "coupon", module: "giveaways" },
@@ -24,10 +24,10 @@ const PANEL_OPTIONS: PanelOption[] = [
 ];
 
 const GROUPS: Array<[string, string[]]> = [
-    ["Vendas", ["Configurar Loja", "Gerenciar Ticket", "Ver Rendimento"]],
+    ["Vendas", ["Configurar Loja", "Configurar Ticket", "Ver Rendimentos"]],
     ["Comunidade", ["Automações", "Mensagens", "Sorteios"]],
     ["Segurança", ["Proteção do Servidor", "Configurações"]],
-    ["Personalização e integrações", ["Personalização", "DROX Cloud", "Extensões"]],
+    ["Personalização e integrações", ["Personalização", "ZurosCloud", "Extensões"]],
 ];
 
 export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
@@ -54,7 +54,7 @@ export function BotConfigIndex({ storeId: appId }: { storeId: string }) {
                     <span className="grid h-11 w-11 place-items-center rounded-full bg-[var(--accent)] text-[var(--accent-foreground)]"><Icon name="bot" /></span>
                     <div>
                         <h2 className="font-semibold text-white">Painel de controle</h2>
-                        <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">Gerencie seu bot como no comando <code className="rounded bg-black/20 px-1.5 py-0.5 text-[var(--foreground)]">/painel</code> do DROX.</p>
+                        <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">Gerencie seu Zuros Bot com as mesmas opções do comando <code className="rounded bg-black/20 px-1.5 py-0.5 text-[var(--foreground)]">/painel</code>.</p>
                     </div>
                 </div>
             </div>

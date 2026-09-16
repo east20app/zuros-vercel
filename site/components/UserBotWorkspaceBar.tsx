@@ -39,7 +39,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
             { label: "Automações", suffix: "/config/automacoes", icon: "settings" },
             { label: "Sorteios", suffix: "/config/giveaways", icon: "coupon" },
             { label: "Proteção", suffix: "/config/protecao", icon: "shield" },
-            { label: "DROX Cloud", suffix: "/config/cloud", icon: "apps" },
+            { label: "ZurosCloud", suffix: "/config/cloud", icon: "apps" },
             { label: "Mensagens", suffix: "/config/mensagens", icon: "bell" },
             { label: "Personalização", suffix: "/config/customizacao", icon: "bot" },
             { label: "Configurações", suffix: "/config/configuracoes", icon: "settings" },

@@ -15,6 +15,6 @@ export async function BotConfigHeader({ appId, modulo }: { appId: string; modulo
 
     return <div className="bot-config-header">
         <nav aria-label="Breadcrumb" className="bot-breadcrumb"><Link href="/dashboard">Painel</Link><span aria-hidden>/</span><Link href="/dashboard">Meus Bots</Link><span aria-hidden>/</span>{bot ? <Link href={`/dashboard/${bot.id}`} className="max-w-40 truncate">{bot.name}</Link> : <span>Configurações</span>}{moduleMeta && <><span aria-hidden>/</span><Link href={`/dashboard/${appId}/config`}>Config</Link><span aria-hidden>/</span><span aria-current="page" className="truncate text-zinc-300">{moduleMeta.name}</span></>}</nav>
-        <div className="bot-identity"><span className="bot-identity-mark">{bot ? bot.name.charAt(0).toUpperCase() : "?"}</span><div className="min-w-0"><p className="bot-identity-kicker">CONFIGURAÇÃO / {moduleMeta ? moduleMeta.name : "VISÃO GERAL"}</p><h1>{bot ? bot.name : "Configurações do Bot"}</h1><p>{bot ? bot.productName : "Gerencie os recursos da sua instância DROX."}</p></div></div>
+        <div className="bot-identity"><span className="bot-identity-mark">{bot ? bot.name.charAt(0).toUpperCase() : "Z"}</span><div className="min-w-0"><p className="bot-identity-kicker">CONFIGURAÇÃO / {moduleMeta ? moduleMeta.name : "VISÃO GERAL"}</p><h1>{bot ? bot.name : "Configurações do bot"}</h1><p>{bot ? bot.productName : "Gerencie os recursos do seu Zuros Bot."}</p></div></div>
     </div>;
 }

@@ -170,7 +170,7 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
         } });
     };
     return <div className="drox-automations-ui space-y-6">
-        <div className="drox-automation-summary"><span><i /> {entries.length} se??es dispon?veis</span><small>Edite uma se??o e use Salvar no topo para aplicar no DROX.</small></div>
+        <div className="drox-automation-summary"><span><i /> {entries.length} seções disponíveis</span><small>Edite uma seção e use Salvar no topo para aplicar no Zuros Bot.</small></div>
         <section className="drox-automation-group"><h3>{BOT_MODULE_META[modulo].name}</h3><div className="drox-automation-card">
             {entries.map(([alias, current]) => {
                 const open = selected === alias;
@@ -215,7 +215,7 @@ function ConfiguracoesEditor({ value, roles, channels, onChange }: { value: Reco
         return false;
     };
     return <div className="drox-automations-ui space-y-6">
-        <div className="drox-automation-summary"><span><i /> {sections.filter((key) => isActive(key, value[key])).length}/{sections.length} ativos</span><small>Configurações sincronizadas com o módulo do DROX.</small></div>
+        <div className="drox-automation-summary"><span><i /> {sections.filter((key) => isActive(key, value[key])).length}/{sections.length} ativos</span><small>Configurações sincronizadas com o Zuros Bot.</small></div>
         <section className="drox-automation-group"><h3>Configurações</h3><div className="drox-automation-card">
             {sections.filter((key) => key !== "pagamentosStatus").map((key) => { const open = selected === key; const document = value[key]; const active = isActive(key, document); return <article key={key} className={`drox-automation-item ${open ? "is-open" : ""}`}>
                 <div className="drox-automation-row">

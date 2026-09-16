@@ -14,7 +14,7 @@ export function ProductPublisher({ appId, productId, channels }: { appId: string
     async function publish() {
         if (!channelId) return;
         setPending(true);
-        try { await publishDroxProduct(appId, productId, channelId); push("Produto publicado no Discord com o botão de compra do DROX."); }
+        try { await publishDroxProduct(appId, productId, channelId); push("Produto publicado no Discord com o botão de compra do Zuros Bot."); }
         catch (error) { push(getErrorMessage(error, "Não foi possível publicar o produto."), "error"); }
         finally { setPending(false); }
     }

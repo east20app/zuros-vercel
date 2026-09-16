@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
     return {
         name: "ZUROS APP",
         short_name: "ZUROS",
-        description: "Gerencie seu bot DROX, loja, pagamentos e automações.",
+        description: "Gerencie seu Zuros Bot, loja, pagamentos e automações.",
         start_url: "/dashboard",
         scope: "/",
         display: "standalone",

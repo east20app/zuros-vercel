@@ -407,7 +407,7 @@ export function Sidebar({
               { icon: "invoice", label: "Gerenciar tickets", href: `/dashboard/${selectedBotId}/config/tickets`, exact: true, section: "Bot" },
               { icon: "user", label: "Personalização", href: `/dashboard/${selectedBotId}/config/customizacao`, exact: true },
               { icon: "settings", label: "Automações", href: `/dashboard/${selectedBotId}/config/automacoes`, exact: true },
-              { icon: "admin", label: "DROX Cloud", href: `/dashboard/${selectedBotId}/config/cloud`, exact: true },
+              { icon: "admin", label: "ZurosCloud", href: `/dashboard/${selectedBotId}/config/cloud`, exact: true },
               { icon: "bell", label: "Mensagens", href: `/dashboard/${selectedBotId}/config/mensagens`, exact: true },
               { icon: "admin", label: "Proteção do servidor", href: `/dashboard/${selectedBotId}/config/protecao`, exact: true },
               { icon: "affiliate", label: "Sorteios", href: `/dashboard/${selectedBotId}/config/giveaways`, exact: true },

@@ -242,7 +242,7 @@ function ComplementaryRow({ item, value, onChange }: { item: { key: string; titl
                             <Toggle label="Bloquear bots" checked={Boolean(doc.block_bots)} onChange={(next) => onChange({ ...value, [item.key]: { ...doc, block_bots: next } })} />
                         </div>
                     ) : (
-                        <p className="text-sm text-[#949ba4]">Configuração do monitor de interações sincronizada com o módulo do DROX.</p>
+                        <p className="text-sm text-[#949ba4]">Configuração do monitor de interações sincronizada com o Zuros Bot.</p>
                     )}
                 </div>
             )}
