@@ -53,7 +53,7 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     loja_doubt_button: { enabled: false, button_label: "Dúvidas", button_emoji: "❓", channel_id: null, message: "Olá! Se você tem dúvidas sobre nossos produtos, entre em contato conosco!" },
     loja_maintenance: { enabled: false, message: "Olá, {user} a loja está em manutenção, tente novamente mais tarde.", allow_admins: true },
     loja_personalization: {
-        purchase_event: { mode: "components", message: null, color: null, image: null, show_user: true, show_quantity: true, show_price: true },
+        purchase_event: { mode: "components", message: null, color: null, image: null, background: null, show_user: true, show_quantity: true, show_price: true },
         feedback_incentive: { message: null, button_text: "Deixar Avaliação" },
     },
     loja_qr_customization: { enabled: true, color: "#000000", background_color: "#FFFFFF", logo_url: null, logo_size: 0.3, corner_style: "square" },
