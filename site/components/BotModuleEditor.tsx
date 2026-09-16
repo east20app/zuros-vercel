@@ -144,17 +144,20 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
         }
         return false;
     };
+    const sectionHasSwitch = (current: unknown) => Boolean(current && typeof current === "object" && !Array.isArray(current)
+        && ["ativado", "status", "enabled", "ativo"].some((key) => Object.hasOwn(current as Record<string, unknown>, key)));
     return <div className="drox-automations-ui space-y-6">
-        <div className="drox-automation-summary"><span><i /> {entries.filter(([, c]) => isSectionActive(undefined, c)).length}/{entries.length} ativos</span><small>Configurações sincronizadas com o módulo do DROX.</small></div>
+        <div className="drox-automation-summary"><span><i /> {entries.length} se??es dispon?veis</span><small>Edite uma se??o e use Salvar no topo para aplicar no DROX.</small></div>
         <section className="drox-automation-group"><h3>{BOT_MODULE_META[modulo].name}</h3><div className="drox-automation-card">
             {entries.map(([alias, current]) => {
                 const open = selected === alias;
                 const active = isSectionActive(alias, current);
+                const switchable = sectionHasSwitch(current);
                 return <article key={alias} className={`drox-automation-item ${open ? "is-open" : ""}`}>
                     <div className="drox-automation-row">
                         <button type="button" className="drox-automation-trigger" onClick={() => setSelected(open ? "" : alias)} aria-expanded={open}>
-                            <span className={`drox-automation-icon ${active ? "is-active" : ""}`}><Icon name={modIcon} /></span>
-                            <span className="drox-automation-copy"><b>{labelsForModule[alias] || labelFor(alias)}</b><small>{active ? "Ativa" : "Desativada"}</small></span>
+                            <span className={`drox-automation-icon ${switchable && active ? "is-active" : ""}`}><Icon name={modIcon} /></span>
+                            <span className="drox-automation-copy"><b>{labelsForModule[alias] || labelFor(alias)}</b><small>{switchable ? (active ? "Ativa" : "Desativada") : "Pronta para editar"}</small></span>
                         </button>
                         <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setSelected(open ? "" : alias)} aria-label={`${open ? "Fechar" : "Abrir"} ${labelsForModule[alias] || labelFor(alias)}`}>⌄</button>
                         <span className="drox-automation-save-hint">Editar</span>

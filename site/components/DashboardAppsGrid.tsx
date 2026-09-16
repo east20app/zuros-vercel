@@ -9,7 +9,9 @@ export function DashboardAppsGrid({ apps }: { apps: AppSummary[] }) {
     const [status, setStatus] = useState("all");
     const visible = useMemo(() => apps.filter((app) => {
         const matchesName = app.name.toLocaleLowerCase("pt-BR").includes(query.trim().toLocaleLowerCase("pt-BR"));
-        const matchesStatus = status === "all" || (status === "active" ? app.status === "active" : app.status !== "active");
+        const needsAttention = app.status !== "active" || Boolean(app.errorOnUpdate)
+            || (!app.lifetime && Boolean(app.expiresAt) && new Date(app.expiresAt as string | Date).getTime() - Date.now() <= 7 * 86_400_000);
+        const matchesStatus = status === "all" || (status === "active" ? !needsAttention : needsAttention);
         return matchesName && matchesStatus;
     }), [apps, query, status]);
 

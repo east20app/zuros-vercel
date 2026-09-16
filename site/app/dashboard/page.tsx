@@ -50,7 +50,7 @@ export default async function DashboardPage() {
 
             <div className="sales-status-strip">
                 <div className="sales-status-main">
-                    <span className={`sales-status-dot ${sorted.some((app) => app.errorOnUpdate) ? "is-offline" : ""}`} />
+                    <span className={`sales-status-dot ${appsLoadError || sorted.some((app) => app.errorOnUpdate || app.status !== "active" || isExpiring(app.expiresAt, app.lifetime)) ? "is-offline" : ""}`} />
                     <div>
                         <strong>{sorted.some((app) => app.errorOnUpdate) ? "Atenção em alguma aplicação" : "Todas as aplicações em ordem"}</strong>
                         <small>Status geral das suas aplicações · {apps.length} {apps.length === 1 ? "aplicação" : "aplicações"} vinculada(s).</small>

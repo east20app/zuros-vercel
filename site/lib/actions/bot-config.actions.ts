@@ -48,6 +48,45 @@ async function ownedActiveApplication(appId: string) {
 }
 function moduleOrThrow(module: string): BotConfigModule { if (!isBotConfigModule(module)) throw new ActionError("Módulo de configuração inválido."); return module; }
 
+
+async function imageUrlToDataUri(rawUrl: unknown, field: "avatar" | "banner"): Promise<string | undefined> {
+    const value = String(rawUrl || "").trim();
+    if (!value) return undefined;
+    let url: URL;
+    try { url = new URL(value); } catch { throw new ActionError(`URL de ${field} invalida.`); }
+    if (url.protocol !== "https:") throw new ActionError(`A URL de ${field} precisa usar https://.`);
+    const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000) }).catch(() => null);
+    if (!response?.ok) throw new ActionError(`Nao foi possivel baixar a imagem de ${field}.`);
+    const type = (response.headers.get("content-type") || "").split(";")[0].toLowerCase();
+    if (!["image/png", "image/jpeg", "image/gif", "image/webp"].includes(type)) throw new ActionError(`A URL de ${field} precisa apontar para PNG, JPG, GIF ou WebP.`);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (bytes.byteLength > 10 * 1024 * 1024) throw new ActionError(`A imagem de ${field} precisa ter no maximo 10 MB.`);
+    return `data:${type};base64,${bytes.toString("base64")}`;
+}
+
+async function applyDiscordProfile(token: string, value: unknown) {
+    if (!token || !value || typeof value !== "object" || Array.isArray(value)) return;
+    const info = value as Record<string, unknown>;
+    const username = String(info.name || info.bot_name || "").trim();
+    const avatar = await imageUrlToDataUri(info.avatar_url, "avatar");
+    const banner = await imageUrlToDataUri(info.banner_url, "banner");
+    const payload: Record<string, string> = {};
+    if (username) payload.username = username.slice(0, 32);
+    if (avatar) payload.avatar = avatar;
+    if (banner) payload.banner = banner;
+    if (!Object.keys(payload).length) return;
+    const response = await fetch("https://discord.com/api/v10/users/@me", {
+        method: "PATCH",
+        headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20_000),
+    }).catch(() => null);
+    if (!response?.ok) {
+        const detail = response ? ` (HTTP ${response.status})` : "";
+        throw new ActionError(`As configuracoes foram salvas, mas o Discord recusou a atualizacao do perfil${detail}.`);
+    }
+}
+
 export async function getBotConfig(appId: string, modulo: string): Promise<Record<string, Record<string, unknown>>> {
     const moduleName = moduleOrThrow(modulo); const { botId } = await ownedActiveApplication(appId); const mapping = BOT_CONFIG_MODULES[moduleName] as Record<string, string>;
     if (!process.env.VERCEL) startBotConfigSyncWatcher();
@@ -94,7 +133,7 @@ export async function getBotConfigOverview(appId: string): Promise<BotConfigOver
     return Object.fromEntries(rows) as BotConfigOverview;
 }
 export async function saveBotConfig(appId: string, modulo: string, data: Record<string, unknown>): Promise<{ ok: true; synced: boolean; warning?: string }> {
-    const moduleName = moduleOrThrow(modulo); const { discordId, botId } = await ownedActiveApplication(appId);
+    const moduleName = moduleOrThrow(modulo); const { discordId, botId, token } = await ownedActiveApplication(appId);
     if (!process.env.VERCEL) startBotConfigSyncWatcher();
     if (!checkRateLimit(`site:bot-config:${discordId}:${appId}`, { windowMs: 60_000, maxRequests: 20 })) throw new ActionError("Muitas alterações em sequência. Aguarde alguns instantes.");
     const parsed = botConfigSchemas[moduleName].safeParse(data); if (!parsed.success) throw new ActionError("Os dados enviados são inválidos para este módulo.");
@@ -117,6 +156,7 @@ export async function saveBotConfig(appId: string, modulo: string, data: Record<
         await saveBotDocument(botId, docId, nextDocument);
     })); }
     catch (error) { logDroxFailure("write", moduleName, error); throw new ActionError("Não foi possível salvar no DROX. Tente novamente em instantes."); }
+    if (moduleName === "customizacao") await applyDiscordProfile(token, parsed.data.info);
     revalidatePath(`/dashboard/${appId}/config`); revalidatePath(`/dashboard/${appId}/config/${moduleName}`);
     // O watcher do bot invalida o cache por Change Stream ou polling em até 4s.
     return { ok: true, synced: true };
