@@ -2,7 +2,7 @@
 // criou um documento, o painel usa estes valores para nunca exibir "{}" vazio.
 export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     // --- Loja ---
-    loja_config: {},
+    loja_config: { enabled: true },
     loja_products: {},
     loja_buys: { purchases: {} },
     loja_customers: { customers: {}, decorations: { roles: [] }, settings: { auto_role: true, base_role: null } },
@@ -27,10 +27,24 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     payment_tracking: { items: {} },
     loja_preferences: {
         cart_duration_minutes: 30,
+        cart_style: "topic",
         transcript_enabled: false,
         transcript_channel_id: null,
         office_hours: { enabled: false, start_time: "", end_time: "", off_days: [], message: "" },
-        stock_requests: { enabled: false, channel_id: null, role_id: null },
+        stock_requests: {
+            enabled: false,
+            channel_id: null,
+            role_id: null,
+            panel_message: {
+                message_style: "embed",
+                embed: { title: "Solicitar Estoque", description: "Clique no botão abaixo para solicitar reposição de estoque.", color: "#5c5ef0", image_url: null, thumbnail_url: null },
+                content: { content: "Clique no botão abaixo para solicitar reposição de estoque.", image_url: null },
+                container: { content: "## Solicitar Estoque\nClique no botão abaixo para solicitar reposição de estoque.", color: "#5c5ef0", image_url: null, thumbnail_url: null },
+                button: { label: "Solicitar estoque", emoji: null, style: "green" },
+                channel_id: null,
+                message_id: null,
+            },
+        },
         terms: { enabled: false, text: "" },
     },
     loja_mass_coupons: { coupons: {} },
@@ -39,10 +53,10 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     loja_doubt_button: { enabled: false, button_label: "Dúvidas", button_emoji: "❓", channel_id: null, message: "Olá! Se você tem dúvidas sobre nossos produtos, entre em contato conosco!" },
     loja_maintenance: { enabled: false, message: "Olá, {user} a loja está em manutenção, tente novamente mais tarde.", allow_admins: true },
     loja_personalization: {
-        purchase_event: { message: null, color: null, image: null, show_user: true, show_quantity: true, show_price: true },
+        purchase_event: { mode: "components", message: null, color: null, image: null, show_user: true, show_quantity: true, show_price: true },
         feedback_incentive: { message: null, button_text: "Deixar Avaliação" },
     },
-    loja_qr_customization: { enabled: true, color: "#000000", background_color: "#FFFFFF", logo_url: null, logo_size: 0.3, corner_style: "square", dot_style: "square" },
+    loja_qr_customization: { enabled: true, color: "#000000", background_color: "#FFFFFF", logo_url: null, logo_size: 0.3, corner_style: "square" },
     products_preferences: { show_description: true, show_sales_count: false, button_text: "Comprar", button_emoji: "🛒" },
     loja_stock_requests: { requests: {} },
     loja_saldo_config: {

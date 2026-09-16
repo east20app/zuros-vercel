@@ -20,6 +20,8 @@ CRON_SECRET=gere-um-segredo-forte-para-os-crons-da-vercel
 # Obrigatórias: persistência
 MONGO_DB_URL=
 DROX_BOTS_MONGO_URI=
+# Opcional: use apenas quando a URI acima nao inclui o banco utilizado pelo bot.
+DROX_BOTS_DB_NAME=
 
 # Pagamentos EFI (obrigatórias somente se o gateway EFI for usado)
 EFI_WEBHOOK_SECRET=

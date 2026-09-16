@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Badge, Button, Card, Empty, Field, Modal, inputClass } from "../ui";
 import type { DiscordGuildChannel, DiscordGuildRole } from "@/lib/actions/bot-config.actions";
 import { PanelPublisher } from "@/components/PanelPublisher";
@@ -69,9 +70,9 @@ function dateLocalToTs(value: string): number | null {
     return Number.isFinite(n) ? Math.floor(n / 1000) : null;
 }
 
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Section({ id, title, subtitle, children }: { id?: string; title: string; subtitle?: string; children: React.ReactNode }) {
     return (
-        <Card>
+        <div id={id} className="scroll-mt-24"><Card>
             <div className="mb-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <h2 className="font-semibold text-white">{title}</h2>
@@ -79,7 +80,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
                 </div>
             </div>
             {children}
-        </Card>
+        </Card></div>
     );
 }
 
@@ -256,13 +257,23 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
 
     return (
         <div className="space-y-6">
+            <Card className="!p-3">
+                <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-[.16em] text-zinc-500">Painel › Loja</p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                    <Link href={`/dashboard/${appId}/vendas/produtos`} className="rounded-xl border border-white/[.07] bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:border-emerald-500/30 hover:text-white">Gerenciar Produtos</Link>
+                    <a href="#personalizar-loja" className="rounded-xl border border-white/[.07] bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:border-emerald-500/30 hover:text-white">Personalizar Loja</a>
+                    <a href="#preferencias-loja" className="rounded-xl border border-white/[.07] bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:border-emerald-500/30 hover:text-white">Preferências</a>
+                    <Link href={`/dashboard/${appId}/config/extensions`} className="rounded-xl border border-white/[.07] bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:border-emerald-500/30 hover:text-white">Extensões</Link>
+                    <Link href={`/dashboard/${appId}/config/mensagens`} className="rounded-xl border border-white/[.07] bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:border-emerald-500/30 hover:text-white">Templates</Link>
+                </div>
+            </Card>
             {showProducts ? <div className="grid grid-cols-3 gap-3">
                 <Card className="!p-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Produtos</span><div className="mt-1 text-2xl font-semibold text-white">{stats.products}</div></Card>
                 <Card className="!p-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Campos</span><div className="mt-1 text-2xl font-semibold text-white">{stats.campos}</div></Card>
                 <Card className="!p-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Estoque total</span><div className="mt-1 text-2xl font-semibold text-white">{stats.stock}</div></Card>
             </div> : null}
 
-            <Section title="Vitrine" subtitle="Ativa ou desativa a loja no servidor">
+            <Section id="vendas-loja" title="Ligar ou Desligar Vendas" subtitle="Mesma função do botão exibido no painel Loja do Discord">
                 <div className="grid gap-3 md:grid-cols-2">
                     <ToggleRow label="Loja ativada" hint="Abre/fecha a vitrine para os membros" checked={bool(doc("config").enabled)} onChange={togglePersist("config", "enabled")} />
                 </div>
@@ -386,12 +397,12 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                 )}
             </Section>
 
-            <Section title="Preferências da vitrine" subtitle="Carrinho, expediente, solicitação de estoque e termos">
+            <Section id="preferencias-loja" title="Preferências" subtitle="Tempo e estilo do carrinho, solicitação de estoque e termos de compra">
                 <PreferencesForm value={doc("preferences")} roles={roles} channels={channels} setValue={(next) => setDoc("preferences", next)} />
                 <PanelPublisher appId={appId} panel="stock_requests" channels={channels} initialChannelId={str(getPath(doc("preferences"), ["stock_requests", "panel_channel_id"]), str(getPath(doc("preferences"), ["stock_requests", "channel_id"]))) } label="Enviar painel de estoque" />
             </Section>
 
-            <Section title="Botão de dúvida" subtitle="Botão de suporte exibido nos produtos">
+            <Section id="personalizar-loja" title="Botão Dúvidas" subtitle="Botão de suporte exibido nos produtos">
                 <div className="grid gap-3 md:grid-cols-2">
                     <ToggleRow label="Botão de dúvida ativado" checked={bool(doc("doubtButton").enabled)} onChange={togglePersist("doubtButton", "enabled")} />
                     <Field label="Texto do botão"><input className={inputClass} value={str(doc("doubtButton").button_label)} onChange={(e) => setDoc("doubtButton", { ...doc("doubtButton"), button_label: e.target.value })} /></Field>
@@ -415,14 +426,14 @@ export function LojaEditor({ appId, value, onChange, persist, roles = [], channe
                     <ColorField label="Cor do QR" value={str(doc("qrCustomization").color)} onChange={(v) => setDoc("qrCustomization", { ...doc("qrCustomization"), color: v })} />
                     <ColorField label="Fundo do QR" value={str(doc("qrCustomization").background_color)} onChange={(v) => setDoc("qrCustomization", { ...doc("qrCustomization"), background_color: v })} />
                     <Field label="URL do logo"><input className={inputClass} value={str(doc("qrCustomization").logo_url)} onChange={(e) => setDoc("qrCustomization", { ...doc("qrCustomization"), logo_url: e.target.value })} /></Field>
-                    <Field label="Tamanho do logo (0 a 1)"><input className={inputClass} type="number" step="0.05" min="0" max="1" value={Number(doc("qrCustomization").logo_size ?? 0.3)} onChange={(e) => setDoc("qrCustomization", { ...doc("qrCustomization"), logo_size: Number(e.target.value) })} /></Field>
-                    <Field label="Estilo do canto"><select className={inputClass} value={str(doc("qrCustomization").corner_style, "square")} onChange={(e) => setDoc("qrCustomization", { ...doc("qrCustomization"), corner_style: e.target.value })}><option value="square">Quadrado</option><option value="dot">Ponto</option><option value="rounded">Arredondado</option></select></Field>
-                    <Field label="Estilo do ponto"><select className={inputClass} value={str(doc("qrCustomization").dot_style, "square")} onChange={(e) => setDoc("qrCustomization", { ...doc("qrCustomization"), dot_style: e.target.value })}><option value="square">Quadrado</option><option value="dot">Ponto</option><option value="rounded">Arredondado</option></select></Field>
+                    <Field label="Tamanho do Logo (0.1 a 0.5)" hint="0.3 corresponde a 30% do QR Code"><input className={inputClass} type="number" step="0.05" min="0.1" max="0.5" value={Number(doc("qrCustomization").logo_size ?? 0.3)} onChange={(e) => setDoc("qrCustomization", { ...doc("qrCustomization"), logo_size: Math.max(0.1, Math.min(0.5, Number(e.target.value))) })} /></Field>
+                    <Field label="Estilo dos Cantos"><select className={inputClass} value={str(doc("qrCustomization").corner_style, "square")} onChange={(e) => setDoc("qrCustomization", { ...doc("qrCustomization"), corner_style: e.target.value })}><option value="square">Quadrado</option><option value="rounded">Arredondado</option><option value="dots">Pontos</option></select></Field>
                 </div>
             </Section>
 
             <Section title="Personalização" subtitle="Mensagem de compra e incentivo de avaliação">
                 <div className="grid gap-3 md:grid-cols-2">
+                    <Field label="Formato do Evento de Compra" hint="Mesmas quatro opções do painel Discord"><select className={inputClass} value={str(getPath(doc("personalization"), ["purchase_event", "mode"]), "components")} onChange={(e) => setDoc("personalization", setPath(doc("personalization"), ["purchase_event", "mode"], e.target.value))}><option value="components">Componentes V2</option><option value="embed">Painel normal · Componentes V1</option><option value="message">Mensagem normal</option><option value="image">Imagem automática</option></select></Field>
                     <ToggleRow label="Mostrar usuário" checked={bool(getPath(doc("personalization"), ["purchase_event", "show_user"]))} onChange={(v) => setDoc("personalization", setPath(doc("personalization"), ["purchase_event", "show_user"], v))} />
                     <ToggleRow label="Mostrar quantidade" checked={bool(getPath(doc("personalization"), ["purchase_event", "show_quantity"]))} onChange={(v) => setDoc("personalization", setPath(doc("personalization"), ["purchase_event", "show_quantity"], v))} />
                     <ToggleRow label="Mostrar preço" checked={bool(getPath(doc("personalization"), ["purchase_event", "show_price"]))} onChange={(v) => setDoc("personalization", setPath(doc("personalization"), ["purchase_event", "show_price"], v))} />
@@ -576,6 +587,7 @@ function PreferencesForm({ value, setValue, roles, channels }: { value: Doc; set
     return (
         <div className="grid gap-3 md:grid-cols-2">
             <Field label="Duração do carrinho (minutos)"><input className={inputClass} type="number" value={Number(value.cart_duration_minutes ?? 30)} onChange={(e) => setValue({ ...value, cart_duration_minutes: Number(e.target.value) })} /></Field>
+            <Field label="Estilo do Carrinho" hint="Mesma opção do painel Discord"><select className={inputClass} value={str(value.cart_style, "topic")} onChange={(e) => set(["cart_style"], e.target.value)}><option value="topic">Tópico</option><option value="channel">Canal</option></select></Field>
             <ToggleRow label="Transcrições ativadas" hint="Salva transcrições dos tickets de compra" checked={bool(getPath(value, ["transcript_enabled"]))} onChange={(v) => set(["transcript_enabled"], v)} />
             <Field label="Canal de transcrições"><ChannelSelect channels={channels} value={str(getPath(value, ["transcript_channel_id"]))} onChange={(next) => set(["transcript_channel_id"], next || null)} /></Field>
 
@@ -596,6 +608,15 @@ function PreferencesForm({ value, setValue, roles, channels }: { value: Doc; set
                     <ToggleRow label="Solicitação ativada" checked={bool(getPath(value, ["stock_requests", "enabled"]))} onChange={(v) => set(["stock_requests", "enabled"], v)} />
                     <Field label="Canal"><ChannelSelect channels={channels} value={str(getPath(value, ["stock_requests", "channel_id"]))} onChange={(next) => set(["stock_requests", "channel_id"], next || null)} /></Field>
                     <Field label="Cargo notificado"><RoleSelect roles={roles} value={str(getPath(value, ["stock_requests", "role_id"]))} onChange={(next) => set(["stock_requests", "role_id"], next || null)} /></Field>
+                    <Field label="Formato da mensagem"><select className={inputClass} value={str(getPath(value, ["stock_requests", "panel_message", "message_style"]), "embed")} onChange={(e) => set(["stock_requests", "panel_message", "message_style"], e.target.value)}><option value="embed">Componentes V1 · Embed</option><option value="content">Mensagem normal</option><option value="container">Componentes V2 · Container</option></select></Field>
+                    <Field label="Título do painel"><input className={inputClass} value={str(getPath(value, ["stock_requests", "panel_message", "embed", "title"]), "Solicitar Estoque")} onChange={(e) => set(["stock_requests", "panel_message", "embed", "title"], e.target.value)} /></Field>
+                    <ColorField label="Cor do painel" value={str(getPath(value, ["stock_requests", "panel_message", "embed", "color"]), "#5c5ef0")} onChange={(next) => setValue(setPath(setPath(value, ["stock_requests", "panel_message", "embed", "color"], next), ["stock_requests", "panel_message", "container", "color"], next))} />
+                    <Field label="Descrição dos Componentes V1"><textarea className={inputClass} rows={3} value={str(getPath(value, ["stock_requests", "panel_message", "embed", "description"]))} onChange={(e) => set(["stock_requests", "panel_message", "embed", "description"], e.target.value)} /></Field>
+                    <Field label="Conteúdo dos Componentes V2"><textarea className={inputClass} rows={3} value={str(getPath(value, ["stock_requests", "panel_message", "container", "content"]))} onChange={(e) => set(["stock_requests", "panel_message", "container", "content"], e.target.value)} /></Field>
+                    <Field label="Mensagem normal"><textarea className={inputClass} rows={3} value={str(getPath(value, ["stock_requests", "panel_message", "content", "content"]))} onChange={(e) => set(["stock_requests", "panel_message", "content", "content"], e.target.value)} /></Field>
+                    <Field label="Texto do botão"><input className={inputClass} value={str(getPath(value, ["stock_requests", "panel_message", "button", "label"]), "Solicitar estoque")} onChange={(e) => set(["stock_requests", "panel_message", "button", "label"], e.target.value)} /></Field>
+                    <Field label="Emoji do botão"><input className={inputClass} value={str(getPath(value, ["stock_requests", "panel_message", "button", "emoji"]))} onChange={(e) => set(["stock_requests", "panel_message", "button", "emoji"], e.target.value || null)} /></Field>
+                    <Field label="Estilo do botão"><select className={inputClass} value={str(getPath(value, ["stock_requests", "panel_message", "button", "style"]), "green")} onChange={(e) => set(["stock_requests", "panel_message", "button", "style"], e.target.value)}><option value="green">Verde</option><option value="blurple">Azul</option><option value="grey">Cinza</option><option value="red">Vermelho</option></select></Field>
                 </div>
             </div>
 

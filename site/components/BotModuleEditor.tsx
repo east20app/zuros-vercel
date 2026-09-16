@@ -15,7 +15,23 @@ import { ProtectionDashboard } from "./ProtectionDashboard";
 import { Button, Empty, Field, Spinner, inputClass } from "./ui";
 import { Icon } from "./Icon";
 
-const labels: Record<string, string> = { enabled: "Ativado", ativo: "Ativado", automatico: "Automático", autoApproval: "Aprovação automática", intervalo: "Intervalo (minutos)", interval: "Intervalo", status: "Status/atividade", bio: "Biografia", cor: "Cor principal", color: "Cor principal", mensagem: "Mensagem", message: "Mensagem" };
+const labels: Record<string, string> = {
+    enabled: "Ativado", ativado: "Ativado", ativo: "Ativado", status: "Status/atividade",
+    automatico: "Automático", autoApproval: "Aprovação automática",
+    intervalo: "Intervalo (minutos)", interval: "Intervalo", intervalo_horas: "Intervalo (horas)", intervalo_minutos: "Intervalo (minutos)", tempo_segundos: "Tempo (segundos)",
+    bio: "Biografia", cor: "Cor principal", color: "Cor principal", hex_color: "Cor da mensagem",
+    mensagem: "Mensagem", message: "Mensagem", content: "Conteúdo", description: "Descrição", name: "Nome",
+    channel_id: "Canal", canal_id: "Canal", category_id: "Categoria", role_id: "Cargo", cargo_id: "Cargo", guild_id: "Servidor",
+    log_channel_id: "Canal de logs", immune_role_id: "Cargo imune", cargo_imune_id: "Cargo imune",
+    modo_envio: "Tipo da mensagem", rota_envio: "Local de envio", usar_componentes_v2: "Usar Componentes V2",
+    v1_imagem_url: "Imagem dos Componentes V1", v2_imagem_url: "Imagem dos Componentes V2", v2_cor_container: "Cor dos Componentes V2",
+    embed_titulo: "Título da embed", embed_banner_url: "Banner da embed", embed_thumb_url: "Miniatura da embed", embed_cor: "Cor da embed",
+    avatar_url: "URL do avatar", banner_url: "URL do banner", bot_name: "Nome do bot",
+    message_style: "Estilo da mensagem", button: "Botão", button_text: "Texto do botão", button_emoji: "Emoji do botão",
+    title: "Título", label: "Texto", placeholder: "Texto de exemplo", required: "Obrigatório", ephemeral: "Mensagem privada",
+    create_threads: "Criar tópicos", thread_message: "Mensagem do tópico", auto_moderation: "Moderação automática",
+    min_days: "Idade mínima da conta (dias)", block_bots: "Bloquear outros bots", logs_ativados: "Ativar logs",
+};
 const labelFor = (key: string) => labels[key] || key.replace(/([A-Z])/g, " $1").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
 function updateAt(source: Record<string, unknown>, path: string[], value: unknown) { const clone = structuredClone(source); let cursor: Record<string, unknown> = clone; path.slice(0, -1).forEach((key) => { cursor = cursor[key] as Record<string, unknown>; }); cursor[path[path.length - 1]] = value; return clone; }
 
@@ -232,7 +248,7 @@ export function DroxPaymentsEditor({ storeId }: { storeId: string }) {
         if (!draft) return;
         try {
             const result = await api.save(draft);
-            push(result.synced ? "Pagamentos salvos e aplicados ao bot" : result.warning || "Pagamentos salvos; reinicie o bot para aplicar", result.synced ? "success" : "error");
+            push(result.warning || (result.synced ? "Pagamentos salvos e aplicados ao bot" : "Pagamentos salvos; reinicie o bot para aplicar"), result.synced ? "success" : "error");
             router.refresh();
         } catch (error) {
             push((error as BotConfigError).message || "Não foi possível salvar os pagamentos", "error");
@@ -252,7 +268,7 @@ export function BotModuleEditor({ storeId, modulo, productsOnly = false }: { sto
     const dirty = useMemo(() => Boolean(draft && api.data && JSON.stringify(draft) !== JSON.stringify(api.data)), [draft, api.data]);
     useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); }; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
     useEffect(() => { const guard = (event: MouseEvent) => { if (!dirty) return; const anchor = (event.target as HTMLElement).closest("a"); if (!anchor || anchor.target === "_blank" || !anchor.href.startsWith(location.origin)) return; if (!window.confirm("Você tem alterações não salvas. Deseja sair mesmo assim?")) event.preventDefault(); }; document.addEventListener("click", guard, true); return () => document.removeEventListener("click", guard, true); }, [dirty]);
-    const save = async () => { if (!draft) return; try { const result = await api.save(draft); push(result.synced ? "Configurações salvas e aplicadas ao bot" : result.warning || "Configurações salvas; reinicie o bot para aplicar", result.synced ? "success" : "error"); router.refresh(); } catch (error) { push((error as BotConfigError).message || "Não foi possível salvar — bot está offline", "error"); } };
+    const save = async () => { if (!draft) return; try { const result = await api.save(draft); push(result.warning || (result.synced ? "Configurações salvas e aplicadas ao bot" : "Configurações salvas; reinicie o bot para aplicar"), result.synced ? "success" : "error"); router.refresh(); } catch (error) { push((error as BotConfigError).message || "Não foi possível salvar — bot está offline", "error"); } };
     if (api.loading) return <div aria-label="Carregando configuração"><div className="flex items-center gap-3"><div className="skeleton h-11 w-11 rounded-2xl" /><div className="space-y-2"><div className="skeleton h-4 w-44 rounded-lg" /><div className="skeleton h-3 w-64 rounded-lg" /></div></div><div className="mt-6 space-y-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="skeleton h-24 rounded-2xl border border-white/[.04]" />)}</div></div>;
     if (api.error || !draft) return <div><Empty icon="!" title={api.error?.status === 403 ? "Acesso negado" : "Não foi possível conectar ao bot"} text={api.error?.message || "O bot está offline. As alterações ficam bloqueadas até ele responder."} action={<Button onClick={() => void api.reload()}>Tentar novamente</Button>} /></div>;
     if (modulo === "protecao") return <div><SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} /><div className="flex flex-col gap-6"><ProtectionDashboard data={draft} /><ProtectionEditor value={draft} roles={roles} channels={channels} onChange={setDraft} /></div></div>;

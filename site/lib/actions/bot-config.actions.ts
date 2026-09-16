@@ -165,17 +165,17 @@ export async function saveBotConfig(appId: string, modulo: string, data: Record<
             await saveBotDocument(botId, docId, nextDocument);
         }));
 
-        let warning: string | undefined;
+        const warnings: string[] = [];
         if (moduleName === "customizacao") {
             try {
                 await applyDiscordProfile(token, parsed.data.info);
             } catch (error) {
-                warning = error instanceof Error ? error.message : "Configuração salva, mas o perfil do Discord não foi atualizado.";
+                warnings.push(error instanceof Error ? error.message : "Configuração salva, mas o perfil do Discord não foi atualizado.");
             }
         }
         revalidatePath(`/dashboard/${appId}/config`);
         revalidatePath(`/dashboard/${appId}/config/${moduleName}`);
-        return { ok: true, synced: true, warning };
+        return { ok: true, synced: warnings.length === 0, warning: warnings.join(" ") || undefined };
     } catch (error) {
         if (moduleName) logDroxFailure("write", moduleName, error);
         const message = error instanceof ActionError
@@ -403,7 +403,7 @@ export async function publishBotPanel(appId: string, panel: PublishableBotPanel,
         }
     }
     const payload = panelPayload(messageConfig, customId, defaultLabel, componentOverride);
-    const previousId = (panel === "balance" || panel === "tickets") && typeof messageConfig.message_id === "string" ? messageConfig.message_id : "";
+    const previousId = (panel === "balance" || panel === "stock_requests" || panel === "tickets") && typeof messageConfig.message_id === "string" ? messageConfig.message_id : "";
     let response: Response | null = null;
     if (previousId) {
         response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${previousId}`, { method: "PATCH", headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(15_000) }).catch(() => null);
@@ -420,6 +420,10 @@ export async function publishBotPanel(appId: string, panel: PublishableBotPanel,
     if (!sent.id) throw new ActionError("O Discord não confirmou o envio do painel.");
     if (panel === "balance") {
         root.deposit_panel = { ...messageConfig, channel_id: channelId, message_id: sent.id };
+        await saveBotDocument(botId, documentId, root);
+    } else if (panel === "stock_requests") {
+        const stock = root.stock_requests && typeof root.stock_requests === "object" ? root.stock_requests as Record<string, unknown> : {};
+        root.stock_requests = { ...stock, panel_message: { ...messageConfig, channel_id: channelId, message_id: sent.id } };
         await saveBotDocument(botId, documentId, root);
     } else if (panel === "tickets" && panelId) {
         const panels = root.panels && typeof root.panels === "object" ? root.panels as Record<string, unknown> : {};

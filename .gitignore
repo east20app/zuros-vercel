@@ -72,3 +72,4 @@ services/drox-bot/database/tickets/
 services/drox-bot/database/zurosgen.json
 services/drox-bot/database/emojis/emojis.json
 services/drox-bot/database/emojis/emojis_data.json
+.bot-release-audit/

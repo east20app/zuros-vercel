@@ -14,7 +14,14 @@ function connection(): Promise<Connection> {
         const configuredUri = process.env.DROX_BOTS_MONGO_URI;
         const uri = configuredUri === "${MONGO_DB_URL}" ? process.env.MONGO_DB_URL : configuredUri;
         if (!uri) throw new Error("DROX_BOTS_MONGO_URI is not configured");
-        const pending = mongoose.createConnection(uri, { dbName: "drox_bots", serverSelectionTimeoutMS: 5_000, maxPoolSize: 10 }).asPromise();
+        // A release 1.55.46 usa `drox_bots`. O override permite acompanhar
+        // instalações que definem MONGO_DATABASE com outro nome.
+        const configuredDbName = process.env.DROX_BOTS_DB_NAME?.trim() || "drox_bots";
+        const pending = mongoose.createConnection(uri, {
+            dbName: configuredDbName,
+            serverSelectionTimeoutMS: 5_000,
+            maxPoolSize: 10,
+        }).asPromise();
         const cached = pending.catch((error) => {
             // Uma falha transitória não pode envenenar o cache até o próximo restart.
             if (connectionCache.__zurosDroxConnection === cached) delete connectionCache.__zurosDroxConnection;
