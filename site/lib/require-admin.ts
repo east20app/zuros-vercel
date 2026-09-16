@@ -3,6 +3,26 @@ import { redirect } from "next/navigation";
 import type { Session } from "next-auth";
 import { authOptions } from "./auth";
 import databases from "@root/src/databases";
+import connectDatabase from "@root/src/databases/connection";
+
+async function ensureDatabaseConnection(): Promise<void> {
+    const retryDelays = [250, 750];
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
+        try {
+            await connectDatabase();
+            return;
+        } catch (error) {
+            lastError = error;
+            if (attempt < retryDelays.length) {
+                await new Promise((resolve) => setTimeout(resolve, retryDelays[attempt]));
+            }
+        }
+    }
+
+    throw lastError;
+}
 
 async function resolveSession(): Promise<Session | null> {
     // Tentativas com backoff curto: o contexto de requisição do Next pode não
@@ -32,6 +52,10 @@ export async function getSessionUser(): Promise<{ discordId: string; name?: stri
 export async function requireUser() {
     const user = await getSessionUser();
     if (!user) redirect("/login");
+    // A importação dos models inicia a conexão em segundo plano. Em funções
+    // serverless, a primeira pagina podia consultar o Mongo antes desse inicio
+    // terminar e derrubar o layout compartilhado de toda a dashboard.
+    await ensureDatabaseConnection();
     const security = await databases.siteUsers.findOne({ discordId: user.discordId }, { totpEnabled: 1, mfaChallengeAt: 1, mfaVerifiedAt: 1 }).lean();
     if (security?.totpEnabled && security.mfaChallengeAt && (!security.mfaVerifiedAt || security.mfaVerifiedAt < security.mfaChallengeAt)) redirect("/login/mfa");
     return user;

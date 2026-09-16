@@ -132,34 +132,59 @@ export async function getBotConfigOverview(appId: string): Promise<BotConfigOver
     }));
     return Object.fromEntries(rows) as BotConfigOverview;
 }
-export async function saveBotConfig(appId: string, modulo: string, data: Record<string, unknown>): Promise<{ ok: true; synced: boolean; warning?: string }> {
-    const moduleName = moduleOrThrow(modulo); const { discordId, botId, token } = await ownedActiveApplication(appId);
-    if (!process.env.VERCEL) startBotConfigSyncWatcher();
-    if (!checkRateLimit(`site:bot-config:${discordId}:${appId}`, { windowMs: 60_000, maxRequests: 20 })) throw new ActionError("Muitas alterações em sequência. Aguarde alguns instantes.");
-    const parsed = botConfigSchemas[moduleName].safeParse(data); if (!parsed.success) throw new ActionError("Os dados enviados são inválidos para este módulo.");
-    const mapping = BOT_CONFIG_MODULES[moduleName] as Record<string, string>;
-    try { await Promise.all(Object.entries(mapping).map(async ([alias, docId]) => {
-        if (moduleName === "cloud" && alias === "tasks") return; // Histórico somente leitura; o worker do bot é o único escritor.
-        let nextDocument = parsed.data[alias] ?? droxDefaultFor(docId);
-        if (docId === "payment_configs") {
-            const existing = await getBotDocument(botId, docId);
-            nextDocument = preservePaymentSecrets(existing, nextDocument) as Record<string, unknown>;
+export type SaveBotConfigResult = { ok: true; synced: boolean; warning?: string } | { ok: false; error: string };
+
+export async function saveBotConfig(appId: string, modulo: string, data: Record<string, unknown>): Promise<SaveBotConfigResult> {
+    let moduleName: BotConfigModule | null = null;
+    try {
+        moduleName = moduleOrThrow(modulo);
+        const { discordId, botId, token } = await ownedActiveApplication(appId);
+        if (!process.env.VERCEL) startBotConfigSyncWatcher();
+        if (!checkRateLimit(`site:bot-config:${discordId}:${appId}`, { windowMs: 60_000, maxRequests: 20 })) {
+            throw new ActionError("Muitas alterações em sequência. Aguarde alguns instantes.");
         }
-        if (docId === "cloud_data") {
-            const existing = await getBotDocument(botId, docId) || {};
-            const existingAuth = existing.zuros_auth && typeof existing.zuros_auth === "object" && !Array.isArray(existing.zuros_auth) ? existing.zuros_auth as Record<string, unknown> : {};
-            const incomingAuth = nextDocument.zuros_auth && typeof nextDocument.zuros_auth === "object" && !Array.isArray(nextDocument.zuros_auth) ? nextDocument.zuros_auth as Record<string, unknown> : {};
-            const credential = String(incomingAuth.bot_credential || "").trim() || String(existingAuth.bot_credential || "");
-            nextDocument = { ...existing, ...nextDocument, zuros_auth: { ...existingAuth, ...incomingAuth, bot_credential: credential } };
-            delete (nextDocument.zuros_auth as Record<string, unknown>).credential_configured;
+        const parsed = botConfigSchemas[moduleName].safeParse(data);
+        if (!parsed.success) throw new ActionError("Os dados enviados são inválidos para este módulo.");
+        const mapping = BOT_CONFIG_MODULES[moduleName] as Record<string, string>;
+
+        await Promise.all(Object.entries(mapping).map(async ([alias, docId]) => {
+            if (moduleName === "cloud" && alias === "tasks") return;
+            let nextDocument = parsed.data[alias] ?? droxDefaultFor(docId);
+            if (docId === "payment_configs") {
+                const existing = await getBotDocument(botId, docId);
+                nextDocument = preservePaymentSecrets(existing, nextDocument) as Record<string, unknown>;
+            }
+            if (docId === "cloud_data") {
+                const existing = await getBotDocument(botId, docId) || {};
+                const existingAuth = existing.zuros_auth && typeof existing.zuros_auth === "object" && !Array.isArray(existing.zuros_auth) ? existing.zuros_auth as Record<string, unknown> : {};
+                const incomingAuth = nextDocument.zuros_auth && typeof nextDocument.zuros_auth === "object" && !Array.isArray(nextDocument.zuros_auth) ? nextDocument.zuros_auth as Record<string, unknown> : {};
+                const credential = String(incomingAuth.bot_credential || "").trim() || String(existingAuth.bot_credential || "");
+                nextDocument = { ...existing, ...nextDocument, zuros_auth: { ...existingAuth, ...incomingAuth, bot_credential: credential } };
+                delete (nextDocument.zuros_auth as Record<string, unknown>).credential_configured;
+            }
+            await saveBotDocument(botId, docId, nextDocument);
+        }));
+
+        let warning: string | undefined;
+        if (moduleName === "customizacao") {
+            try {
+                await applyDiscordProfile(token, parsed.data.info);
+            } catch (error) {
+                warning = error instanceof Error ? error.message : "Configuração salva, mas o perfil do Discord não foi atualizado.";
+            }
         }
-        await saveBotDocument(botId, docId, nextDocument);
-    })); }
-    catch (error) { logDroxFailure("write", moduleName, error); throw new ActionError("Não foi possível salvar no DROX. Tente novamente em instantes."); }
-    if (moduleName === "customizacao") await applyDiscordProfile(token, parsed.data.info);
-    revalidatePath(`/dashboard/${appId}/config`); revalidatePath(`/dashboard/${appId}/config/${moduleName}`);
-    // O watcher do bot invalida o cache por Change Stream ou polling em até 4s.
-    return { ok: true, synced: true };
+        revalidatePath(`/dashboard/${appId}/config`);
+        revalidatePath(`/dashboard/${appId}/config/${moduleName}`);
+        return { ok: true, synced: true, warning };
+    } catch (error) {
+        if (moduleName) logDroxFailure("write", moduleName, error);
+        const message = error instanceof ActionError
+            ? error.message
+            : "Não foi possível salvar no DROX. Tente novamente em instantes.";
+        // Expected failures cross the Server Action boundary as data. Next.js
+        // hides thrown errors in production behind a generic RSC digest.
+        return { ok: false, error: message };
+    }
 }
 export async function getBotConfigStatus(appId: string): Promise<{ online: boolean }> {
     try {
