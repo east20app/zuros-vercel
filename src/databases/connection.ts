@@ -8,7 +8,11 @@ let connectionPromise: ReturnType<typeof connect> | undefined;
 
 export default async () => {
     if (connection.readyState === 1) return;
-    if (connectionPromise) return connectionPromise.then(() => undefined);
+    // Uma promise resolvida pode permanecer em memória depois de uma queda
+    // posterior da conexão. Nesse caso, reutilizá-la faz as queries seguintes
+    // entrarem no buffer do Mongoose até estourar `bufferTimeoutMS`.
+    if (connectionPromise && connection.readyState === 2) return connectionPromise.then(() => undefined);
+    connectionPromise = undefined;
     try {
         connectionPromise = connect(env.MONGO_DB_URL, {
             // Cada isolate usa pool próprio e pequeno. Isso impede que o bot
@@ -42,6 +46,7 @@ export default async () => {
             }
         }
         console.log("✅・Conexão com o MongoDB estabelecida com sucesso!");
+        connectionPromise = undefined;
     } catch (error: any) {
         console.error("❌・Erro ao conectar com o MongoDB:", error.message);
         connectionPromise = undefined;
