@@ -29,6 +29,8 @@ export const BOT_CONFIG_MODULES = {
         reactions: "automations_reactions", repost: "automations_repost", autoResponse: "automations_response_auto",
         suggestions: "automations_suggestions", topics: "automations_topics",
         disparadorDm: "automations_disparador_dm", forms: "automations_forms",
+        autorole: "automations_autorole", cartas: "automations_cartas",
+        welcomeMention: "automations_mencao_boas_vindas", departures: "automations_saidas",
     },
     customizacao: { colors: "custom_colors", status: "custom_status", info: "custom_info", mode: "custom_mode" },
     cloud: { config: "cloud_data", tasks: "cloud_tasks", gifts: "cloud_gifts" },
@@ -41,6 +43,7 @@ export const BOT_CONFIG_MODULES = {
     configuracoes: {
         cargos: "cargos", canais: "canais", pagamentos: "payment_configs", pagamentosStatus: "pagamentos", antifake: "antifake_config",
         notificacoes: "notifications_config", blacklist: "blacklist",
+        permissoes: "bot_permissions",
     },
 } as const;
 

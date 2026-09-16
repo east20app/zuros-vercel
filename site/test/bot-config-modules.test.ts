@@ -72,7 +72,17 @@ test("automacoes maps every real DROX automation document", () => {
         topics: "automations_topics",
         disparadorDm: "automations_disparador_dm",
         forms: "automations_forms",
+        autorole: "automations_autorole",
+        cartas: "automations_cartas",
+        welcomeMention: "automations_mencao_boas_vindas",
+        departures: "automations_saidas",
     });
+});
+test("configuracoes maps every option shown in the Discord settings menu", () => {
+    for (const alias of ["cargos", "canais", "pagamentos", "antifake", "notificacoes", "blacklist", "permissoes"]) {
+        assert.equal(alias in BOT_CONFIG_MODULES.configuracoes, true, alias);
+    }
+    assert.equal(BOT_CONFIG_MODULES.configuracoes.permissoes, "bot_permissions");
 });
 test("customizacao maps every real DROX customization document", () => {
     assert.deepEqual(BOT_CONFIG_MODULES.customizacao, {

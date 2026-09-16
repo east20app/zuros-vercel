@@ -190,6 +190,24 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     automations_topics: { ativado: false, topicos: [], immune_role_id: null },
     automations_disparador_dm: { ativado: false, tokens: [], mensagem: {} },
     automations_forms: { ativado: false, forms: {} },
+    automations_autorole: { ativado: false, cargos: [] },
+    automations_cartas: { ativado: false, canal_id: null, allow_anonymous: true },
+    automations_mencao_boas_vindas: { ativado: false, mensagem: "{user}", canal_id: null, tempo_segundos: 5 },
+    automations_saidas: {
+        ativado: false,
+        mensagem: "{user} saiu do {nameserver}. Agora somos {servercount}.",
+        tempo_segundos: 0,
+        modo_envio: "v2",
+        rota_envio: "canal",
+        usar_componentes_v2: true,
+        v1_imagem_url: null,
+        v2_imagem_url: null,
+        v2_cor_container: null,
+        embed_titulo: null,
+        embed_banner_url: null,
+        embed_thumb_url: null,
+        embed_cor: null,
+    },
 
     // --- Extensões ---
     extensions_config: {},
@@ -225,6 +243,7 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
         canal_de_logs_de_permissoes_adicionadas: null, canal_de_logs_de_permissoes_removidas: null,
     },
     blacklist: { ids: [] },
+    bot_permissions: { users: [] },
 
     // --- Notificações ---
     notifications_config: {},

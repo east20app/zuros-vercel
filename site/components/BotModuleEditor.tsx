@@ -112,7 +112,7 @@ function DynamicFields({ value, onChange, roles = [], channels = [], path = [] }
 
 const SETTINGS_LABELS: Record<string, string> = {
     cargos: "Cargos", canais: "Canais", pagamentos: "Pagamentos", antifake: "Anti-Fake",
-    notificacoes: "Notificações", blacklist: "Bloquear usuários",
+    notificacoes: "Notificações", blacklist: "Bloquear usuários", permissoes: "Permissões do bot",
 };
 const PAYMENT_LABELS: Record<string, string> = {
     zuros_wallet: "Zuros Wallet", pix_manual: "Pix Manual", mercado_pago: "Mercado Pago", efibank: "Efi Bank", pushinpay: "Pushin Pay",
