@@ -43,7 +43,20 @@ export function DashboardOnboarding() {
 
 export function MobileDashboardNav({ onOpenMenu }: { onOpenMenu?: () => void } = {}) {
     const pathname = usePathname();
+    const applicationId = pathname.match(/^\/dashboard\/(?!account(?:\/|$)|invoices(?:\/|$)|store(?:\/|$)|auth(?:\/|$))([^/]+)(?:\/|$)/)?.[1];
+    const shortcuts = applicationId ? [
+        { href: `/dashboard/${applicationId}`, label: "Início", icon: "dashboard" as const, active: pathname === `/dashboard/${applicationId}` },
+        { href: `/dashboard/${applicationId}/vendas`, label: "Loja", icon: "payment" as const, active: pathname.startsWith(`/dashboard/${applicationId}/vendas`) },
+        { href: `/dashboard/${applicationId}/config`, label: "Configurar", icon: "settings" as const, active: pathname.startsWith(`/dashboard/${applicationId}/config`) },
+    ] : [
+        { href: "/dashboard", label: "Aplicações", icon: "apps" as const, active: pathname === "/dashboard" },
+        { href: "/dashboard/invoices", label: "Faturas", icon: "invoice" as const, active: pathname.startsWith("/dashboard/invoices") },
+        { href: "/dashboard/account", label: "Conta", icon: "user" as const, active: pathname.startsWith("/dashboard/account") },
+    ];
     return <nav className="mobile-dashboard-nav fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Navegação principal">
-        <div className="mx-auto grid h-20 max-w-md grid-cols-3 items-center px-8"><Link href="/dashboard" className={`mobile-nav-link ${pathname === "/dashboard" ? "is-active" : ""}`}><Icon name="dashboard" className="h-5 w-5" />Meus bots</Link><Link href="/dashboard" aria-label="Aplicações" className="mobile-nav-main"><Icon name="apps" className="h-5 w-5" /></Link><button type="button" onClick={onOpenMenu} className={`mobile-nav-link ${pathname.startsWith("/dashboard/account") ? "is-active" : ""}`}><Icon name="menu" className="h-5 w-5" />Menu</button></div>
+        <div className="mx-auto grid h-16 max-w-lg grid-cols-4 items-stretch px-2">
+            {shortcuts.map((item) => <Link key={item.href} href={item.href} className={`mobile-nav-link ${item.active ? "is-active" : ""}`}><Icon name={item.icon} className="h-[18px] w-[18px]" /><span>{item.label}</span></Link>)}
+            <button type="button" onClick={onOpenMenu} className="mobile-nav-link"><Icon name="menu" className="h-[18px] w-[18px]" /><span>Menu</span></button>
+        </div>
     </nav>;
 }
