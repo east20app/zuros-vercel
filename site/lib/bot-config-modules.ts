@@ -38,6 +38,7 @@ export const BOT_CONFIG_MODULES = {
     extensions: {
         config: "extensions_config", droxgen: "extensions_droxgen", boostData: "extensions_boost_data",
         boostStock: "extensions_boost_stock", subscriptions: "extensions_subscriptions",
+        boostSubscriptions: "extensions_boost_subscriptions",
         pendingPayments: "extensions_pending_payments", paymentHistory: "extensions_payment_history",
     },
     configuracoes: {

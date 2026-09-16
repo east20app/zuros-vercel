@@ -144,6 +144,7 @@ const MODULE_SECTION_LABELS: Partial<Record<BotConfigModule, Record<string, stri
     extensions: {
         config: "Ativação de extensões", droxgen: "DROX Gen", boostData: "Zuros Boost · dados",
         boostStock: "Zuros Boost · estoque", subscriptions: "Assinaturas pagas",
+        boostSubscriptions: "Assinaturas do Zuros Boost",
         pendingPayments: "Pagamentos pendentes", paymentHistory: "Histórico de pagamentos",
     },
 };
@@ -162,6 +163,14 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
     };
     const sectionHasSwitch = (current: unknown) => Boolean(current && typeof current === "object" && !Array.isArray(current)
         && ["ativado", "status", "enabled", "ativo"].some((key) => Object.hasOwn(current as Record<string, unknown>, key)));
+    const addGiveaway = (alias: string, current: Record<string, unknown>) => {
+        const id = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+        onChange([alias], { ...current, [id]: {
+            name: "Novo sorteio", mode: "real", author_id: null, created_at: Math.floor(Date.now() / 1000),
+            tasks: [], requirements: { roles: [], min_account_days: 0 },
+            prize: { type: "none", content: "" }, winner_users: [], winner_roles: [],
+        } });
+    };
     return <div className="drox-automations-ui space-y-6">
         <div className="drox-automation-summary"><span><i /> {entries.length} se??es dispon?veis</span><small>Edite uma se??o e use Salvar no topo para aplicar no DROX.</small></div>
         <section className="drox-automation-group"><h3>{BOT_MODULE_META[modulo].name}</h3><div className="drox-automation-card">
@@ -178,7 +187,7 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
                         <button type="button" className={`drox-automation-chevron ${open ? "is-open" : ""}`} onClick={() => setSelected(open ? "" : alias)} aria-label={`${open ? "Fechar" : "Abrir"} ${labelsForModule[alias] || labelFor(alias)}`}>⌄</button>
                         <span className="drox-automation-save-hint">Editar</span>
                     </div>
-                    {open && <div className="drox-automation-details"><p className="drox-automation-details-title">Configuração</p>{current && typeof current === "object" && !Array.isArray(current) ? Object.keys(current).length ? <DynamicFields value={current as Record<string, unknown>} roles={roles} channels={channels} path={[alias]} onChange={onChange} /> : <div className="rounded-xl border border-dashed border-white/[.1] p-8 text-center"><p className="text-sm text-[#b5bac1]">Nenhum item configurado.</p><p className="mt-1 text-xs text-[#949ba4]">Quando o DROX criar esta configuração, ela aparecerá aqui.</p></div> : <p className="text-sm text-[#949ba4]">Esta opção ainda não possui dados configuráveis.</p>}</div>}
+                    {open && <div className="drox-automation-details"><p className="drox-automation-details-title">Configuração</p>{current && typeof current === "object" && !Array.isArray(current) ? <>{Object.keys(current).length ? <DynamicFields value={current as Record<string, unknown>} roles={roles} channels={channels} path={[alias]} onChange={onChange} /> : <div className="rounded-xl border border-dashed border-white/[.1] p-8 text-center"><p className="text-sm text-[#b5bac1]">Nenhum item configurado.</p><p className="mt-1 text-xs text-[#949ba4]">Crie a primeira configuração para ela aparecer no Discord.</p></div>}{modulo === "giveaways" ? <div className="mt-4"><Button type="button" variant="secondary" onClick={() => addGiveaway(alias, current as Record<string, unknown>)}>Criar sorteio</Button></div> : null}</> : <p className="text-sm text-[#949ba4]">Esta opção ainda não possui dados configuráveis.</p>}</div>}
                 </article>;
             })}
         </div></section>

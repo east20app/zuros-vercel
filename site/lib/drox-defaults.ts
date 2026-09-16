@@ -210,11 +210,12 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     },
 
     // --- Extensões ---
-    extensions_config: {},
-    extensions_droxgen: {},
-    extensions_boost_data: {},
+    extensions_config: { boost: { enabled: false } },
+    extensions_droxgen: { enabled: true, integrated_user_id: null, integrated_user: null, livestock: {} },
+    extensions_boost_data: { enabled: false },
     extensions_boost_stock: { tokens: [] },
     extensions_subscriptions: {},
+    extensions_boost_subscriptions: {},
     extensions_pending_payments: {},
     extensions_payment_history: {},
 
@@ -246,8 +247,15 @@ export const DROX_DOCUMENT_DEFAULTS: Record<string, Record<string, unknown>> = {
     bot_permissions: { users: [] },
 
     // --- Notificações ---
-    notifications_config: {},
-    enviar_dm_editor: {},
+    notifications_config: { enabled: false, ddd: null, number: null },
+    enviar_dm_editor: {
+        mensagem: {
+            content: "",
+            embed: { title: "", description: "", color: "#ffffff", footer: "", image: "", thumbnail: "" },
+            externalImage: "",
+            buttons: [],
+        },
+    },
     messages_templates1: { templates: [] },
     messages_anunciar: {
         configured: false,
