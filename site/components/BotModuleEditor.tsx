@@ -271,7 +271,7 @@ function ConfiguracoesEditor({ value, roles, channels, onChange }: { value: Reco
 
 function SaveBar({ dirty, saving, onSave }: { dirty: boolean; saving: boolean; onSave: () => void }) {
     return (
-        <div className="sticky top-16 z-20 -mx-5 mb-6 flex items-center justify-between gap-3 border-b border-zinc-900/80 bg-black/85 px-5 py-3 backdrop-blur sm:mx-0 sm:rounded-xl sm:border sm:border-white/[.05] sm:bg-zinc-950/80 sm:px-4">
+        <div className="config-save-bar">
             <span className={`flex items-center gap-2 text-xs ${dirty ? "text-amber-400" : "text-zinc-600"}`}>
                 <i className={`h-1.5 w-1.5 rounded-full ${dirty ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} />
                 {dirty ? "Alterações não salvas" : "Tudo salvo"}

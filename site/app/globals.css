@@ -5342,7 +5342,8 @@ p { text-wrap: pretty; }
     border-radius: 0 !important;
     background: #07111d !important;
     box-shadow: none !important;
-    overflow: visible !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
 }
 .zuros-sidebar-panel {
     border-radius: 0 !important;
@@ -5454,4 +5455,90 @@ p { text-wrap: pretty; }
     .ticket-section-icon svg { width: 1.7rem; height: 1.7rem; }
     .ticket-section-copy small { font-size: .78rem; }
     .ticket-section-fields { padding: 1.15rem .25rem 1.5rem; }
+}
+
+/* Espaço de configuração: uma hierarquia única, sem navegação ou cartões duplicados. */
+.bot-workspace-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+}
+.module-config-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 100dvh;
+    padding: clamp(2rem, 4vw, 3.75rem) clamp(1.25rem, 4vw, 4rem) 5rem;
+    background: #07111d;
+}
+.module-config-page > * { min-width: 0; }
+.module-config-heading {
+    max-width: 52rem;
+    margin-bottom: 1.4rem;
+}
+.module-config-heading p {
+    color: #77aef8;
+    font-size: .7rem;
+    font-weight: 700;
+}
+.module-config-heading h1 {
+    margin-top: .65rem;
+    color: #f4f7fb;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+}
+.module-config-heading span {
+    display: block;
+    margin-top: .55rem;
+    color: #9bb0cc;
+    font-size: clamp(.95rem, 1.6vw, 1.15rem);
+    line-height: 1.55;
+}
+.config-save-bar {
+    display: flex;
+    min-height: 4.35rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+    border-block: 1px solid rgba(145,174,211,.2);
+    padding: .8rem 0;
+    background: transparent;
+}
+.config-save-bar > span { display: flex; align-items: center; gap: .55rem; color: #a9bbd1; font-size: .78rem; }
+.config-save-bar > span i { width: .55rem; height: .55rem; border-radius: 999px; }
+.config-save-bar button { min-width: 5.5rem; }
+.store-section-nav {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    gap: .25rem;
+    overflow-x: auto;
+    border-bottom: 1px solid rgba(145,174,211,.18);
+    padding-bottom: .75rem;
+    scrollbar-width: thin;
+}
+.store-section-nav a {
+    flex: 0 0 auto;
+    border-radius: 7px;
+    padding: .65rem .9rem;
+    color: #9fb2ca;
+    font-size: .78rem;
+    font-weight: 600;
+}
+.store-section-nav a:hover { background: rgba(88,143,214,.1); color: #e5eef9; }
+.module-config-page .config-card-sections { gap: .55rem; }
+.module-config-page .config-card-section {
+    border-color: rgba(145,174,211,.18);
+    border-radius: 9px;
+    background: #0b1724;
+}
+.module-config-page .config-card-section-content { background: #08121e; }
+
+@media (max-width: 640px) {
+    .module-config-page { padding: 1.35rem 1rem calc(6rem + env(safe-area-inset-bottom)); }
+    .module-config-heading { margin-bottom: 1rem; }
+    .config-save-bar { min-height: 3.8rem; margin-bottom: 1rem; }
+    .store-section-nav { margin-inline: -1rem; width: calc(100% + 2rem); padding-inline: 1rem; }
 }
