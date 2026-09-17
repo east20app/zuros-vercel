@@ -5346,6 +5346,8 @@ p { text-wrap: pretty; }
     overflow-y: visible !important;
 }
 .zuros-sidebar-panel {
+    width: 100% !important;
+    min-width: 0 !important;
     border-radius: 0 !important;
     background: #091522 !important;
     box-shadow: none !important;
@@ -5459,7 +5461,10 @@ p { text-wrap: pretty; }
 @media (min-width: 1024px) {
     .zuros-mobile-header { display: none !important; }
     .zuros-dashboard-content { min-height: 100dvh !important; }
-    .zuros-dashboard-stage { width: calc(100% - 16rem) !important; }
+    .zuros-dashboard-stage {
+        width: auto !important;
+        margin-left: 16rem !important;
+    }
 }
 @media (max-width: 1023px) {
     .ticket-config-page { padding-top: 1.5rem; padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
