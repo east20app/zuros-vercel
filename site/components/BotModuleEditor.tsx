@@ -191,6 +191,43 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
         </div></section>
     </div>;
 }
+
+const TICKET_SECTIONS = [
+    { id: "categories", title: "Categorias", description: "Gerencie os painéis e as categorias dos tickets.", icon: "ticket" as const, match: /panel|category|categoria|channel|canal|name|nome|label|emoji/i },
+    { id: "messages", title: "Mensagens", description: "Edite as mensagens de abertura, fechamento e sistema.", icon: "bell" as const, match: /message|mensagem|content|conteudo|title|titulo|description|descricao|embed|button|botao|welcome|close|open/i },
+    { id: "team", title: "Equipe", description: "Defina os membros e cargos que podem atender os tickets.", icon: "user" as const, match: /role|cargo|staff|team|equipe|member|membro|support|suporte|attendant|atendente/i },
+    { id: "general", title: "Configurações gerais", description: "Ajuste o comportamento geral do sistema de tickets.", icon: "settings" as const, match: null },
+] as const;
+
+function TicketEditor({ value, roles, channels, onChange }: { value: Record<string, unknown>; roles: DiscordGuildRole[]; channels: DiscordGuildChannel[]; onChange: (path: string[], value: unknown) => void }) {
+    const [selected, setSelected] = useState<string>("");
+    const config = value.config && typeof value.config === "object" && !Array.isArray(value.config) ? value.config as Record<string, unknown> : {};
+    const panels = config.panels && typeof config.panels === "object" && !Array.isArray(config.panels) ? config.panels as Record<string, unknown> : {};
+    const sectionValue = (section: typeof TICKET_SECTIONS[number]) => {
+        if (section.id === "categories") return { panels };
+        const filteredPanels = Object.fromEntries(Object.entries(panels).map(([panelId, raw]) => {
+            const panel = raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : {};
+            const entries = Object.entries(panel).filter(([key]) => section.match ? section.match.test(key) : !TICKET_SECTIONS.slice(0, 3).some((item) => item.match?.test(key)));
+            return [panelId, Object.fromEntries(entries)];
+        }).filter(([, panel]) => Object.keys(panel as Record<string, unknown>).length > 0));
+        const rootEntries = Object.entries(config).filter(([key]) => key !== "panels" && (section.match ? section.match.test(key) : !TICKET_SECTIONS.slice(0, 3).some((item) => item.match?.test(key))));
+        return { ...Object.fromEntries(rootEntries), ...(Object.keys(filteredPanels).length ? { panels: filteredPanels } : {}) };
+    };
+    return <section className="ticket-section-list" aria-label="Configurações de tickets">
+        {TICKET_SECTIONS.map((section) => {
+            const open = selected === section.id;
+            const fields = sectionValue(section);
+            return <article key={section.id} className={`ticket-section-row ${open ? "is-open" : ""}`}>
+                <button type="button" className="ticket-section-trigger" onClick={() => setSelected(open ? "" : section.id)} aria-expanded={open}>
+                    <span className="ticket-section-icon"><Icon name={section.icon} /></span>
+                    <span className="ticket-section-copy"><b>{section.title}</b><small>{section.description}</small></span>
+                    <span className="ticket-section-arrow" aria-hidden>›</span>
+                </button>
+                {open && <div className="ticket-section-fields">{Object.keys(fields).length ? <DynamicFields value={fields} roles={roles} channels={channels} path={["config"]} onChange={onChange} /> : <p>Esta seção ainda não possui opções no bot. Quando uma configuração for criada no Discord, ela aparecerá aqui automaticamente.</p>}</div>}
+            </article>;
+        })}
+    </section>;
+}
 function PaymentProviderEditor({ value, status, onChange }: { value: Record<string, unknown>; status: Record<string, unknown>; onChange: (path: string[], value: unknown) => void }) {
     const [category, setCategory] = useState<keyof typeof PAYMENT_CATEGORIES>("pix");
     const available = PAYMENT_CATEGORIES[category].filter((key) => !PAYMENT_COMING_SOON.has(key));
@@ -278,6 +315,11 @@ export function BotModuleEditor({ storeId, modulo, productsOnly = false }: { sto
     const save = async () => { if (!draft) return; try { const result = await api.save(draft); push(result.warning || (result.synced ? "Configurações salvas e aplicadas ao bot" : "Configurações salvas; reinicie o bot para aplicar"), result.synced ? "success" : "error"); router.refresh(); } catch (error) { push((error as BotConfigError).message || "Não foi possível salvar — bot está offline", "error"); } };
     if (api.loading) return <div aria-label="Carregando configuração"><div className="flex items-center gap-3"><div className="skeleton h-11 w-11 rounded-2xl" /><div className="space-y-2"><div className="skeleton h-4 w-44 rounded-lg" /><div className="skeleton h-3 w-64 rounded-lg" /></div></div><div className="mt-6 space-y-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="skeleton h-24 rounded-2xl border border-white/[.04]" />)}</div></div>;
     if (api.error || !draft) return <div><Empty icon="!" title={api.error?.status === 403 ? "Acesso negado" : "Não foi possível conectar ao bot"} text={api.error?.message || "O bot está offline. As alterações ficam bloqueadas até ele responder."} action={<Button onClick={() => void api.reload()}>Tentar novamente</Button>} /></div>;
+    if (modulo === "tickets") return <div className="ticket-config-editor">
+        <header className="ticket-config-heading"><p>GERENCIAR TICKETS</p><h1>Configurar Ticket</h1><span>Categorias, mensagens e equipe.</span></header>
+        <SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} />
+        <TicketEditor value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} />
+    </div>;
     if (modulo === "protecao") return <div><SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} /><div className="flex flex-col gap-6"><ProtectionDashboard data={draft} /><ProtectionEditor value={draft} roles={roles} channels={channels} onChange={setDraft} /></div></div>;
     return <div><SaveBar dirty={dirty} saving={api.saving} onSave={() => void save()} /><div className="min-w-0">{modulo === "loja" ? <LojaEditor appId={storeId} value={draft} roles={roles} channels={channels} onChange={setDraft} productsOnly={productsOnly} persist={async (next) => { try { await api.save(next); push("Alteração salva com sucesso"); } catch (error) { push((error as BotConfigError).message || "Não foi possível salvar", "error"); await api.reload(); } }} /> : modulo === "configuracoes" ? <ConfiguracoesEditor value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : modulo === "automacoes" ? <AutomationsEditor value={draft} roles={roles} channels={channels} onChange={setDraft} /> : modulo === "customizacao" ? <CustomizacaoEditor value={draft} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : modulo === "cloud" ? <CloudEditor value={draft} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} /> : <GenericModuleEditor modulo={modulo} value={draft} roles={roles} channels={channels} onChange={(path, value) => setDraft(updateAt(draft, path, value))} />}</div></div>;
 }

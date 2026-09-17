@@ -570,7 +570,7 @@ export function Sidebar({
         <>
             <TopHeader leftOffsetClass="lg:left-64" pendingCount={pendingCount} title={headerTitle} />
             <MobileMenuButton onOpen={() => setOpen(true)} />
-            <div className="fixed bottom-3 left-3 top-3 z-40 hidden w-60 overflow-hidden rounded-none bg-black/70 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block">{FullPanel}</div>
+            <div className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-hidden bg-[#09121f] lg:block">{FullPanel}</div>
             <MobileDrawer open={open} onClose={() => setOpen(false)}>
                 {FullPanel}
             </MobileDrawer>
