@@ -310,7 +310,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ appI
                 tabs={[
                     { id: "informacoes", label: "Informações", content: tabContent.informacoes },
                     { id: "controles", label: "Controles", content: tabContent.controles },
-                    { id: "configurar-drox", label: "Configurar DROX", content: tabContent["configurar-drox"] },
+                    { id: "configurar-drox", label: "Configurar bot", content: tabContent["configurar-drox"] },
                 ]}
             />
         </main>

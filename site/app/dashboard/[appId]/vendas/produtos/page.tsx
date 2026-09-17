@@ -14,7 +14,7 @@ export default async function ProdutosPage({ params }: { params: Promise<{ appId
             <BotPageHero
                 eyebrow="LOJA / VITRINE"
                 title="Produtos do bot"
-                description={`Bot ${ctx.botName} · Vitrine DROX`}
+                description={`Bot ${ctx.botName} · Vitrine da loja`}
             />
 
             <div className="sales-status-strip">

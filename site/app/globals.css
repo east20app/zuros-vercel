@@ -4720,3 +4720,136 @@ html:has(.login-page-root), body:has(.login-page-root) {
     .zuros-dashboard-content .drox-automation-details { padding: 1rem; }
     .zuros-dashboard-content .bot-page-hero { padding: 1.1rem; }
 }
+
+/* Superfícies editoriais e operacionais compartilhadas entre as demais páginas. */
+.support-page,
+.legal-page {
+    position: relative;
+    width: min(100%, 76rem);
+    margin-inline: auto;
+}
+.support-portal { padding: clamp(2rem, 5vw, 4.5rem) clamp(1rem, 4vw, 2rem); }
+.support-hero { align-items: end; gap: 1.5rem; margin-bottom: 1.25rem; }
+.support-hero h1 { max-width: 42rem; text-wrap: balance; }
+.support-discord-link,
+.support-form button,
+.support-reply button {
+    min-height: 2.7rem;
+    border-radius: .55rem;
+}
+.support-grid {
+    gap: 1rem;
+    background: transparent;
+}
+.support-panel {
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: .85rem;
+    background: linear-gradient(145deg, rgba(19,25,29,.96), rgba(12,17,20,.96));
+    box-shadow: 0 22px 55px -42px rgba(0,0,0,.9), inset 0 1px rgba(255,255,255,.025);
+}
+.support-form :where(input, select, textarea),
+.support-reply textarea,
+.admin-support-settings :where(input, textarea),
+.admin-ticket-actions select,
+.admin-ticket-reply textarea {
+    border: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: .5rem !important;
+    background: rgba(5,9,11,.5) !important;
+    padding: .78rem .85rem !important;
+}
+.support-ticket-list { gap: .45rem; }
+.support-ticket-list > button {
+    border: 1px solid transparent;
+    border-radius: .58rem;
+}
+.support-ticket-list > button.is-selected {
+    border-color: rgba(96,165,250,.32);
+    background: rgba(59,130,246,.09);
+}
+.support-thread { border-radius: .7rem; }
+
+.legal-page {
+    max-width: 52rem;
+    margin-block: clamp(2rem, 5vw, 4rem);
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: .9rem;
+    background: rgba(12,17,20,.82);
+    box-shadow: 0 30px 70px -55px rgba(0,0,0,.95);
+    padding: clamp(1.5rem, 5vw, 3.5rem) !important;
+}
+.legal-page h1 { max-width: 38rem; text-wrap: balance; }
+.legal-page section + section { border-top: 1px solid rgba(255,255,255,.065); padding-top: 2rem; }
+
+.required-discord-page {
+    display: grid;
+    min-height: 100svh;
+    place-items: center;
+    padding: 1.25rem;
+    background: radial-gradient(circle at 50% 15%, rgba(59,130,246,.09), transparent 30rem), #091015;
+}
+.required-discord-page > section {
+    width: min(100%, 29rem);
+    border: 1px solid rgba(255,255,255,.085);
+    border-radius: .85rem;
+    background: rgba(14,21,25,.94);
+    box-shadow: 0 30px 70px -45px rgba(0,0,0,.95);
+    padding: clamp(1.4rem, 5vw, 2.25rem);
+}
+.required-discord-page form { margin-top: 1.5rem; }
+.required-discord-page input {
+    min-height: 2.75rem;
+    border: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: .5rem !important;
+    background: rgba(5,9,11,.55) !important;
+    padding: .75rem .85rem !important;
+}
+.required-discord-page button { min-height: 2.75rem; border-radius: .5rem; }
+
+.account-page,
+.sales-page,
+.auth-dashboard,
+.auth-setup-page { width: 100%; }
+.account-heading,
+.sales-status-strip,
+.sales-chart-wrap,
+.sales-summary,
+.auth-setup-intro,
+.auth-setup-trust {
+    border-color: rgba(255,255,255,.075);
+    box-shadow: inset 0 1px rgba(255,255,255,.02);
+}
+.invoice-table { background: rgba(10,14,17,.58); }
+.invoice-toolbar input { font-size: .86rem; }
+.security-settings {
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: .85rem;
+    background: rgba(15,21,25,.9);
+    box-shadow: 0 24px 60px -48px rgba(0,0,0,.9);
+}
+
+.admin-support-settings,
+.admin-support-workspace,
+.admin-ticket-detail,
+.admin-ticket-list {
+    border-color: rgba(255,255,255,.08);
+    border-radius: .8rem;
+    background: rgba(14,19,22,.9);
+}
+.admin-support-workspace { gap: 1rem; background: transparent; }
+.admin-ticket-list > button { margin: .25rem .45rem; border-radius: .5rem; width: calc(100% - .9rem); }
+.admin-ticket-actions button,
+.admin-ticket-meta button,
+.admin-ticket-reply button,
+.admin-support-settings button { border-radius: .5rem; }
+
+@media (max-width: 700px) {
+    .support-portal { padding-top: 1.5rem; }
+    .support-hero { align-items: flex-start; }
+    .support-discord-link { width: 100%; justify-content: center; }
+    .support-grid { grid-template-columns: 1fr; }
+    .legal-page { margin-block: 1rem; border-radius: .7rem; }
+    .account-page, .sales-page, .auth-dashboard, .auth-setup-page { padding-inline: 1rem !important; }
+    .invoice-toolbar > * { max-width: none; }
+    .admin-support-workspace { grid-template-columns: 1fr; }
+}
