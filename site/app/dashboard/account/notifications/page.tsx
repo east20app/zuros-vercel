@@ -6,7 +6,7 @@ export default function NotificationsPage() {
         <main className="account-page mx-auto max-w-6xl px-5 py-8 sm:px-8">
             <section className="account-heading">
                 <div><p className="home-kicker"><span className="home-kicker-mark" />CONTA / NOTIFICAÇÕES</p><h1>Alertas e aplicativo.</h1><p>Escolha como a ZUROS avisa você neste aparelho.</p></div>
-                <span className="account-heading-code">ACCOUNT / NOT</span>
+                <span className="account-heading-code">CONTA / AVISOS</span>
             </section>
             <section className="sales-chart-wrap" aria-labelledby="notification-categories-title">
                 <div className="sales-section-heading">

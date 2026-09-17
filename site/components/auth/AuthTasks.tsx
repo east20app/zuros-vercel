@@ -66,7 +66,7 @@ export default function AuthTasks({ licenseId }: AuthTasksProps) {
 
   return (
     <div className="rounded-2xl border border-white/[.07] bg-[#08090b] p-5 sm:p-6 space-y-5">
-      <h2 className="text-lg font-semibold text-white">Tasks</h2>
+      <div><h2 className="text-lg font-semibold text-white">Tarefas em segundo plano</h2><p className="mt-1 text-xs text-zinc-500">Acompanhe os processos executados pela autenticação.</p></div>
 
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-red-300 text-sm">
@@ -81,7 +81,7 @@ export default function AuthTasks({ licenseId }: AuthTasksProps) {
           ))}
         </div>
       ) : tasks.length === 0 ? (
-        <p className="text-sm text-zinc-500 text-center py-8">No tasks running</p>
+        <p className="text-sm text-zinc-500 text-center py-8">Nenhuma tarefa em execução.</p>
       ) : (
         <div className="space-y-3">
           {tasks.map((task) => {
@@ -99,7 +99,7 @@ export default function AuthTasks({ licenseId }: AuthTasksProps) {
                     <span
                       className={`rounded-full border px-2.5 py-0.5 text-[11px] ${getStatusBadge(task.status)}`}
                     >
-                      {task.status}
+                      {{ running: "Em execução", completed: "Concluída", failed: "Falhou", queued: "Na fila" }[task.status] || task.status}
                     </span>
                   </div>
 
@@ -127,10 +127,10 @@ export default function AuthTasks({ licenseId }: AuthTasksProps) {
 
                 <div className="flex gap-4 text-[10px] text-zinc-600">
                   {task.started_at && (
-                    <span>Started: {new Date(task.started_at).toLocaleString()}</span>
+                    <span>Iniciada em {new Date(task.started_at).toLocaleString("pt-BR")}</span>
                   )}
                   {task.completed_at && (
-                    <span>Completed: {new Date(task.completed_at).toLocaleString()}</span>
+                    <span>Concluída em {new Date(task.completed_at).toLocaleString("pt-BR")}</span>
                   )}
                 </div>
               </div>

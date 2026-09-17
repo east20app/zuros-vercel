@@ -44,7 +44,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
         setError(r.error);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Falha ao carregar gifts.");
+      setError(err instanceof Error ? err.message : "Não foi possível carregar os presentes.");
     }
   }, [licenseId]);
 
@@ -65,7 +65,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
       setShowForm(false);
       await loadGifts();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Falha ao criar gift.");
+      setError(err instanceof Error ? err.message : "Não foi possível criar o presente.");
     } finally {
       setIsCreating(false);
     }
@@ -77,7 +77,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
       await redeemAuthGiftAction(licenseId, giftId);
       await loadGifts();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Falha ao resgatar gift.");
+      setError(err instanceof Error ? err.message : "Não foi possível resgatar o presente.");
     } finally {
       setRedeemingId(null);
     }
@@ -89,7 +89,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
       await deleteAuthGiftAction(licenseId, giftId);
       await loadGifts();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Falha ao deletar gift.");
+      setError(err instanceof Error ? err.message : "Não foi possível excluir o presente.");
     } finally {
       setDeletingId(null);
     }
@@ -98,12 +98,12 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
   return (
     <div className="rounded-2xl border border-white/[.07] bg-[#08090b] p-5 sm:p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-white">Auth Gifts</h2>
+        <div><h2 className="text-lg font-semibold text-white">Presentes de acesso</h2><p className="mt-1 text-xs text-zinc-500">Crie códigos que liberam cargos e acessos.</p></div>
         <button
           onClick={() => setShowForm(!showForm)}
           className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)]"
         >
-          {showForm ? "Cancel" : "Create Gift"}
+          {showForm ? "Cancelar" : "Criar presente"}
         </button>
       </div>
 
@@ -115,20 +115,20 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
 
       {showForm && (
         <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4 space-y-3">
-          <h3 className="text-sm font-medium text-zinc-300">New Gift</h3>
+          <h3 className="text-sm font-medium text-zinc-300">Novo presente</h3>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              placeholder="Gift name"
+              placeholder="Nome do presente"
               className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
             <input
               type="text"
               value={formRoleId}
               onChange={(e) => setFormRoleId(e.target.value)}
-              placeholder="Role ID"
+              placeholder="ID do cargo"
               className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[var(--accent)]"
             />
             <button
@@ -136,7 +136,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
               disabled={isCreating || !formName.trim() || !formRoleId.trim()}
               className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[#091116] hover:bg-[var(--accent-strong)] disabled:opacity-40"
             >
-              {isCreating ? "Creating..." : "Create"}
+              {isCreating ? "Criando..." : "Criar"}
             </button>
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
           ))}
         </div>
       ) : gifts.length === 0 ? (
-        <p className="text-sm text-zinc-500 text-center py-8">No gifts created yet</p>
+        <p className="text-sm text-zinc-500 text-center py-8">Nenhum presente criado.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {gifts.map((gift) => (
@@ -169,13 +169,13 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
                       : "bg-zinc-500/15 border-zinc-500/30 text-zinc-400"
                   }`}
                 >
-                  {gift.active ? "Active" : "Inactive"}
+                  {gift.active ? "Ativo" : "Inativo"}
                 </span>
               </div>
 
               <div className="space-y-1 text-xs text-zinc-400">
-                <p>Role: <span className="text-zinc-300">{gift.role_name || gift.role_id}</span></p>
-                <p>Members: <span className="text-zinc-300">{gift.members_count}</span></p>
+                <p>Cargo: <span className="text-zinc-300">{gift.role_name || gift.role_id}</span></p>
+                <p>Usuários: <span className="text-zinc-300">{gift.members_count}</span></p>
               </div>
 
               <div className="flex gap-2">
@@ -184,14 +184,14 @@ export default function AuthGifts({ licenseId }: AuthGiftsProps) {
                   disabled={redeemingId === gift.id || !gift.active}
                   className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-zinc-300 hover:text-white disabled:opacity-40"
                 >
-                  {redeemingId === gift.id ? "Redeeming..." : "Redeem"}
+                  {redeemingId === gift.id ? "Resgatando..." : "Resgatar"}
                 </button>
                 <button
                   onClick={() => handleDelete(gift.id)}
                   disabled={deletingId === gift.id}
                   className="rounded-xl bg-red-600/20 border border-red-500/30 px-3 py-2 text-xs text-red-300 hover:bg-red-600/30 disabled:opacity-40"
                 >
-                  {deletingId === gift.id ? "..." : "Delete"}
+                  {deletingId === gift.id ? "..." : "Excluir"}
                 </button>
               </div>
             </div>

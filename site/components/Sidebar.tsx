@@ -382,13 +382,13 @@ export function Sidebar({
               { icon: "bell", label: "Mensagem", href: `/dashboard/auth/${authLicenseId}#message` },
               { icon: "user", label: "Verificados", href: `/dashboard/auth/${authLicenseId}#verified` },
               { icon: "settings", label: "Recovery", href: `/dashboard/auth/${authLicenseId}#recovery` },
-              { icon: "affiliate", label: "Gifts", href: `/dashboard/auth/${authLicenseId}#gifts` },
+              { icon: "affiliate", label: "Presentes", href: `/dashboard/auth/${authLicenseId}#gifts` },
               { icon: "settings", label: "Configurações", href: `/dashboard/auth/${authLicenseId}#settings`, section: "Gerenciamento" },
               { icon: "user", label: "Equipe", href: `/dashboard/auth/${authLicenseId}#team` },
               { icon: "settings", label: "Credenciais", href: `/dashboard/auth/${authLicenseId}#credentials` },
               { icon: "admin", label: "Key de integração", href: `/dashboard/auth/${authLicenseId}#integration` },
               { icon: "invoice", label: "Logs", href: `/dashboard/auth/${authLicenseId}#logs`, section: "Monitoramento" },
-              { icon: "invoice", label: "Tasks", href: `/dashboard/auth/${authLicenseId}#tasks` },
+              { icon: "invoice", label: "Tarefas", href: `/dashboard/auth/${authLicenseId}#tasks` },
           ]
         : selectedBotId
         ? [

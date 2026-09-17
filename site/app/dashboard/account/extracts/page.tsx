@@ -11,7 +11,7 @@ export default async function AccountExtractsPage() {
     const outgoing = extracts.filter((entry) => entry.action === "remove").reduce((sum, entry) => sum + entry.amount, 0);
     return (
         <main className="account-page mx-auto max-w-6xl px-5 py-8 sm:px-8">
-            <section className="account-heading"><div><p className="home-kicker"><span className="home-kicker-mark" />CONTA / EXTRATO</p><h1>Movimentações da sua conta.</h1><p>Entradas e saídas das lojas vinculadas, em ordem cronológica.</p></div><span className="account-heading-code">ACCOUNT / EXT</span></section>
+            <section className="account-heading"><div><p className="home-kicker"><span className="home-kicker-mark" />CONTA / EXTRATO</p><h1>Movimentações da sua conta.</h1><p>Entradas e saídas das lojas vinculadas, em ordem cronológica.</p></div><span className="account-heading-code">CONTA / EXTRATO</span></section>
 
             <div className="sales-status-strip">
                 <div className="sales-status-main">

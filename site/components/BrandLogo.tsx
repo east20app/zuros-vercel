@@ -26,7 +26,7 @@ export function BrandLogo({ className = "", priority = false, compact = false }:
             {!compact && (
                 <span className="brand-logo-type">
                     <strong>ZUROS</strong>
-                    <small>CONTROL ROOM</small>
+                    <small>CENTRAL DE CONTROLE</small>
                 </span>
             )}
         </span>

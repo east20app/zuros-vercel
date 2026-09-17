@@ -3,7 +3,7 @@ import { Empty } from "@/components/ui";
 export default function AffiliatesPage() {
     return (
         <main className="account-page mx-auto max-w-6xl px-5 py-8 sm:px-8">
-            <section className="account-heading"><div><p className="home-kicker"><span className="home-kicker-mark" />CONTA / AFILIADOS</p><h1>Suas indicações.</h1><p>Gere convites e acompanhe suas recompensas em um só lugar.</p></div><span className="account-heading-code">ACCOUNT / AFF</span></section>
+            <section className="account-heading"><div><p className="home-kicker"><span className="home-kicker-mark" />CONTA / AFILIADOS</p><h1>Suas indicações.</h1><p>Gere convites e acompanhe suas recompensas em um só lugar.</p></div><span className="account-heading-code">CONTA / INDICAÇÕES</span></section>
 
             <div className="sales-status-strip">
                 <div className="sales-status-main">

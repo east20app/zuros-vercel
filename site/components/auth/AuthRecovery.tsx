@@ -86,7 +86,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
 
   return (
     <div className="rounded-2xl border border-white/[.07] bg-[#08090b] p-5 sm:p-6 space-y-5">
-      <h2 className="text-lg font-semibold text-white">Recovery Tasks</h2>
+      <h2 className="text-lg font-semibold text-white">Recuperação de usuários</h2>
 
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-red-300 text-sm">
@@ -95,7 +95,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
       )}
 
       <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4 space-y-3">
-        <h3 className="text-sm font-medium text-zinc-300">Start New Recovery</h3>
+        <h3 className="text-sm font-medium text-zinc-300">Iniciar nova recuperação</h3>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -130,7 +130,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
           ))}
         </div>
       ) : tasks.length === 0 ? (
-        <p className="text-sm text-zinc-500 text-center py-8">No recovery tasks</p>
+        <p className="text-sm text-zinc-500 text-center py-8">Nenhuma recuperação em andamento.</p>
       ) : (
         <div className="space-y-3">
           {tasks.map((task) => {
@@ -166,7 +166,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
                       disabled={cancellingId === task.id}
                       className="rounded-xl bg-red-600/20 border border-red-500/30 px-4 py-2 text-sm text-red-300 hover:bg-red-600/30 disabled:opacity-40"
                     >
-                      {cancellingId === task.id ? "Cancelling..." : "Cancel"}
+                      {cancellingId === task.id ? "Cancelando..." : "Cancelar"}
                     </button>
                   )}
                 </div>
@@ -174,7 +174,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-zinc-500">
                     <span>
-                      {task.processed} / {task.total} processed
+                      {task.processed} de {task.total} processados
                     </span>
                     <span>{Math.round(progress)}%</span>
                   </div>
@@ -188,7 +188,7 @@ export default function AuthRecovery({ licenseId }: AuthRecoveryProps) {
 
                 {task.started_at && (
                   <p className="text-[10px] text-zinc-600">
-                    Started: {new Date(task.started_at).toLocaleString()}
+                    Iniciada em {new Date(task.started_at).toLocaleString("pt-BR")}
                   </p>
                 )}
               </div>

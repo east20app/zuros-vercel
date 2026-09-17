@@ -142,7 +142,7 @@ export function Badge({ children, tone = "zinc" }: { children: ReactNode; tone?:
             zinc: "bg-white/[.05] text-[var(--z-text-secondary)] border-[var(--z-border)]",
     };
     return (
-        <span className={`inline-flex items-center gap-1 border px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] ${tones[tone]}`}>
+        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.07em] ${tones[tone]}`}>
             {children}
         </span>
     );
@@ -230,9 +230,9 @@ export function PillTabs({ items, className = "" }: { items: PillTabItem[]; clas
 
 export function Empty({ text, title, icon, action }: { text?: string; title?: string; icon?: ReactNode; action?: ReactNode }) {
     return (
-        <div className="zuros-empty flex flex-col items-start justify-center border-y border-[var(--border)] px-1 py-10 text-left">
+        <div className="zuros-empty flex flex-col items-center justify-center rounded-[var(--z-radius-card)] border border-dashed border-[var(--border)] bg-[var(--surface)]/55 px-5 py-12 text-center">
             {icon && (
-                <span className="mb-5 grid h-10 w-10 place-items-center border border-[var(--border)] bg-transparent text-lg text-[var(--accent)]">
+                <span className="mb-5 grid h-11 w-11 place-items-center rounded-xl border border-[var(--border)] bg-[var(--accent-soft)] text-lg text-[var(--accent)]">
                     {icon}
                 </span>
             )}

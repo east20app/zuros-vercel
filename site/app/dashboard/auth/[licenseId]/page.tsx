@@ -24,7 +24,7 @@ const SECTIONS = [
     { id: "message", label: "Mensagem", kicker: "03 / EXPERIÊNCIA", description: "A primeira impressão de quem entra.", component: AuthMessage },
     { id: "verified", label: "Verificados", kicker: "04 / PESSOAS", description: "Membros que já passaram pelo fluxo.", component: AuthVerified },
     { id: "recovery", label: "Recuperação", kicker: "05 / CONTINUIDADE", description: "Tarefas que mantêm tudo em dia.", component: AuthRecovery },
-    { id: "gifts", label: "Gifts", kicker: "06 / ACESSOS", description: "Códigos e convites sob controle.", component: AuthGifts },
+    { id: "gifts", label: "Presentes", kicker: "06 / ACESSOS", description: "Códigos e convites sob controle.", component: AuthGifts },
     { id: "settings", label: "Configurações", kicker: "07 / REGRAS", description: "Como o seu Auth deve operar.", component: AuthSettings },
     { id: "team", label: "Equipe", kicker: "08 / PESSOAS", description: "Quem pode cuidar do sistema.", component: AuthTeam },
     { id: "credentials", label: "Credenciais", kicker: "09 / SEGURANÇA", description: "Chaves e acesso à integração.", component: AuthCredentials },
