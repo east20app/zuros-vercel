@@ -83,13 +83,13 @@ export function PageHeader({
     actions?: ReactNode;
 }) {
     return (
-        <div className="flex flex-wrap items-end justify-between gap-3">
+        <header className="dashboard-page-header flex flex-wrap items-end justify-between gap-3">
             <div className="min-w-0">
                 <h1 className="text-xl font-semibold tracking-tight text-[var(--foreground)] sm:text-2xl">{title}</h1>
                 {subtitle && <p className="mt-1 text-sm text-[var(--muted)]">{subtitle}</p>}
             </div>
             {actions && <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">{actions}</div>}
-        </div>
+        </header>
     );
 }
 
@@ -117,7 +117,7 @@ export function DiscordCard({
     className?: string;
 }) {
     return (
-        <div className={`relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] ${className}`}>
+        <div className={`discord-panel relative overflow-hidden border border-[var(--border)] bg-[var(--surface)] ${className}`}>
             {accent && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 rounded-r" style={{ backgroundColor: accent }} />}
             {(title || actions) && (
                 <header className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
@@ -142,7 +142,7 @@ export function Badge({ children, tone = "zinc" }: { children: ReactNode; tone?:
             zinc: "bg-white/[.05] text-[var(--z-text-secondary)] border-[var(--z-border)]",
     };
     return (
-        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] shadow-[inset_0_1px_0_rgba(255,255,255,.08)] ${tones[tone]}`}>
+        <span className={`inline-flex items-center gap-1 border px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] ${tones[tone]}`}>
             {children}
         </span>
     );
@@ -210,15 +210,15 @@ export function DiscordSkeleton({ rows = 4 }: { rows?: number }) {
 export interface PillTabItem { label: string; href: string; active?: boolean }
 export function PillTabs({ items, className = "" }: { items: PillTabItem[]; className?: string }) {
     return (
-        <nav className={`inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] ${className}`}>
+        <nav className={`inline-flex items-center gap-0 border-b border-[var(--border)] bg-transparent ${className}`}>
             {items.map((item) => (
                 <Link
                     key={`${item.href}:${item.label}`}
                     href={item.href}
-                    className={`inline-flex min-h-9 items-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                    className={`inline-flex min-h-9 items-center whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                         item.active
-                            ? "bg-[var(--accent)] text-[#091116]"
-                            : "text-[var(--muted)] hover:bg-white/[.06] hover:text-white"
+                            ? "border-[var(--accent)] text-white"
+                            : "border-transparent text-[var(--muted)] hover:text-white"
                     }`}
                 >
                     {item.label}
@@ -230,9 +230,9 @@ export function PillTabs({ items, className = "" }: { items: PillTabItem[]; clas
 
 export function Empty({ text, title, icon, action }: { text?: string; title?: string; icon?: ReactNode; action?: ReactNode }) {
     return (
-        <div className="zuros-card flex flex-col items-center justify-center border-dashed px-5 py-14 text-center">
+        <div className="zuros-empty flex flex-col items-start justify-center border-y border-[var(--border)] px-1 py-10 text-left">
             {icon && (
-                <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--accent-soft)] text-2xl text-[var(--accent)]">
+                <span className="mb-5 grid h-10 w-10 place-items-center border border-[var(--border)] bg-transparent text-lg text-[var(--accent)]">
                     {icon}
                 </span>
             )}

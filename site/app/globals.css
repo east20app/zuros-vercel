@@ -4853,3 +4853,242 @@ html:has(.login-page-root), body:has(.login-page-root) {
     .invoice-toolbar > * { max-width: none; }
     .admin-support-workspace { grid-template-columns: 1fr; }
 }
+
+/* ZUROS / sistema visual definitivo
+   Interface operacional plana, editorial e orientada a dados. */
+:root {
+    --background: #0a0c0d;
+    --background-dark: #070809;
+    --surface: #101315;
+    --surface-raised: #15191b;
+    --surface-hover: #191e20;
+    --border: #272d30;
+    --border-strong: #3a4347;
+    --foreground: #edf0ee;
+    --muted: #98a19d;
+    --muted-dim: #69736f;
+    --accent: #8fbd3f;
+    --accent-strong: #a7d455;
+    --accent-dim: #6f9829;
+    --accent-soft: rgba(143,189,63,.1);
+    --z-primary: #8fbd3f;
+    --z-primary-hover: #a7d455;
+    --z-primary-dark: #6f9829;
+    --z-radius-sm: 2px;
+    --z-radius-md: 4px;
+    --z-radius-card: 5px;
+    --z-radius-lg: 6px;
+    --radius: 5px;
+}
+
+html, body { background: var(--background) !important; }
+body { background-image: none !important; }
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(90deg, var(--accent) 0 9rem, #d06f52 9rem 14rem, transparent 14rem);
+}
+h1, h2, h3, h4, .font-display {
+    font-family: "Arial Narrow", "Roboto Condensed", "Inter", sans-serif !important;
+    font-weight: 700;
+    letter-spacing: -.025em !important;
+}
+
+/* A estrutura usa divisões, não caixas decorativas. */
+.zuros-card,
+.sales-chart-wrap,
+.sales-status-strip,
+.account-card,
+.invoice-table,
+.auth-section,
+.support-panel,
+.security-settings,
+.admin-focus-panel,
+.admin-ledger-panel,
+.admin-stores-panel,
+.admin-chart-panel {
+    border: 1px solid var(--border) !important;
+    border-radius: 5px !important;
+    background: var(--surface) !important;
+    box-shadow: none !important;
+}
+.zuros-card::before,
+.zuros-card::after,
+.reference-feature::after,
+.home-feature-card::after { display: none !important; }
+.zuros-card:hover,
+.reference-feature:hover,
+.home-feature-card:hover,
+.dashboard-app-card-v2:hover {
+    transform: none !important;
+    border-color: var(--border-strong) !important;
+    box-shadow: none !important;
+}
+
+/* Cabeçalhos reconhecíveis: índice à esquerda e regra horizontal. */
+.dashboard-page-header,
+.account-heading,
+.bot-page-hero,
+.sales-section-heading,
+.admin-page-heading {
+    position: relative;
+    border: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 0 1.25rem !important;
+}
+.dashboard-page-header::before,
+.account-heading::before,
+.bot-page-hero::before,
+.admin-page-heading::before {
+    content: "ZUROS / CONTROL";
+    display: block;
+    position: absolute;
+    top: -.2rem;
+    right: 0;
+    color: var(--muted-dim);
+    font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .14em;
+}
+.dashboard-page-header h1,
+.account-heading h1,
+.bot-page-hero h1,
+.admin-page-heading h1 {
+    max-width: 42rem;
+    font-size: clamp(1.8rem, 4vw, 3.15rem) !important;
+    line-height: .98 !important;
+    text-wrap: balance;
+}
+.home-kicker,
+.home-section-index,
+.admin-section-index,
+.support-kicker,
+.account-card-kicker {
+    color: var(--accent) !important;
+    font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace !important;
+    letter-spacing: .14em !important;
+}
+
+/* Indicadores formam uma faixa contínua, com leitura de painel industrial. */
+.sales-summary {
+    gap: 0 !important;
+    overflow: hidden;
+    border: 1px solid var(--border) !important;
+    border-radius: 5px !important;
+    background: var(--surface) !important;
+}
+.sales-summary > *,
+.sales-summary > .zuros-card,
+.sales-pending-stat {
+    min-height: 6.75rem !important;
+    border: 0 !important;
+    border-right: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.sales-summary > *:last-child { border-right: 0 !important; }
+.sales-summary strong,
+.sales-pending-stat strong {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.05em !important;
+}
+.sales-status-strip {
+    min-height: 3.65rem;
+    border-inline: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+.sales-status-chip,
+.zuros-pill { border-radius: 2px !important; box-shadow: none !important; }
+
+/* Controles compactos e sem aparência de componente pronto. */
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+    border-radius: 3px !important;
+    background: #0c0f10 !important;
+    box-shadow: none !important;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 1px var(--accent) !important;
+}
+.drox-switch { border-radius: 2px !important; }
+.drox-switch span,
+.drox-switch span::before { border-radius: 1px !important; }
+.drox-automation-card {
+    border-radius: 4px !important;
+    background: transparent !important;
+}
+.discord-panel { border-radius: 4px; box-shadow: none; }
+.discord-panel > span:first-child { border-radius: 0 !important; }
+.zuros-empty { min-height: 10rem; }
+.drox-automation-row { background: var(--surface) !important; }
+.drox-automation-item.is-open .drox-automation-row { background: var(--surface-raised) !important; }
+.drox-automation-icon {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+.drox-automation-item { counter-increment: zuros-module; }
+.drox-automation-copy b::before {
+    content: counter(zuros-module, decimal-leading-zero) "  ";
+    color: var(--muted-dim);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .67rem;
+}
+.drox-automation-card { counter-reset: zuros-module; }
+
+/* Tabelas assumem o papel principal em áreas de operação. */
+table { font-variant-numeric: tabular-nums; }
+thead { background: #0b0e0f !important; }
+th {
+    color: var(--muted-dim) !important;
+    font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace !important;
+    letter-spacing: .12em !important;
+}
+tbody tr:nth-child(even) { background: rgba(255,255,255,.012); }
+tbody tr:hover { background: rgba(143,189,63,.035) !important; }
+
+/* Páginas públicas usam a mesma marca sem imitar o dashboard. */
+.reference-public-page,
+.reference-home,
+.reference-plans { background: #0a0c0d !important; }
+.reference-feature,
+.home-feature-card,
+.plans-product-card {
+    border-radius: 3px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.reference-feature { border-top: 2px solid var(--border-strong) !important; }
+.reference-feature:hover { border-top-color: var(--accent) !important; }
+.public-nav { backdrop-filter: none !important; background: rgba(10,12,13,.96) !important; }
+.legal-page,
+.auth-form {
+    border-radius: 5px !important;
+    background: var(--surface) !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 700px) {
+    body::before { background: linear-gradient(90deg, var(--accent) 0 35%, #d06f52 35% 52%, transparent 52%); }
+    .dashboard-page-header::before,
+    .account-heading::before,
+    .bot-page-hero::before,
+    .admin-page-heading::before { display: none; }
+    .sales-summary { grid-template-columns: 1fr 1fr !important; }
+    .sales-summary > * { border-right: 0 !important; border-bottom: 1px solid var(--border) !important; }
+    .sales-summary > *:nth-child(odd) { border-right: 1px solid var(--border) !important; }
+    .sales-summary > *:last-child { border-bottom: 0 !important; }
+    .drox-automation-copy b::before { display: none; }
+}
