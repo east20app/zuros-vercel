@@ -35,7 +35,7 @@ export function DashboardShell({
         <>
             <BotActivityNotificationWatcher />
             <Sidebar user={user} balance={balance} pendingCount={pendingCount} canAdmin={canAdmin} collapsed={focusMode} mobileMenuOpen={mobileMenuOpen} onSetMobileMenuOpen={setMobileMenuOpen} />
-            <div className={`zuros-dashboard-stage min-h-dvh pt-16 lg:pt-0 ${focusMode ? "lg:ml-20" : "lg:ml-64"} transition-[margin] duration-300`}>
+            <div className={`zuros-dashboard-stage min-h-dvh pt-16 lg:pt-0 ${focusMode ? "lg:ml-20" : "lg:ml-64"}`}>
                 <div className="zuros-dashboard-content min-h-dvh">{children}</div>
             </div>
             <MobileDashboardNav onOpenMenu={() => setMobileMenuOpen(true)} />

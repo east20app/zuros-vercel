@@ -5367,7 +5367,7 @@ p { text-wrap: pretty; }
     min-width: 0;
     min-height: 100dvh;
     margin: 0;
-    padding: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 4vw, 4rem);
+    padding: clamp(2rem, 3.5vw, 3.5rem) clamp(1.25rem, 3.5vw, 3.5rem) 5rem;
     background: #07111d;
 }
 .ticket-config-editor { width: 100%; }
@@ -5391,7 +5391,7 @@ p { text-wrap: pretty; }
     color: #9bb7df;
     font-size: clamp(1rem, 2vw, 1.35rem);
 }
-.ticket-config-editor > .sticky {
+.ticket-config-editor > .config-save-bar {
     position: static;
     z-index: auto;
     margin: 1.3rem 0 0;
@@ -5402,48 +5402,64 @@ p { text-wrap: pretty; }
     padding: 0 0 1.4rem;
     backdrop-filter: none;
 }
-.ticket-config-editor > .sticky > span { color: #b9cadf; font-size: .82rem; }
-.ticket-config-editor > .sticky > span i { width: .7rem; height: .7rem; }
-.ticket-config-editor > .sticky button { min-width: 6rem; }
+.ticket-config-editor > .config-save-bar > span { color: #b9cadf; font-size: .82rem; }
+.ticket-config-editor > .config-save-bar > span i { width: .7rem; height: .7rem; }
+.ticket-config-editor > .config-save-bar button { min-width: 6rem; }
 .ticket-section-list { width: 100%; }
 .ticket-section-row { border-bottom: 1px solid rgba(141,177,220,.22); }
+.ticket-section-row:first-child { border-top: 1px solid rgba(141,177,220,.22); }
 .ticket-section-trigger {
     display: grid;
     width: 100%;
-    min-height: 7.6rem;
-    grid-template-columns: 3.25rem minmax(0,1fr) auto;
+    min-height: 6.5rem;
+    grid-template-columns: 2.8rem minmax(0,1fr) auto;
     align-items: center;
-    gap: 1.35rem;
+    gap: 1.15rem;
     border: 0;
     background: transparent;
-    padding: 1.4rem .35rem;
+    padding: 1.2rem .35rem;
     color: inherit;
     text-align: left;
 }
 .ticket-section-trigger:hover { background: rgba(20,104,219,.055); }
 .ticket-section-icon {
     display: grid;
-    width: 3.25rem;
-    height: 3.25rem;
+    width: 2.8rem;
+    height: 2.8rem;
     place-items: center;
     color: #91baff;
 }
-.ticket-section-icon svg { width: 2.25rem; height: 2.25rem; stroke-width: 1.65; }
+.ticket-section-icon svg { width: 1.9rem; height: 1.9rem; stroke-width: 1.65; }
 .ticket-section-copy b { display: block; color: #f2f5fa; font-size: 1rem; font-weight: 650; }
 .ticket-section-copy small { display: block; margin-top: .35rem; color: #9bb7df; font-size: .9rem; line-height: 1.5; }
 .ticket-section-arrow { color: #9bbfff; font-size: 2.25rem; font-weight: 300; transition: transform .16s ease; }
 .ticket-section-row.is-open .ticket-section-arrow { transform: rotate(90deg); }
-.ticket-section-fields { border-top: 1px solid rgba(141,177,220,.14); padding: 1.5rem 4.9rem 2rem; }
+.ticket-section-fields { border-top: 1px solid rgba(141,177,220,.14); padding: 1.5rem 4.3rem 2rem; }
 .ticket-section-fields > p { color: #8199b7; font-size: .86rem; line-height: 1.6; }
 .ticket-section-fields .config-card-section,
 .ticket-section-fields .zuros-card {
-    border-radius: 8px !important;
-    background: #0b1725 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.ticket-section-fields fieldset {
+    border: 0 !important;
+    border-top: 1px solid rgba(141,177,220,.16) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    padding: 1.15rem 0 !important;
+}
+.ticket-section-fields fieldset legend { padding-inline: 0 .75rem !important; }
+.ticket-section-fields label:has(input[type="checkbox"]) {
+    border-color: rgba(141,177,220,.16) !important;
+    border-radius: 7px !important;
+    background: rgba(9,21,34,.72) !important;
 }
 
 @media (min-width: 1024px) {
     .zuros-mobile-header { display: none !important; }
     .zuros-dashboard-content { min-height: 100dvh !important; }
+    .zuros-dashboard-stage { width: calc(100% - 16rem) !important; }
 }
 @media (max-width: 1023px) {
     .ticket-config-page { padding-top: 1.5rem; padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
