@@ -5529,7 +5529,14 @@ p { text-wrap: pretty; }
 }
 .config-save-bar > span { display: flex; align-items: center; gap: .55rem; color: #a9bbd1; font-size: .78rem; }
 .config-save-bar > span i { width: .55rem; height: .55rem; border-radius: 999px; }
-.config-save-bar button { min-width: 5.5rem; }
+.config-save-button {
+    position: fixed !important;
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    z-index: 55;
+    min-width: 6.5rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,.34) !important;
+}
 .store-section-nav {
     display: flex;
     width: 100%;
@@ -5561,5 +5568,9 @@ p { text-wrap: pretty; }
     .module-config-page { padding: 1.35rem 1rem calc(6rem + env(safe-area-inset-bottom)); }
     .module-config-heading { margin-bottom: 1rem; }
     .config-save-bar { min-height: 3.8rem; margin-bottom: 1rem; }
+    .config-save-button {
+        right: 1rem;
+        bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    }
     .store-section-nav { margin-inline: -1rem; width: calc(100% + 2rem); padding-inline: 1rem; }
 }

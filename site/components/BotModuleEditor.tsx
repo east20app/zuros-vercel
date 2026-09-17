@@ -276,7 +276,7 @@ function SaveBar({ dirty, saving, onSave }: { dirty: boolean; saving: boolean; o
                 <i className={`h-1.5 w-1.5 rounded-full ${dirty ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} />
                 {dirty ? "Alterações não salvas" : "Tudo salvo"}
             </span>
-            <Button disabled={!dirty || saving} onClick={onSave}>{saving ? <Spinner /> : null}Salvar</Button>
+            <Button className="config-save-button" disabled={!dirty || saving} onClick={onSave}>{saving ? <Spinner /> : null}Salvar</Button>
         </div>
     );
 }
