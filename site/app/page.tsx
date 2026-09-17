@@ -12,7 +12,6 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/Icon";
 import { publicMetadata } from "@/lib/site-url";
 import { PublicFooter } from "@/components/PublicFooter";
-import GlowCursor from "@/components/GlowCursor";
 import TileBackground from "@/components/TileBackground";
 
 const features: Array<[ReactNode, string, string]> = [
@@ -59,21 +58,21 @@ export default async function HomePage() {
             <main>
                 <section className="reference-hero mx-auto flex w-full max-w-7xl flex-col items-center px-5 pb-16 pt-20 text-center sm:px-8 sm:pt-24">
                     <div className="reference-hero-copy animate-fade-up">
-                        <p className="home-kicker"><span className="home-kicker-mark" />ZUROS / OPERAÇÃO DIGITAL</p>
-                        <h1 className="home-title mt-7 max-w-4xl">Aqui você <span>vende e controla.</span></h1>
-                        <p className="home-lede mt-7 max-w-xl">Bot, loja e painel conectados para comunidades que querem vender no Discord com infraestrutura séria.</p>
+                        <p className="home-kicker"><span className="home-kicker-mark" />OPERAÇÃO ZUROS PARA DISCORD</p>
+                        <h1 className="home-title mt-7 max-w-4xl">Seu bot, sua loja, <span>uma operação.</span></h1>
+                        <p className="home-lede mt-7 max-w-xl">Configure o bot, publique produtos e acompanhe cada venda em um painel feito para sua comunidade.</p>
                         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                             <Link href={user ? "/dashboard" : "/login"} className="home-primary-cta">{user ? "Abrir minhas aplicações" : "Começar pelo painel"}<span aria-hidden>↗</span></Link>
                             <Link href="#recursos" className="home-secondary-cta">Ver como funciona</Link>
                         </div>
-                        <div className="home-proof-row mt-10">
-                            <span><i />Operação em um só lugar</span>
-                            <span><i />Acesso via Discord</span>
-                            <span><i />Confirmação automática</span>
+                        <div className="home-proof-row mt-10" aria-label="Resumo da plataforma">
+                            <span><i /><b>{activeApps || 0}</b> aplicações ativas</span>
+                            <span><i /><b>{stores || 0}</b> lojas conectadas</span>
+                            <span><i />PIX integrado</span>
                         </div>
                     </div>
 
-                    <GlowCursor className="mt-14 animate-fade-up" style={{ animationDelay: "120ms" }}>
+                    <div className="mt-14">
                         <div className="reference-dashboard-mock" aria-label="Preview do painel ZUROS">
                             <div className="reference-mock-bar">
                                 <span className="reference-mock-dots"><i /><i /><i /></span>
@@ -110,7 +109,7 @@ export default async function HomePage() {
                                 </div>
                             </div>
                         </div>
-                    </GlowCursor>
+                    </div>
                 </section>
 
                 {clientNames.length > 0 && (
@@ -128,8 +127,8 @@ export default async function HomePage() {
                 <section id="recursos" className="home-section home-catalog-section border-y border-white/[.07]">
                     <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:py-24">
                         <div className="home-section-heading grid gap-6 lg:grid-cols-[.9fr_1.1fr] lg:items-end">
-                            <div><p className="home-section-index">PRODUTOS</p><h2 className="home-section-title mt-4">Escolha o que sua operação precisa.</h2></div>
-                            <p className="home-section-note max-w-md lg:justify-self-end">Planos mensais com infraestrutura, atualizações e painel de configuração conectados desde o primeiro acesso.</p>
+                            <div><p className="home-section-index">PRODUTOS</p><h2 className="home-section-title mt-4">A estrutura certa para cada fase.</h2></div>
+                            <p className="home-section-note max-w-md lg:justify-self-end">Bot dedicado, atualizações contínuas e configuração pelo painel desde o primeiro acesso.</p>
                         </div>
                         <div className="mt-12">{catalogs.length ? <PublicStoreCatalog stores={catalogs} canPurchase={!!user} /> : <div className="zuros-card border-dashed py-14 text-center text-sm text-zinc-500">Novos produtos serão publicados em breve.</div>}</div>
                     </div>
@@ -138,19 +137,19 @@ export default async function HomePage() {
                 <section id="beneficios" className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
                     <div className="home-section-heading mx-auto max-w-2xl text-center">
                         <p className="home-section-index">POR QUE ESCOLHER A ZUROS?</p>
-                        <h2 className="home-section-title mt-4">Tudo o que você precisa. <span className="reference-inline-accent">Nada do que não serve.</span></h2>
+                        <h2 className="home-section-title mt-4">Menos trabalho manual. <span className="reference-inline-accent">Mais controle da operação.</span></h2>
                     </div>
                     <div className="reference-feature-grid mt-14">{features.map(([icon, title, description]) => <article key={title} className="reference-feature"><span className="reference-feature-icon">{icon}</span><h3>{title}</h3><p>{description}</p></article>)}</div>
                 </section>
 
                 <section className="mx-auto w-full max-w-7xl px-5 pb-20 sm:px-8 lg:pb-28">
                     <div className="reference-cta-band">
-                        <div className="reference-cta-copy"><p className="home-section-index">PRONTO PARA COMEÇAR?</p><h2>Monitore e venda suas aplicações em minutos.</h2></div>
+                        <div className="reference-cta-copy"><p className="home-section-index">COMECE AGORA</p><h2>Leve sua operação do Discord para outro nível.</h2></div>
                         <Link href={user ? "/dashboard" : "/login"} className="reference-cta-link">{user ? "Ir para o painel" : "Entrar com Discord"}<span aria-hidden>↗</span></Link>
                     </div>
                 </section>
 
-                <section id="faq" className="home-section mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 lg:py-24"><p className="home-section-index">DÚVIDAS</p><h2 className="home-section-title mt-4">Antes de ligar a operação.</h2><div className="mt-9"><FaqAccordion /></div></section>
+                <section id="faq" className="home-section mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 lg:py-24"><p className="home-section-index">DÚVIDAS FREQUENTES</p><h2 className="home-section-title mt-4">O que você precisa saber.</h2><div className="mt-9"><FaqAccordion /></div></section>
             </main>
             <PublicFooter isAuthenticated={!!user} />
         </div>

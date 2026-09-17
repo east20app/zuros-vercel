@@ -5186,3 +5186,147 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(163,211,7
     .sales-summary { border-radius: 10px !important; }
     .zuros-card, .sales-chart-wrap, .support-panel, .legal-page, .auth-form { border-radius: 10px !important; }
 }
+
+/* UI Skills pass: uma cor de destaque, superfícies sólidas e hierarquia por espaço. */
+body { background: #090b0e !important; }
+h1, h2, h3, h4, .font-display { letter-spacing: normal !important; text-wrap: balance; }
+p { text-wrap: pretty; }
+.schematic-background,
+.glow-cursor__canvas { display: none !important; }
+.animate-fade-up { animation: none !important; }
+
+.zuros-card,
+.sales-chart-wrap,
+.account-card,
+.invoice-table,
+.auth-section,
+.support-panel,
+.security-settings,
+.admin-focus-panel,
+.admin-ledger-panel,
+.admin-stores-panel,
+.admin-chart-panel,
+.reference-feature,
+.home-feature-card,
+.plans-product-card,
+.legal-page,
+.auth-form {
+    background: #12151a !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.24), 0 12px 32px rgba(0,0,0,.16) !important;
+}
+
+.reference-home,
+.reference-public-page,
+.reference-plans,
+.login-page-root {
+    --accent: #a3d34a;
+    --accent-strong: #b7e467;
+    --accent-dim: #80aa32;
+    --accent-soft: rgba(163,211,74,.1);
+    --accent-glow: transparent;
+    background: #090b0e !important;
+}
+.reference-home *,
+.reference-public-page *,
+.reference-plans *,
+.login-page-root * { border-radius: revert-layer; }
+.reference-home h1,
+.reference-home h2,
+.reference-home h3,
+.reference-public-page h1,
+.reference-public-page h2,
+.reference-public-page h3,
+.reference-plans h1,
+.login-page-root h1 { letter-spacing: normal !important; }
+
+.reference-home .reference-hero {
+    min-height: min(52rem, calc(100svh - 6rem));
+    grid-template-columns: minmax(0, .9fr) minmax(34rem, 1.1fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    padding-block: clamp(4rem, 9vw, 7rem);
+}
+.reference-home .reference-hero-copy { max-width: 36rem; }
+.reference-home .home-title {
+    max-width: 11ch;
+    font-size: clamp(3.25rem, 6.5vw, 6rem);
+    font-weight: 650;
+    line-height: .98;
+    text-transform: none;
+}
+.reference-home .home-title span { color: var(--accent) !important; text-shadow: none !important; }
+.reference-home .home-lede { max-width: 34rem; color: #a6ada8; font-size: 1.05rem; line-height: 1.75; }
+.reference-home .home-primary-cta,
+.reference-plans .home-primary-cta,
+.reference-public-page .home-primary-cta,
+.public-nav-cta,
+.reference-cta-link {
+    border-color: var(--accent) !important;
+    border-radius: 10px !important;
+    background: var(--accent) !important;
+    color: #10140a !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2) !important;
+}
+.reference-home .home-primary-cta:hover,
+.reference-plans .home-primary-cta:hover,
+.reference-public-page .home-primary-cta:hover,
+.public-nav-cta:hover,
+.reference-cta-link:hover { background: var(--accent-strong) !important; transform: none !important; }
+.home-secondary-cta { border-radius: 10px !important; }
+.public-nav-wrap { background: #090b0e !important; backdrop-filter: none !important; }
+.public-nav { border-radius: 12px !important; background: #111419 !important; box-shadow: 0 1px 2px rgba(0,0,0,.28) !important; }
+.public-nav-link.is-active { background: var(--accent-soft) !important; color: var(--accent) !important; }
+.public-nav-link.is-active::after { background: var(--accent) !important; }
+
+.reference-dashboard-mock {
+    border-color: rgba(255,255,255,.12) !important;
+    border-radius: 16px !important;
+    background: #111419 !important;
+    box-shadow: 0 24px 50px rgba(0,0,0,.28) !important;
+}
+.reference-mock-chart i { background: #4c7fc1 !important; }
+.reference-mock-chart i.is-alt { background: var(--accent) !important; }
+.home-proof-row b { color: var(--foreground); font-variant-numeric: tabular-nums; }
+.sales-summary { background: #12151a !important; box-shadow: 0 1px 2px rgba(0,0,0,.24) !important; }
+.reference-feature-grid { gap: 1px; overflow: hidden; border: 1px solid var(--border); border-radius: 16px; background: var(--border); }
+.reference-feature {
+    min-height: 13rem;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #111419 !important;
+    padding: 1.75rem !important;
+    box-shadow: none !important;
+}
+.reference-feature:hover { border: 0 !important; background: #15191f !important; }
+.reference-feature-icon { border-radius: 10px !important; background: var(--accent-soft) !important; color: var(--accent) !important; }
+.reference-inline-accent { color: var(--accent) !important; }
+.reference-cta-band {
+    border-color: var(--border) !important;
+    border-radius: 16px !important;
+    background: #12151a !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.24) !important;
+}
+.public-footer { background: #090b0e !important; background-image: none !important; }
+
+.auth-page { background: #090b0e !important; }
+.auth-layout { width: min(100%, 70rem); grid-template-columns: minmax(20rem, 1fr) minmax(23rem, .82fr); gap: clamp(2rem, 7vw, 6rem); }
+.auth-story h2 { max-width: 22rem; font-size: clamp(2.5rem, 4vw, 3.75rem); line-height: 1.02; }
+.auth-form { width: min(100%, 25rem); border-radius: 14px !important; padding: clamp(1.5rem, 3vw, 2rem); }
+.auth-button { border-radius: 9px !important; box-shadow: none !important; }
+
+@media (max-width: 900px) {
+    .reference-home .reference-hero { min-height: auto; grid-template-columns: 1fr; gap: 3.5rem; padding-block: 4rem; }
+    .reference-home .reference-hero-copy { max-width: 40rem; }
+    .reference-home .home-title { font-size: clamp(3rem, 13vw, 4.75rem); }
+    .reference-dashboard-mock { width: 100%; }
+}
+@media (max-width: 640px) {
+    .reference-home .reference-hero { gap: 2.5rem; padding-block: 3rem; }
+    .reference-home .home-title { max-width: 10ch; font-size: clamp(2.85rem, 14vw, 4rem); }
+    .reference-home .home-lede { font-size: 1rem; }
+    .home-proof-row { display: grid !important; gap: .65rem !important; }
+    .reference-feature-grid { display: grid; grid-template-columns: 1fr; }
+    .reference-feature { min-height: auto; padding: 1.4rem !important; }
+    .reference-cta-band { padding: 1.4rem !important; }
+    .auth-story { padding-top: 2.5rem; }
+    .auth-panel { padding-top: 1rem; }
+}
