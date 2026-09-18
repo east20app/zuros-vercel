@@ -139,8 +139,7 @@ class CommerceCog(commands.Cog):
     def __init__(self, bot: commands.Bot, api: ZurosClientApi, settings: Settings):
         self.bot, self.api, self.settings = bot, api, settings
 
-    @app_commands.command(name="comprar", description="Compre uma aplicação ZUROS pelo Discord")
-    async def comprar(self, interaction: discord.Interaction) -> None:
+    async def show_store(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         try:
             products = [product for product in await self.api.catalog() if product.plans]
@@ -155,8 +154,7 @@ class CommerceCog(commands.Cog):
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
 
-    @app_commands.command(name="renovar", description="Renove uma aplicação ZUROS")
-    async def renovar(self, interaction: discord.Interaction) -> None:
+    async def show_renewal(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         try:
             apps = [
@@ -183,6 +181,14 @@ class CommerceCog(commands.Cog):
             )
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
+
+    @app_commands.command(name="comprar", description="Compre uma aplicação ZUROS pelo Discord")
+    async def comprar(self, interaction: discord.Interaction) -> None:
+        await self.show_store(interaction)
+
+    @app_commands.command(name="renovar", description="Renove uma aplicação ZUROS")
+    async def renovar(self, interaction: discord.Interaction) -> None:
+        await self.show_renewal(interaction)
 
 
 async def setup(bot: commands.Bot) -> None:
