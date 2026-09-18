@@ -152,13 +152,45 @@ export function StatusBadge({ status, label }: { status: string | null | undefin
     return <Badge tone={getStatusTone(status)}><i className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />{label || getStatusLabel(status)}</Badge>;
 }
 
+type DiscordProfileView = { id: string; name: string; username: string; avatarUrl: string; bot: boolean };
+const discordProfileCache = new Map<string, DiscordProfileView>();
+const discordProfileRequests = new Map<string, Promise<DiscordProfileView | null>>();
+
+function loadDiscordProfile(userId: string): Promise<DiscordProfileView | null> {
+    const cached = discordProfileCache.get(userId);
+    if (cached) return Promise.resolve(cached);
+    const pending = discordProfileRequests.get(userId);
+    if (pending) return pending;
+    const request = fetch(`/api/discord/users/${encodeURIComponent(userId)}`)
+        .then(async (response) => response.ok ? response.json() as Promise<DiscordProfileView> : null)
+        .then((profile) => {
+            if (profile) discordProfileCache.set(userId, profile);
+            return profile;
+        })
+        .catch(() => null)
+        .finally(() => discordProfileRequests.delete(userId));
+    discordProfileRequests.set(userId, request);
+    return request;
+}
+
 export function UserChip({ userId, name, avatarUrl }: { userId: string; name?: string | null; avatarUrl?: string | null }) {
-    const suffix = userId ? userId.slice(-4) : "----";
-    const label = name || `Usuário •${suffix}`;
+    const [profile, setProfile] = useState<DiscordProfileView | null>(() => discordProfileCache.get(userId) || null);
+    useEffect(() => {
+        if (!/^\d{17,20}$/.test(userId) || (name && avatarUrl)) return;
+        let active = true;
+        void loadDiscordProfile(userId).then((value) => { if (active && value) setProfile(value); });
+        return () => { active = false; };
+    }, [avatarUrl, name, userId]);
+    const label = profile?.name || name || "Usuário Discord";
+    const username = profile?.username;
+    const image = profile?.avatarUrl || avatarUrl;
     return (
-        <span title={userId || "ID indisponível"} className="inline-flex max-w-[180px] items-center gap-2 rounded-full border border-[var(--border)] bg-white/[.04] py-1 pl-1 pr-2.5 text-xs text-[var(--muted)]">
-            {avatarUrl ? <span aria-hidden="true" className="h-6 w-6 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${avatarUrl})` }} /> : <span className="grid h-6 w-6 place-items-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-[#091116]">{label.charAt(0).toUpperCase()}</span>}
-            <span className="truncate font-medium">{label}</span>
+        <span title={`Discord ID: ${userId || "indisponível"}`} className="inline-flex max-w-[240px] items-center gap-2.5 rounded-xl border border-[var(--border)] bg-white/[.04] py-1.5 pl-1.5 pr-3 text-xs text-[var(--muted)]">
+            {image ? <span aria-hidden="true" className="h-8 w-8 shrink-0 rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} /> : <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--accent)] text-[11px] font-bold text-[#091116]">{label.charAt(0).toUpperCase()}</span>}
+            <span className="min-w-0 leading-tight">
+                <span className="block truncate font-semibold text-[var(--foreground)]">{label}{profile?.bot ? " · Bot" : ""}</span>
+                <span className="block truncate font-mono text-[10px] text-[var(--muted-dim)]">{username ? `@${username} · ` : ""}{userId || "ID indisponível"}</span>
+            </span>
         </span>
     );
 }
