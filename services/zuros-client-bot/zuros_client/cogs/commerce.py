@@ -1,3 +1,4 @@
+import asyncio
 import io
 
 import discord
@@ -37,7 +38,13 @@ class PlanSelect(discord.ui.Select):
                 str(interaction.user.id), self.product.store_id, self.product.id, self.values[0]
             )
             payment = await self.api.create_payment(str(interaction.user.id), str(cart["id"]))
-            await send_payment(interaction, payment, f"Compra de {self.product.name}")
+            await send_payment(
+                interaction,
+                self.api,
+                str(cart["id"]),
+                payment,
+                f"Compra de {self.product.name}",
+            )
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
 
@@ -102,13 +109,23 @@ class RenewalSelect(discord.ui.Select):
         try:
             cart = await self.api.renew(str(interaction.user.id), self.app.id, self.values[0])
             payment = await self.api.create_payment(str(interaction.user.id), str(cart["id"]))
-            await send_payment(interaction, payment, f"Renovação de {self.app.name}")
+            await send_payment(
+                interaction,
+                self.api,
+                str(cart["id"]),
+                payment,
+                f"Renovação de {self.app.name}",
+            )
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
 
 
 async def send_payment(
-    interaction: discord.Interaction, payment: dict[str, object], title: str
+    interaction: discord.Interaction,
+    api: ZurosClientApi,
+    cart_id: str,
+    payment: dict[str, object],
+    title: str,
 ) -> None:
     value = float(payment.get("finalPrice") or 0)
     code = str(payment.get("pixCopyPaste") or "")
@@ -130,9 +147,96 @@ async def send_payment(
             embed.set_image(url="attachment://pix.png")
         except Exception:
             pass
-    await interaction.followup.send(
-        content=f"```\n{code}\n```" if code else None, embed=embed, files=files, ephemeral=True
+    message = await interaction.followup.send(
+        content=f"```\n{code}\n```" if code else None,
+        embed=embed,
+        files=files,
+        ephemeral=True,
+        wait=True,
     )
+    task = asyncio.create_task(
+        watch_payment(api, str(interaction.user.id), cart_id, message, title)
+    )
+    payment_watchers.add(task)
+    task.add_done_callback(payment_watchers.discard)
+
+
+payment_watchers: set[asyncio.Task[None]] = set()
+
+
+def payment_state(cart: dict[str, object]) -> str:
+    status = str(cart.get("status") or "").lower()
+    step = str(cart.get("step") or "").lower()
+    if step == "payment-confirmed" or status in {"paid", "approved", "completed"}:
+        return "approved"
+    if status in {"cancelled", "canceled", "expired", "failed", "refused"}:
+        return "terminal"
+    return "pending"
+
+
+async def watch_payment(
+    api: ZurosClientApi,
+    user_id: str,
+    cart_id: str,
+    message: discord.WebhookMessage,
+    title: str,
+) -> None:
+    failures = 0
+    for _ in range(180):
+        await asyncio.sleep(5)
+        try:
+            cart = await api.get_cart(user_id, cart_id)
+            failures = 0
+        except Exception:
+            failures += 1
+            if failures < 6:
+                continue
+            return
+
+        state = payment_state(cart)
+        if state == "pending":
+            continue
+
+        if state == "approved":
+            embed = discord.Embed(
+                title="Pagamento aprovado",
+                description=(
+                    f"**{title}** foi confirmado com sucesso.\n\n"
+                    "Sua compra já está sendo processada pela ZUROS."
+                ),
+                color=0x22C55E,
+            )
+            embed.set_footer(text="ZUROS • Pagamento confirmado automaticamente")
+            destination = (
+                f"{str(api.settings.zuros_dashboard_url).rstrip('/')}/store/cart/{cart_id}"
+            )
+            if title.startswith("Renovação"):
+                destination = str(api.settings.zuros_dashboard_url)
+            view = discord.ui.View(timeout=None)
+            view.add_item(
+                discord.ui.Button(
+                    label=(
+                        "Continuar configuração"
+                        if title.startswith("Compra")
+                        else "Gerenciar aplicação"
+                    ),
+                    emoji="⚡",
+                    style=discord.ButtonStyle.link,
+                    url=destination,
+                )
+            )
+            await message.edit(content=None, embed=embed, attachments=[], view=view)
+        else:
+            embed = discord.Embed(
+                title="Pagamento encerrado",
+                description=(
+                    f"O pagamento de **{title}** foi cancelado ou expirou. "
+                    "Abra a central para gerar um novo pagamento."
+                ),
+                color=0xEF4444,
+            )
+            await message.edit(content=None, embed=embed, attachments=[])
+        return
 
 
 class CommerceCog(commands.Cog):

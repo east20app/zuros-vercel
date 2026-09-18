@@ -12,6 +12,8 @@ Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Dis
 
 O painel de uma aplicação permite iniciar, reiniciar, parar, solicitar atualização, alterar nome, atualizar token, escolher servidor principal, abrir o dashboard e adicionar o bot ao servidor.
 
+Os pagamentos PIX são acompanhados automaticamente a cada cinco segundos. Quando uma compra é aprovada, a mensagem de cobrança é substituída pela confirmação e pelo acesso à configuração. Renovações aprovadas também atualizam o painel sem exigir um novo comando.
+
 ## Instalação
 
 ```bash

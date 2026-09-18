@@ -205,3 +205,6 @@ class ZurosClientApi:
         return await self.request(
             "POST", f"carts/{cart_id}/payment", json={"discord_user_id": user_id}
         )
+
+    async def get_cart(self, user_id: str, cart_id: str) -> dict[str, Any]:
+        return await self.request("GET", f"carts/{cart_id}", query={"discord_user_id": user_id})
