@@ -25,6 +25,7 @@ class ZurosClientBot(commands.Bot):
         await self.load_extension("zuros_client.cogs.commerce")
         await self.load_extension("zuros_client.cogs.central")
         await self.load_extension("zuros_client.cogs.acquisition")
+        await self.load_extension("zuros_client.cogs.welcome")
         self.add_view(CentralView(self.settings))
         self.add_view(AcquisitionView(self.api, self.settings, []))
         if self.settings.discord_guild_id:
