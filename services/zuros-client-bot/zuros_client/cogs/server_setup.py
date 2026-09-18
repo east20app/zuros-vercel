@@ -7,6 +7,7 @@ from ..config import Settings
 from ..formatters import error_message
 from .acquisition import AcquisitionView
 from .central import CentralView
+from .live_status import status_names
 from .welcome import WelcomeView
 
 ROLE_SPECS = (
@@ -15,13 +16,14 @@ ROLE_SPECS = (
     ("Cliente ZUROS", 0x22C55E, False),
 )
 
-CATEGORY_SPECS = ("COMECE AQUI", "ATENDIMENTO")
+CATEGORY_SPECS = ("COMECE AQUI", "ATENDIMENTO", "STATUS ZUROS")
 CHANNEL_SPECS = (
     ("boas-vindas", "COMECE AQUI", "Conheça a ZUROS e acesse nossos serviços."),
     ("central-zuros", "COMECE AQUI", "Central de gerenciamento dos serviços ZUROS."),
     ("adquirir", "COMECE AQUI", "Catálogo oficial de aplicações e planos ZUROS."),
     ("suporte", "ATENDIMENTO", "Tire dúvidas e fale com a equipe ZUROS."),
 )
+VOICE_CHANNEL_SPECS = ("🟢 Apps online: 0", "📡 Ping: 0ms")
 
 
 def find_role(guild: discord.Guild, name: str) -> discord.Role | None:
@@ -182,6 +184,37 @@ class ServerSetupCog(commands.Cog):
                     )
                     created.append(f"canal #{name}")
                 channels[name] = channel
+
+            voice_overwrites = {
+                guild.default_role: discord.PermissionOverwrite(view_channel=True, connect=False),
+                roles["ZUROS Admin"]: discord.PermissionOverwrite(
+                    view_channel=True, connect=False, manage_channels=True
+                ),
+            }
+            try:
+                stats = await self.api.stats()
+                voice_names = status_names(
+                    int(stats.get("online") or 0),
+                    max(0, round(self.bot.latency * 1000)),
+                )
+            except Exception:
+                voice_names = VOICE_CHANNEL_SPECS
+            for name in voice_names:
+                prefix = name.split(":", 1)[0]
+                voice = discord.utils.find(
+                    lambda item, current=prefix: item.name.startswith(current),
+                    guild.voice_channels,
+                )
+                if voice:
+                    reused.append(f"status {voice.name}")
+                else:
+                    await guild.create_voice_channel(
+                        name,
+                        category=categories["STATUS ZUROS"],
+                        overwrites=voice_overwrites,
+                        reason=f"Configuração ZUROS solicitada por {interaction.user}",
+                    )
+                    created.append(f"status {name}")
 
             bot_id = self.bot.user.id if self.bot.user else 0
             try:

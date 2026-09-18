@@ -117,6 +117,9 @@ class ZurosClientApi:
     async def health(self) -> dict[str, Any]:
         return await self.request("GET", "status")
 
+    async def stats(self) -> dict[str, Any]:
+        return await self.request("GET", "stats")
+
     async def list_applications(self, user_id: str) -> list[Application]:
         data = await self.request("GET", "applications", query={"discord_user_id": user_id})
         return [Application.from_api(item) for item in data.get("applications", [])]

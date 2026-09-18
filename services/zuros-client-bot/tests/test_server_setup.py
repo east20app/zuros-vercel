@@ -1,4 +1,9 @@
-from zuros_client.cogs.server_setup import CATEGORY_SPECS, CHANNEL_SPECS, ROLE_SPECS
+from zuros_client.cogs.server_setup import (
+    CATEGORY_SPECS,
+    CHANNEL_SPECS,
+    ROLE_SPECS,
+    VOICE_CHANNEL_SPECS,
+)
 
 
 def test_server_setup_has_complete_structure() -> None:
@@ -7,13 +12,14 @@ def test_server_setup_has_complete_structure() -> None:
         "ZUROS Suporte",
         "Cliente ZUROS",
     ]
-    assert CATEGORY_SPECS == ("COMECE AQUI", "ATENDIMENTO")
+    assert CATEGORY_SPECS == ("COMECE AQUI", "ATENDIMENTO", "STATUS ZUROS")
     assert [channel[0] for channel in CHANNEL_SPECS] == [
         "boas-vindas",
         "central-zuros",
         "adquirir",
         "suporte",
     ]
+    assert VOICE_CHANNEL_SPECS == ("🟢 Apps online: 0", "📡 Ping: 0ms")
 
 
 def test_every_channel_references_an_existing_category() -> None:

@@ -14,6 +14,8 @@ Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Dis
 - `/publicar-painel`: escolhe entre todos os painéis e define o canal de destino sem deixar a mensagem do comando no canal.
 - `/configurar-servidor`: cria cargos, categorias, canais, permissões e publica todos os painéis sem duplicar estruturas existentes.
 
+O configurador também cria canais de voz informativos para aplicações realmente online e latência. Eles são atualizados automaticamente a cada dois minutos e não permitem conexão de membros.
+
 O painel de uma aplicação permite iniciar, reiniciar, parar, solicitar atualização, alterar nome, atualizar token, escolher servidor principal, abrir o dashboard e adicionar o bot ao servidor.
 
 Os pagamentos PIX são acompanhados automaticamente a cada cinco segundos. Quando uma compra é aprovada, a mensagem de cobrança é substituída pela confirmação e pelo acesso à configuração. Renovações aprovadas também atualizam o painel sem exigir um novo comando.
