@@ -18,13 +18,18 @@ function respond(data: Record<string, unknown>, id: string, status = 200) { retu
 function safe(a: string, b: string) { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && crypto.timingSafeEqual(x, y); }
 
 async function authenticate(request: Request, route: string, id: string) {
-    const secret = process.env.ZUROS_BRIDGE_CREDENTIAL?.trim();
-    if (!secret) return fail("CONFIGURATION_REQUIRED", "API do bot não configurada.", id, 503);
+    const botId = process.env.ZUROS_CLIENT_BOT_ID?.trim();
+    const incomingBotId = request.headers.get("x-zuros-bot-id")?.trim() || "";
+    const secrets = [process.env.ZUROS_CLIENT_BOT_SECRET, process.env.ZUROS_BRIDGE_CREDENTIAL, ...(process.env.ZUROS_CLIENT_BOT_SECRETS || "").split(",")].map((value) => value?.trim() || "").filter(Boolean);
+    if (!secrets.length) return fail("CONFIGURATION_REQUIRED", "API do bot não configurada.", id, 503);
+    if (botId && !safe(incomingBotId, botId)) return fail("INVALID_CREDENTIAL", "Identidade do bot inválida.", id, 401);
     const bearer = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
     const timestamp = request.headers.get("x-zuros-timestamp") || "";
     const nonce = request.headers.get("x-zuros-nonce") || "";
     const signature = request.headers.get("x-zuros-signature") || "";
-    if (!safe(bearer, secret) || !/^\d{10}$/.test(timestamp) || !nonce || !signature) return fail("INVALID_CREDENTIAL", "Assinatura inválida.", id, 401);
+    const secret = secrets.find((candidate) => safe(bearer, candidate));
+    if (!secret) return fail("INVALID_CREDENTIAL", "A credencial do bot não corresponde à configurada no site.", id, 401);
+    if (!/^\d{10}$/.test(timestamp) || !nonce || !signature) return fail("INVALID_SIGNATURE", "Cabeçalhos da assinatura incompletos.", id, 401);
     const now = Math.floor(Date.now() / 1000), ts = Number(timestamp);
     if (Math.abs(now - ts) > 300) return fail("INVALID_CREDENTIAL", "Assinatura expirada.", id, 401);
     for (const [key, expires] of nonces) if (expires < now) nonces.delete(key);
@@ -35,7 +40,7 @@ async function authenticate(request: Request, route: string, id: string) {
     const bodyHash = crypto.createHash("sha256").update(raw).digest("hex");
     const payload = [request.method.toUpperCase(), relative, timestamp, nonce, bodyHash].join("\n");
     const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-    if (!safe(signature, expected)) return fail("INVALID_CREDENTIAL", "Assinatura inválida.", id, 401);
+    if (!safe(signature, expected)) return fail("INVALID_SIGNATURE", "Assinatura HMAC inválida.", id, 401);
     nonces.set(nonce, now + 300);
     return null;
 }

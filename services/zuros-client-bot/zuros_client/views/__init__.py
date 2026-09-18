@@ -1,0 +1,1 @@
+"""Componentes interativos do Discord."""

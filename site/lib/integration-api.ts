@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 
-export type ApiErrorCode = "INVALID_CREDENTIAL" | "CONFIGURATION_REQUIRED" | "INVALID_REQUEST" | "NOT_FOUND" | "UPSTREAM_ERROR" | "INTERNAL_ERROR";
+export type ApiErrorCode = "INVALID_CREDENTIAL" | "INVALID_SIGNATURE" | "CONFIGURATION_REQUIRED" | "INVALID_REQUEST" | "NOT_FOUND" | "UPSTREAM_ERROR" | "INTERNAL_ERROR";
 export function requestId(request: Request): string { const incoming=request.headers.get("x-request-id")?.trim(); return incoming&&incoming.length<=128?incoming:crypto.randomUUID(); }
 function credentials(): string[] { return [process.env.ZUROS_BRIDGE_CREDENTIAL,...(process.env.ZUROS_BRIDGE_CREDENTIALS||"").split(",")].map(v=>v?.trim()||"").filter(Boolean); }
 function safeEqual(a:string,b:string):boolean { const x=Buffer.from(a),y=Buffer.from(b); return x.length===y.length&&crypto.timingSafeEqual(x,y); }
