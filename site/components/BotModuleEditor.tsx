@@ -170,7 +170,7 @@ function GenericModuleEditor({ modulo, value, roles, channels, onChange }: { mod
         } });
     };
     return <div className="drox-automations-ui space-y-6">
-        <div className="drox-automation-summary"><span><i /> {entries.length} seções disponíveis</span><small>Edite uma seção e use Salvar no topo para aplicar no Zuros Bot.</small></div>
+        <div className="drox-automation-summary"><span><i /> {entries.length} seções disponíveis</span><small>Edite uma seção e use Salvar no canto inferior direito para aplicar no Zuros Bot.</small></div>
         <section className="drox-automation-group"><h3>{BOT_MODULE_META[modulo].name}</h3><div className="drox-automation-card">
             {entries.map(([alias, current]) => {
                 const open = selected === alias;
