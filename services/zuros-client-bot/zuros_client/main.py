@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 
 from .api import ZurosClientApi
+from .cogs.acquisition import AcquisitionView
 from .cogs.central import CentralView
 from .config import Settings, get_settings
 from .security import secret_fingerprint
@@ -23,7 +24,9 @@ class ZurosClientBot(commands.Bot):
         await self.load_extension("zuros_client.cogs.applications")
         await self.load_extension("zuros_client.cogs.commerce")
         await self.load_extension("zuros_client.cogs.central")
+        await self.load_extension("zuros_client.cogs.acquisition")
         self.add_view(CentralView(self.settings))
+        self.add_view(AcquisitionView(self.api, self.settings, []))
         if self.settings.discord_guild_id:
             guild = discord.Object(id=self.settings.discord_guild_id)
             self.tree.copy_global_to(guild=guild)
