@@ -11,6 +11,7 @@ Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Dis
 - `/central`: publica no canal uma central em Components V2; cada botão abre um painel privado para quem clicar.
 - `/aquisicao`: publica o catálogo real em Components V2; a seleção do produto, plano e pagamento acontece de forma privada.
 - `/boas-vindas`: publica a apresentação institucional da ZUROS com acessos para planos, painel e suporte.
+- `/publicar-painel`: escolhe entre todos os painéis e define o canal de destino sem deixar a mensagem do comando no canal.
 
 O painel de uma aplicação permite iniciar, reiniciar, parar, solicitar atualização, alterar nome, atualizar token, escolher servidor principal, abrir o dashboard e adicionar o bot ao servidor.
 

@@ -119,10 +119,18 @@ class AcquisitionCog(commands.Cog):
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.guild_only()
     async def acquisition(self, interaction: discord.Interaction) -> None:
-        await interaction.response.defer(ephemeral=False)
+        await interaction.response.defer(ephemeral=True)
         try:
             products = [product for product in await self.api.catalog() if product.plans]
-            await interaction.followup.send(view=AcquisitionView(self.api, self.settings, products))
+            if not interaction.channel:
+                await interaction.followup.send(
+                    "Não foi possível identificar o canal.", ephemeral=True
+                )
+                return
+            await interaction.channel.send(view=AcquisitionView(self.api, self.settings, products))
+            await interaction.followup.send(
+                "Painel de aquisição publicado neste canal.", ephemeral=True
+            )
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
 

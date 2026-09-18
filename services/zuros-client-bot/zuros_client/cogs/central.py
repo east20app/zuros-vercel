@@ -94,7 +94,12 @@ class CentralCog(commands.Cog):
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.guild_only()
     async def central(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message(view=CentralView(self.settings))
+        await interaction.response.defer(ephemeral=True)
+        if not interaction.channel:
+            await interaction.followup.send("Não foi possível identificar o canal.", ephemeral=True)
+            return
+        await interaction.channel.send(view=CentralView(self.settings))
+        await interaction.followup.send("Central publicada neste canal.", ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
