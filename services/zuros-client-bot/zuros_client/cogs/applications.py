@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from ..api import ZurosClientApi
 from ..config import Settings
-from ..formatters import application_embed, error_message
+from ..formatters import error_message
 from ..views.apps import ApplicationListView, ApplicationView
 
 
@@ -17,34 +17,37 @@ class ApplicationsCog(commands.Cog):
         try:
             apps = await self.api.list_applications(str(interaction.user.id))
             if not apps:
-                view = discord.ui.View()
-                view.add_item(
+                view = discord.ui.LayoutView()
+                links = discord.ui.ActionRow()
+                links.add_item(
                     discord.ui.Button(
                         label="Conhecer planos",
                         url=str(self.settings.zuros_plans_url),
                         style=discord.ButtonStyle.link,
                     )
                 )
-                view.add_item(
+                links.add_item(
                     discord.ui.Button(
                         label="Ajuda",
                         url=str(self.settings.zuros_support_url),
                         style=discord.ButtonStyle.link,
                     )
                 )
-                await interaction.followup.send(
-                    "Você ainda não possui aplicações ZUROS.", view=view, ephemeral=True
+                container = discord.ui.Container(accent_colour=0x5865F2)
+                container.add_item(
+                    discord.ui.TextDisplay("## Aplicações ZUROS\nVocê ainda não possui aplicações.")
                 )
+                container.add_item(links)
+                view.add_item(container)
+                await interaction.followup.send(view=view, ephemeral=True)
                 return
             if len(apps) == 1:
                 await interaction.followup.send(
-                    embed=application_embed(apps[0]),
                     view=ApplicationView(self.api, self.settings, interaction.user.id, apps[0]),
                     ephemeral=True,
                 )
                 return
             await interaction.followup.send(
-                f"Você possui **{len(apps)}** aplicações. Selecione uma:",
                 view=ApplicationListView(self.api, self.settings, interaction.user.id, apps),
                 ephemeral=True,
             )

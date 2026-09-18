@@ -2,7 +2,7 @@
 import crypto from "node:crypto";
 import { Types } from "mongoose";
 import databases from "@root/src/databases";
-import { changeApplicationMainServer, changeApplicationName, changeApplicationToken, listBotGuilds, restartApplication, startApplication, stopApplication } from "@root/src/integration/apps";
+import { applicationOnline, changeApplicationMainServer, changeApplicationName, changeApplicationToken, listBotGuilds, restartApplication, startApplication, stopApplication } from "@root/src/integration/apps";
 import { listStoreCatalogs } from "@root/src/integration/purchases";
 import { releaseCouponReservation } from "@root/src/integration/coupon-reservations";
 import { applyPurchaseCoupon, generatePurchasePayment, getMyPurchaseCart, startPurchase } from "@/lib/actions/purchases.actions";
@@ -45,7 +45,7 @@ async function authenticate(request: Request, route: string, id: string) {
     return null;
 }
 
-function appView(value: unknown) { const app = value as Record<string, unknown>; return { id: String(app._id), application_id: String(app._id), name: app.name, botId: app.botId, bot_id: app.botId, serverId: app.serverId || null, status: app.status, version: app.version, lifetime: !!app.lifetime, expiresAt: app.expiresAt || null, online: false, forceUpdate: !!app.forceUpdate }; }
+async function appView(value: unknown, userId: string) { const app = value as Record<string, unknown>; const id = String(app._id); const online = await applicationOnline(id, userId).catch(() => false); return { id, application_id: id, name: app.name, botId: app.botId, bot_id: app.botId, serverId: app.serverId || null, status: app.status, version: app.version, lifetime: !!app.lifetime, expiresAt: app.expiresAt || null, online, forceUpdate: !!app.forceUpdate }; }
 function catalogView(value: any) { return { id: String(value.id), name: String(value.name || "Loja"), products: Array.isArray(value.products) ? value.products.map((product: any) => ({ id: String(product.id), storeId: String(product.storeId || value.id), name: String(product.name), description: product.description || undefined, plans: (product.prices || []).filter((price: any) => price?.price > 0).map((price: any) => ({ id: String(price.plan), label: String(price.label), days: price.days ?? undefined, lifetime: price.plan === "lifetime", price: Number(price.price), currency: "BRL" })) })) : [] }; }
 function cartView(value: any) { return { id: String(value.id || value._id), status: value.status, step: value.step, product: value.product ? { id: String(value.product.id), name: String(value.product.name), plans: value.product.plans || [] } : undefined, plan: value.plan, finalPrice: value.finalPrice ?? value.price ?? undefined, pixQrCode: value.qrcodeDataUrl?.split(",")[1] || value.pixQrCode || undefined, pixCopyPaste: value.copyPaste || value.pixCopyPaste || undefined, expiresAt: value.expiresAt || undefined }; }
 async function owned(id: string, userId: string) { if (!Types.ObjectId.isValid(id)) return null; return databases.applications.findOne({ _id: id, ownerId: userId }).select("-token").lean(); }
@@ -62,8 +62,8 @@ export async function GET(request: Request, context: Context) {
             return respond({ stores: stores.map(catalogView), products: stores.flatMap((store: any) => catalogView(store).products) }, id);
         }
         if (route === "stats") { const filter = userId ? { ownerId: userId } : {}; const [applications, active] = await Promise.all([databases.applications.countDocuments(filter), databases.applications.countDocuments({ ...filter, status: "active" })]); return respond({ applications, active }, id); }
-        if (route === "applications") { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); const apps = await databases.applications.find({ ownerId: userId }).select("-token").sort({ _id: -1 }).lean(); return respond({ applications: apps.map(appView) }, id); }
-        const appMatch = route.match(/^applications\/([^/]+)$/); if (appMatch) { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); const app = await owned(appMatch[1], userId); return app ? respond(appView(app), id) : fail("NOT_FOUND", "Aplicação não encontrada.", id, 404); }
+        if (route === "applications") { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); const apps = await databases.applications.find({ ownerId: userId }).select("-token").sort({ _id: -1 }).lean(); return respond({ applications: await Promise.all(apps.map((app) => appView(app, userId))) }, id); }
+        const appMatch = route.match(/^applications\/([^/]+)$/); if (appMatch) { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); const app = await owned(appMatch[1], userId); return app ? respond(await appView(app, userId), id) : fail("NOT_FOUND", "Aplicação não encontrada.", id, 404); }
         const guildMatch = route.match(/^applications\/([^/]+)\/guilds$/); if (guildMatch) { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); return respond({ guilds: await listBotGuilds(guildMatch[1], userId) }, id); }
         const cartMatch = route.match(/^carts\/([^/]+)$/); if (cartMatch) { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); const value = await getMyPurchaseCart(cartMatch[1], userId); if (value) return respond(cartView(value), id); return respond(cartView(await pollRenewCart(cartMatch[1], userId)), id); }
         const renewMatch = route.match(/^renewal-carts\/([^/]+)$/); if (renewMatch) { if (!userId) return fail("INVALID_REQUEST", "discord_user_id obrigatório.", id, 400); return respond(cartView(await pollRenewCart(renewMatch[1], userId)), id); }

@@ -123,15 +123,14 @@ function assertActive(application: PopulatedApplication, operation: string) {
 export async function startApplication(appId: string, actorId: string) {
     const application = await ownedApplication(appId, actorId); assertActive(application, "iniciar");
     const { hosted } = await camposApplication(application);
-    // Idempotent because hosting telemetry can lag behind a recent click.
-    if (hosted.data.currentResourceMetrics?.online) return;
+    if (hosted.data.currentResourceMetrics?.online) throw new Error("A aplicação já está online.");
     await hosted.start().catch((error) => { throw camposError("iniciar a aplicação", error); });
 }
 
 export async function stopApplication(appId: string, actorId: string) {
     const application = await ownedApplication(appId, actorId); assertActive(application, "parar");
     const { hosted } = await camposApplication(application);
-    if (!hosted.data.currentResourceMetrics?.online) return;
+    if (!hosted.data.currentResourceMetrics?.online) throw new Error("A aplicação já está offline.");
     await hosted.stop().catch((error) => { throw camposError("parar a aplicação", error); });
 }
 
@@ -139,10 +138,15 @@ export async function restartApplication(appId: string, actorId: string) {
     const application = await ownedApplication(appId, actorId); assertActive(application, "reiniciar");
     const { hosted } = await camposApplication(application);
     if (!hosted.data.currentResourceMetrics?.online) {
-        await hosted.start().catch((error) => { throw camposError("iniciar a aplicação que estava offline", error); });
-        return;
+        throw new Error("A aplicação precisa estar online para ser reiniciada.");
     }
     await hosted.restart().catch((error) => { throw camposError("reiniciar a aplicação", error); });
+}
+
+export async function applicationOnline(appId: string, actorId: string): Promise<boolean> {
+    const application = await ownedApplication(appId, actorId);
+    const { hosted } = await camposApplication(application);
+    return Boolean(hosted.data.currentResourceMetrics?.online);
 }
 
 export async function changeApplicationName(appId: string, actorId: string, name: string) {

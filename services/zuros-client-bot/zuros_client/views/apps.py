@@ -2,7 +2,7 @@ import discord
 
 from ..api import ZurosClientApi
 from ..config import Settings
-from ..formatters import application_embed, error_message
+from ..formatters import application_panel_text, error_message
 from ..guards import InteractionLimiter, owner_only
 from ..models import Application
 
@@ -77,31 +77,117 @@ class GuildSelect(discord.ui.Select):
             await interaction.followup.send(error_message(error), ephemeral=True)
 
 
-class ApplicationView(discord.ui.View):
-    def __init__(self, api: ZurosClientApi, settings: Settings, owner_id: int, app: Application):
+class ApplicationButton(discord.ui.Button["ApplicationView"]):
+    def __init__(
+        self,
+        panel: "ApplicationView",
+        action: str,
+        label: str,
+        style: discord.ButtonStyle,
+        *,
+        disabled: bool = False,
+    ):
+        super().__init__(label=label, style=style, disabled=disabled)
+        self.panel = panel
+        self.action = action
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        if self.action in {"start", "restart", "stop", "update"}:
+            await self.panel.action(interaction, self.action)
+        elif self.action == "rename":
+            await interaction.response.send_modal(RenameModal(self.panel))
+        elif self.action == "token":
+            await interaction.response.send_modal(TokenModal(self.panel))
+        elif self.action == "guild":
+            await self.panel.choose_guild(interaction)
+
+
+class ApplicationView(discord.ui.LayoutView):
+    def __init__(
+        self,
+        api: ZurosClientApi,
+        settings: Settings,
+        owner_id: int,
+        app: Application,
+        notice: str | None = None,
+    ):
         super().__init__(timeout=600)
         self.api, self.settings, self.owner_id, self.app = api, settings, owner_id, app
+        active = app.status == "active"
+        controls = discord.ui.ActionRow()
+        controls.add_item(
+            ApplicationButton(
+                self,
+                "start",
+                "Iniciar",
+                discord.ButtonStyle.success,
+                disabled=not active or app.online,
+            )
+        )
+        controls.add_item(
+            ApplicationButton(
+                self,
+                "restart",
+                "Reiniciar",
+                discord.ButtonStyle.primary,
+                disabled=not active or not app.online,
+            )
+        )
+        controls.add_item(
+            ApplicationButton(
+                self,
+                "stop",
+                "Desligar",
+                discord.ButtonStyle.danger,
+                disabled=not active or not app.online,
+            )
+        )
+        controls.add_item(
+            ApplicationButton(
+                self,
+                "update",
+                "Atualizar",
+                discord.ButtonStyle.secondary,
+                disabled=not active,
+            )
+        )
+
+        settings_row = discord.ui.ActionRow()
+        settings_row.add_item(
+            ApplicationButton(self, "rename", "Alterar nome", discord.ButtonStyle.secondary)
+        )
+        settings_row.add_item(
+            ApplicationButton(self, "token", "Atualizar token", discord.ButtonStyle.secondary)
+        )
+        settings_row.add_item(
+            ApplicationButton(self, "guild", "Servidor principal", discord.ButtonStyle.secondary)
+        )
         dashboard = f"{str(settings.zuros_dashboard_url).rstrip('/')}/{app.bot_id or app.id}"
-        self.add_item(
+        settings_row.add_item(
             discord.ui.Button(label="Abrir painel", style=discord.ButtonStyle.link, url=dashboard)
         )
         if app.bot_id:
             invite = f"https://discord.com/oauth2/authorize?client_id={app.bot_id}&scope=bot%20applications.commands&permissions=274878221312"
-            self.add_item(
+            settings_row.add_item(
                 discord.ui.Button(
                     label="Adicionar ao servidor", style=discord.ButtonStyle.link, url=invite
                 )
             )
+
+        container = discord.ui.Container(accent_colour=0x22C55E if app.online else 0x64748B)
+        container.add_item(discord.ui.TextDisplay(application_panel_text(app, notice)))
+        container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
+        container.add_item(controls)
+        container.add_item(settings_row)
+        self.add_item(container)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         return await owner_only(interaction, self.owner_id)
 
     async def refresh(self, interaction: discord.Interaction, notice: str | None = None) -> None:
         self.app = await self.api.get_application(str(self.owner_id), self.app.id)
-        view = ApplicationView(self.api, self.settings, self.owner_id, self.app)
-        await interaction.edit_original_response(
-            content=notice, embed=application_embed(self.app), view=view
-        )
+        view = ApplicationView(self.api, self.settings, self.owner_id, self.app, notice)
+        await interaction.edit_original_response(view=view)
 
     async def action(self, interaction: discord.Interaction, action: str) -> None:
         if not limiter.allow(interaction.user.id, action):
@@ -116,32 +202,7 @@ class ApplicationView(discord.ui.View):
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
 
-    @discord.ui.button(label="Iniciar", style=discord.ButtonStyle.success, row=0)
-    async def start_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
-        await self.action(interaction, "start")
-
-    @discord.ui.button(label="Reiniciar", style=discord.ButtonStyle.primary, row=0)
-    async def restart_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
-        await self.action(interaction, "restart")
-
-    @discord.ui.button(label="Parar", style=discord.ButtonStyle.danger, row=0)
-    async def stop_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
-        await self.action(interaction, "stop")
-
-    @discord.ui.button(label="Atualizar", style=discord.ButtonStyle.secondary, row=0)
-    async def update_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
-        await self.action(interaction, "update")
-
-    @discord.ui.button(label="Alterar nome", style=discord.ButtonStyle.secondary, row=1)
-    async def rename_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
-        await interaction.response.send_modal(RenameModal(self))
-
-    @discord.ui.button(label="Atualizar token", style=discord.ButtonStyle.secondary, row=1)
-    async def token_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
-        await interaction.response.send_modal(TokenModal(self))
-
-    @discord.ui.button(label="Servidor principal", style=discord.ButtonStyle.secondary, row=1)
-    async def guild_button(self, interaction: discord.Interaction, _: discord.ui.Button) -> None:
+    async def choose_guild(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         try:
             guilds = await self.api.list_guilds(str(interaction.user.id), self.app.id)
@@ -181,8 +242,6 @@ class ApplicationSelect(discord.ui.Select):
                 str(interaction.user.id), self.values[0]
             )
             await interaction.edit_original_response(
-                content=None,
-                embed=application_embed(app),
                 view=ApplicationView(
                     self.parent_view.api, self.parent_view.settings, interaction.user.id, app
                 ),
@@ -191,10 +250,19 @@ class ApplicationSelect(discord.ui.Select):
             await interaction.followup.send(error_message(error), ephemeral=True)
 
 
-class ApplicationListView(discord.ui.View):
+class ApplicationListView(discord.ui.LayoutView):
     def __init__(
         self, api: ZurosClientApi, settings: Settings, owner_id: int, apps: list[Application]
     ):
         super().__init__(timeout=600)
         self.api, self.settings, self.owner_id = api, settings, owner_id
-        self.add_item(ApplicationSelect(self, apps))
+        container = discord.ui.Container(accent_colour=0x5865F2)
+        container.add_item(
+            discord.ui.TextDisplay(
+                f"## Suas aplicações\nVocê possui **{len(apps)}** aplicações. "
+                "Escolha uma para gerenciar."
+            )
+        )
+        container.add_item(discord.ui.Separator())
+        container.add_item(discord.ui.ActionRow(ApplicationSelect(self, apps)))
+        self.add_item(container)

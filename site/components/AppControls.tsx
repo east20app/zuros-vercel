@@ -55,7 +55,7 @@ export function AppControls({ appId, status, online, variant = "full" }: { appId
                     {busy === "start" ? <Spinner /> : null}
                     Iniciar
                 </Button>
-                <Button variant="secondary" disabled={!!busy || status !== "active"} title={status !== "active" ? "Renove a aplicação para reiniciar" : online ? "Reiniciar bot" : "O bot está offline e será iniciado"} onClick={() => run("restart", () => restartApp(appId))}>
+                <Button variant="secondary" disabled={!!busy || status !== "active" || !online} title={status !== "active" ? "Renove a aplicação para reiniciar" : !online ? "O bot precisa estar online para reiniciar" : "Reiniciar bot"} onClick={() => run("restart", () => restartApp(appId))}>
                     {busy === "restart" ? <Spinner /> : null}
                     Reiniciar
                 </Button>
