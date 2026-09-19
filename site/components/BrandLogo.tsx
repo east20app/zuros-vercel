@@ -17,10 +17,10 @@ export function BrandLogo({ className = "", priority = false, compact = false }:
                 src="/zuros-mark.png"
                 alt=""
                 aria-hidden="true"
-                width={1920}
-                height={1920}
+                width={1024}
+                height={1024}
                 priority={priority}
-                sizes={compact ? "40px" : "40px"}
+                sizes="40px"
                 className="brand-logo-mark"
             />
             {!compact && (

@@ -7,9 +7,11 @@ from ..config import Settings
 from ..emojis import emoji
 from ..formatters import error_message
 from ..theme import FOOTER, Accent
+from ..tickets.store import TicketConfig
 from .acquisition import AcquisitionView
 from .central import CentralView
 from .live_status import status_names
+from .tickets import TicketPanelView
 from .welcome import WelcomeView
 
 ROLE_SPECS = (
@@ -18,12 +20,14 @@ ROLE_SPECS = (
     ("Cliente ZUROS", Accent.SUCCESS, False),
 )
 
-CATEGORY_SPECS = ("COMECE AQUI", "ATENDIMENTO", "STATUS ZUROS")
+CATEGORY_SPECS = ("COMECE AQUI", "ATENDIMENTO", "TICKETS", "STATUS ZUROS")
 CHANNEL_SPECS = (
     ("boas-vindas", "COMECE AQUI", "Conheça a ZUROS e acesse nossos serviços."),
     ("central-zuros", "COMECE AQUI", "Central de gerenciamento dos serviços ZUROS."),
     ("adquirir", "COMECE AQUI", "Catálogo oficial de aplicações e planos ZUROS."),
     ("suporte", "ATENDIMENTO", "Tire dúvidas e fale com a equipe ZUROS."),
+    ("abrir-ticket", "TICKETS", "Abra um atendimento privado com a equipe ZUROS."),
+    ("logs-tickets", "TICKETS", "Histórico e transcripts dos atendimentos ZUROS."),
 )
 VOICE_CHANNEL_SPECS = (f"{emoji.online} Apps online: 0", f"{emoji.wifi} Ping: 0ms")
 
@@ -177,11 +181,20 @@ class ServerSetupCog(commands.Cog):
                 if channel:
                     reused.append(f"canal #{name}")
                 else:
+                    overwrites = read_only
+                    if name == "suporte":
+                        overwrites = support_access
+                    elif name == "logs-tickets":
+                        overwrites = {
+                            guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                            roles["ZUROS Admin"]: read_only[roles["ZUROS Admin"]],
+                            roles["ZUROS Suporte"]: read_only[roles["ZUROS Suporte"]],
+                        }
                     channel = await guild.create_text_channel(
                         name,
                         category=categories[category_name],
                         topic=topic,
-                        overwrites=support_access if name == "suporte" else read_only,
+                        overwrites=overwrites,
                         reason=f"Configuração ZUROS solicitada por {interaction.user}",
                     )
                     created.append(f"canal #{name}")
@@ -228,7 +241,17 @@ class ServerSetupCog(commands.Cog):
                 "central-zuros": CentralView(self.settings),
                 "adquirir": AcquisitionView(self.api, self.settings, products),
                 "suporte": support_view(self.settings),
+                "abrir-ticket": TicketPanelView(),
             }
+            await self.bot.ticket_store.save_config(  # type: ignore[attr-defined]
+                TicketConfig(
+                    guild.id,
+                    categories["TICKETS"].id,
+                    roles["ZUROS Suporte"].id,
+                    channels["logs-tickets"].id,
+                    channels["abrir-ticket"].id,
+                )
+            )
             published: list[str] = []
             for name, view in panels.items():
                 if await channel_needs_panel(channels[name], bot_id):

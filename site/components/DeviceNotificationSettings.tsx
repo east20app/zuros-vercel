@@ -28,7 +28,7 @@ export function DeviceNotificationSettings() {
         setPermission(result);
         if (result !== "granted") return push("Permissão de notificações não concedida.", "error");
         const registration = await navigator.serviceWorker.ready;
-        await registration.showNotification("Notificações ZUROS ativadas", { body: "Este aparelho poderá receber alertas do painel.", icon: "/brand-logo.png", tag: "zuros-enabled" });
+        await registration.showNotification("Notificações ZUROS ativadas", { body: "Este aparelho poderá receber alertas do painel.", icon: "/brand/icon.png", tag: "zuros-enabled" });
         push("Notificações ativadas neste aparelho.");
     }
 

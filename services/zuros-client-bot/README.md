@@ -4,15 +4,22 @@ Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Dis
 
 ## Comandos
 
-- `/app` e `/apps`: lista e controla aplicações.
-- `/comprar`: escolhe produto e plano e gera o pagamento PIX.
-- `/renovar`: renova uma aplicação e gera o pagamento PIX.
-- `/status`: verifica a conexão com a API.
-- `/central`: publica no canal uma central em Components V2; cada botão abre um painel privado para quem clicar.
-- `/aquisicao`: publica o catálogo real em Components V2; a seleção do produto, plano e pagamento acontece de forma privada.
-- `/boas-vindas`: publica a apresentação institucional da ZUROS com acessos para planos, painel e suporte.
-- `/publicar-painel`: escolhe entre todos os painéis e define o canal de destino sem deixar a mensagem do comando no canal.
-- `/configurar-servidor`: cria cargos, categorias, canais, permissões e publica todos os painéis sem duplicar estruturas existentes.
+- `/apps`: lista e controla as aplicações do usuário.
+- `/painel`: painel privado para administradores, com compra, renovação, publicação de painéis, configuração do servidor e dos tickets, gestão de membros dos tickets e verificação da API.
+
+Os comandos antigos são removidos da lista do Discord na próxima sincronização. Seus controles continuam disponíveis dentro de `/painel` e nos painéis públicos já publicados.
+
+Se a inicialização informar `401 Unauthorized` ou `Improper token has been passed`, atualize `DISCORD_TOKEN` no ambiente de hospedagem com o token atual da aplicação no Discord Developer Portal. O segredo da API ZUROS não substitui esse token.
+
+## Tickets
+
+O sistema de tickets cria canais privados por setor, impede tickets duplicados, permite que
+a equipe assuma atendimentos, fecha e reabre canais, administra participantes e gera
+transcripts HTML nos logs. Configurações e histórico ficam persistidos em SQLite no caminho
+definido por `TICKET_DATABASE_PATH`.
+
+Ative o intent privilegiado **Message Content** no Discord Developer Portal para que o
+conteúdo das mensagens apareça integralmente nos transcripts.
 
 O configurador também cria canais de voz informativos para aplicações realmente online e latência. Eles são atualizados automaticamente a cada dois minutos e não permitem conexão de membros.
 

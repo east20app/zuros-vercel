@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     zuros_plans_url: HttpUrl = HttpUrl("https://app.zuros.site/planos")
     zuros_support_url: HttpUrl = HttpUrl("https://discord.gg/zuros")
     http_timeout_seconds: float = Field(default=20, ge=3, le=60)
+    ticket_database_path: str = "data/tickets.sqlite3"
     log_level: str = "INFO"
 
     @property

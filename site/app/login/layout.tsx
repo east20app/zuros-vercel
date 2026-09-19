@@ -37,7 +37,7 @@ export const metadata: Metadata = {
         url: "/login",
         images: [
             {
-                url: "/opengraph-image",
+                url: "/og-image.png",
                 width: 1200,
                 height: 630,
                 type: "image/png",
@@ -51,23 +51,23 @@ export const metadata: Metadata = {
         title: "ZUROS APP — bots, lojas e aplicações para Discord",
         description:
             "Gerencie bots, lojas, pagamentos, tickets e aplicações Discord em um único painel.",
-        images: ["/twitter-image"],
+        images: ["/og-image.png"],
     },
 
     icons: {
         icon: [
             {
                 url: "/favicon.ico",
-                sizes: "32x32",
-                type: "image/x-icon",
+                sizes: "512x512",
+                type: "image/png",
             },
             {
                 url: "/brand/icon.png",
-                sizes: "256x256",
+                sizes: "512x512",
                 type: "image/png",
             },
         ],
-        apple: "/brand/icon.png",
+        apple: "/brand/icon-maskable.png",
     },
 
     themeColor: "#0c0f14",

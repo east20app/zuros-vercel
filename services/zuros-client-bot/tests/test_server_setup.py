@@ -12,12 +12,14 @@ def test_server_setup_has_complete_structure() -> None:
         "ZUROS Suporte",
         "Cliente ZUROS",
     ]
-    assert CATEGORY_SPECS == ("COMECE AQUI", "ATENDIMENTO", "STATUS ZUROS")
+    assert CATEGORY_SPECS == ("COMECE AQUI", "ATENDIMENTO", "TICKETS", "STATUS ZUROS")
     assert [channel[0] for channel in CHANNEL_SPECS] == [
         "boas-vindas",
         "central-zuros",
         "adquirir",
         "suporte",
+        "abrir-ticket",
+        "logs-tickets",
     ]
     assert VOICE_CHANNEL_SPECS == ("🟢 Apps online: 0", "📡 Ping: 0ms")
 

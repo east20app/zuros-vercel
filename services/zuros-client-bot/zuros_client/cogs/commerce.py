@@ -312,7 +312,7 @@ class CommerceCog(commands.Cog):
                 text = f"Renovar **{apps[0].name}**:"
             else:
                 text = (
-                    "Use `/app`, abra a aplicação desejada e consulte sua situação. "
+                    "Use `/apps`, abra a aplicação desejada e consulte sua situação. "
                     "A seleção direta para múltiplas aplicações será adicionada na próxima versão."
                 )
             await interaction.followup.send(
