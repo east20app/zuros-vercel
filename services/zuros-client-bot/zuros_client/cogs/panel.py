@@ -329,7 +329,6 @@ class PanelCog(commands.Cog):
 
     @app_commands.command(name="painel", description="Abre as funções administrativas da ZUROS")
     @app_commands.default_permissions(administrator=True)
-    @app_commands.guild_only()
     async def painel(self, interaction: discord.Interaction) -> None:
         if not is_admin(interaction):
             await interaction.response.send_message(

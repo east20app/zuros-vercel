@@ -55,5 +55,6 @@ async def test_only_apps_and_admin_panel_remain_registered() -> None:
         assert panel is not None
         assert panel.default_permissions is not None
         assert panel.default_permissions.administrator
+        assert panel.to_dict(bot.tree)["contexts"] is None
     finally:
         await bot.close()
