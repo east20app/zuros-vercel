@@ -4,7 +4,19 @@ from discord import app_commands
 from discord.ext import commands
 
 from zuros_client.cogs.panel import PanelCog
-from zuros_client.main import remove_legacy_commands
+from zuros_client.config import Settings
+from zuros_client.main import align_authenticated_bot_id, remove_legacy_commands
+
+
+def test_api_uses_the_bot_id_verified_by_discord() -> None:
+    settings = Settings(
+        discord_token="test-token",
+        zuros_client_bot_id="111111111111111111",
+        zuros_client_bot_secret="a" * 32,
+    )
+    assert align_authenticated_bot_id(settings, 222222222222222222)
+    assert settings.zuros_client_bot_id == "222222222222222222"
+    assert not align_authenticated_bot_id(settings, 222222222222222222)
 
 
 @pytest.mark.asyncio
