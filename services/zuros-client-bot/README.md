@@ -8,6 +8,7 @@ Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Dis
 - `/painel`: painel privado para administradores, com compra, renovação, publicação de painéis, configuração do servidor e dos tickets, gestão de membros dos tickets e verificação da API.
 
 Os comandos antigos são removidos da lista do Discord na próxima sincronização. Seus controles continuam disponíveis dentro de `/painel` e nos painéis públicos já publicados.
+O bot sincroniza `/apps` e `/painel` diretamente em cada servidor ao conectar; `/painel` aparece apenas para administradores. O console registra os nomes sincronizados por servidor.
 
 Se a inicialização informar `401 Unauthorized` ou `Improper token has been passed`, atualize `DISCORD_TOKEN` no ambiente de hospedagem com o token atual da aplicação no Discord Developer Portal. O segredo da API ZUROS não substitui esse token.
 

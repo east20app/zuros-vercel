@@ -27,6 +27,19 @@ class ZurosClientBot(commands.Bot):
         self.settings = settings
         self.api = ZurosClientApi(settings)
         self.ticket_store = TicketStore(settings.ticket_database_path)
+        self._synced_guild_ids: set[int] = set()
+        self._emoji_sync_task: asyncio.Task[None] | None = None
+
+    async def sync_guild_commands(self, guild_id: int) -> None:
+        guild = discord.Object(id=guild_id)
+        self.tree.copy_global_to(guild=guild)
+        commands_synced = await self.tree.sync(guild=guild)
+        self._synced_guild_ids.add(guild_id)
+        logging.getLogger(__name__).info(
+            "Comandos sincronizados no servidor %s: %s",
+            guild_id,
+            ", ".join(command.name for command in commands_synced),
+        )
 
     async def setup_hook(self) -> None:
         await self.api.start()
@@ -34,7 +47,9 @@ class ZurosClientBot(commands.Bot):
         application_id = self.settings.discord_application_id or self.application_id
         if application_id:
             await emoji.sync_application(
-                int(application_id), self.settings.discord_token.get_secret_value()
+                int(application_id),
+                self.settings.discord_token.get_secret_value(),
+                upload_missing=False,
             )
         await self.load_extension("zuros_client.cogs.applications")
         await self.load_extension("zuros_client.cogs.commerce")
@@ -54,21 +69,56 @@ class ZurosClientBot(commands.Bot):
 
         self.add_view(TicketPanelView())
         self.add_view(TicketControlView())
+        try:
+            global_commands = await self.tree.sync()
+            logging.getLogger(__name__).info(
+                "Comandos globais sincronizados: %s",
+                ", ".join(command.name for command in global_commands),
+            )
+        except discord.HTTPException:
+            logging.getLogger(__name__).exception(
+                "Falha na sincronização global; tentarei registrar /apps e /painel por servidor"
+            )
         if self.settings.discord_guild_id:
-            # Remove commands previously published globally as well as in this guild.
-            await self.tree.sync()
-            guild = discord.Object(id=self.settings.discord_guild_id)
-            self.tree.copy_global_to(guild=guild)
-            await self.tree.sync(guild=guild)
-        else:
-            await self.tree.sync()
+            try:
+                await self.sync_guild_commands(self.settings.discord_guild_id)
+            except discord.HTTPException:
+                logging.getLogger(__name__).exception(
+                    "Falha ao sincronizar /apps e /painel no servidor configurado %s",
+                    self.settings.discord_guild_id,
+                )
+        if application_id:
+            self._emoji_sync_task = asyncio.create_task(
+                emoji.sync_application(
+                    int(application_id), self.settings.discord_token.get_secret_value()
+                )
+            )
 
     async def close(self) -> None:
+        if self._emoji_sync_task and not self._emoji_sync_task.done():
+            self._emoji_sync_task.cancel()
         await self.api.close()
         await super().close()
 
     async def on_ready(self) -> None:
         logging.getLogger(__name__).info("Bot online como %s", self.user)
+        for guild in self.guilds:
+            if guild.id in self._synced_guild_ids:
+                continue
+            try:
+                await self.sync_guild_commands(guild.id)
+            except discord.HTTPException:
+                logging.getLogger(__name__).exception(
+                    "Falha ao sincronizar /apps e /painel no servidor %s", guild.id
+                )
+
+    async def on_guild_join(self, guild: discord.Guild) -> None:
+        try:
+            await self.sync_guild_commands(guild.id)
+        except discord.HTTPException:
+            logging.getLogger(__name__).exception(
+                "Falha ao sincronizar /apps e /painel no novo servidor %s", guild.id
+            )
 
 
 def run() -> None:

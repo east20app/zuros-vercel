@@ -54,7 +54,9 @@ class emoji:
     link = "🔗"
 
     @classmethod
-    async def sync_application(cls, application_id: int, token: str) -> None:
+    async def sync_application(
+        cls, application_id: int, token: str, *, upload_missing: bool = True
+    ) -> None:
         """Carrega e cria, quando necessário, os emojis da aplicação Discord."""
         if not ASSETS_DIR.is_dir():
             log.warning("Diretório de emojis não encontrado: %s", ASSETS_DIR)
@@ -74,6 +76,9 @@ class emoji:
 
             existing = {item["name"]: item for item in payload.get("items", [])}
             cls._apply(existing)
+            if not upload_missing:
+                log.info("Emojis ZUROS existentes carregados: %s", len(existing))
+                return
             created = 0
             for asset in sorted(ASSETS_DIR.iterdir()):
                 if asset.suffix.lower() not in {".png", ".gif", ".jpg", ".jpeg"}:

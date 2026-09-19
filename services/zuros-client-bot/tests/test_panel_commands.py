@@ -1,10 +1,36 @@
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, Mock
+
 import discord
 import pytest
 from discord import app_commands
 from discord.ext import commands
 
 from zuros_client.cogs.panel import PanelCog
-from zuros_client.main import remove_legacy_commands
+from zuros_client.config import Settings
+from zuros_client.main import ZurosClientBot, remove_legacy_commands
+
+
+@pytest.mark.asyncio
+async def test_panel_commands_are_synced_directly_to_the_guild(monkeypatch) -> None:
+    settings = Settings(
+        discord_token="test-token",
+        zuros_client_bot_id="1455921050473988320",
+        zuros_client_bot_secret="a" * 32,
+    )
+    bot = ZurosClientBot(settings)
+    copy = Mock()
+    sync = AsyncMock(return_value=[SimpleNamespace(name="apps"), SimpleNamespace(name="painel")])
+    monkeypatch.setattr(bot.tree, "copy_global_to", copy)
+    monkeypatch.setattr(bot.tree, "sync", sync)
+    try:
+        await bot.sync_guild_commands(123456789012345678)
+        assert 123456789012345678 in bot._synced_guild_ids
+        guild = sync.await_args.kwargs["guild"]
+        assert guild.id == 123456789012345678
+        copy.assert_called_once()
+    finally:
+        await bot.close()
 
 
 @pytest.mark.asyncio
