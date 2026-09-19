@@ -16,8 +16,8 @@ export function BotActivityNotificationWatcher() {
                     seen.add(item.id);
                     if (Notification.permission === "granted") {
                         const registration = await navigator.serviceWorker?.ready.catch(()=>null);
-                        if (registration) await registration.showNotification(item.title, { body: item.body, icon: "/brand-mark.webp", badge: "/brand-mark.webp", tag: item.id, data: { url: item.href } });
-                        else new Notification(item.title, { body: item.body, icon: "/brand-mark.webp", tag: item.id });
+                        if (registration) await registration.showNotification(item.title, { body: item.body, icon: "/brand/icon.png", badge: "/brand/icon.png", tag: item.id, data: { url: item.href } });
+                        else new Notification(item.title, { body: item.body, icon: "/brand/icon.png", tag: item.id });
                     }
                     window.dispatchEvent(new CustomEvent("zuros:bot-activity", { detail: item }));
                 }

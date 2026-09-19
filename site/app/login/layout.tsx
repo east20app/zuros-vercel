@@ -55,18 +55,7 @@ export const metadata: Metadata = {
     },
 
     icons: {
-        icon: [
-            {
-                url: "/favicon.ico",
-                sizes: "512x512",
-                type: "image/png",
-            },
-            {
-                url: "/brand/icon.png",
-                sizes: "512x512",
-                type: "image/png",
-            },
-        ],
+        icon: "/brand/icon.png",
         apple: "/brand/icon-maskable.png",
     },
 

@@ -14,7 +14,7 @@ export function BrandLogo({ className = "", priority = false, compact = false }:
             className={`brand-logo ${compact ? "brand-logo-compact" : "brand-logo-full"} ${className}`}
         >
             <Image
-                src="/zuros-mark.png"
+                src="/brand/mark-transparent.png"
                 alt=""
                 aria-hidden="true"
                 width={1024}

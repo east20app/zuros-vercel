@@ -14,9 +14,6 @@ const nextConfig = {
     serverExternalPackages: ['mongoose', 'mongodb', '@camposcloud/sdk'],
     // O pipeline executa estas verificações antes do build. Evita que o Next
     // abra workers extras de lint/TypeScript, que são instáveis no Windows.
-    async rewrites() {
-        return [{ source: "/favicon.ico", destination: "/icon.svg" }];
-    },
     // Não deixa o modo dev sobrescrever o build usado em produção.
     distDir: process.env.NEXT_DIST_DIR
         || (process.env.VERCEL ? ".next" : process.env.NODE_ENV === "development" ? ".next-dev" : "next-build-visual"),
