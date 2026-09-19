@@ -5,26 +5,33 @@ from discord import app_commands
 from discord.ext import commands
 
 from ..config import Settings
+from ..emojis import emoji
+from ..theme import FOOTER, Accent
 
-CENTRAL_TEXT = """## ⚡ Central ZUROS
+
+def central_text() -> str:
+    return f"""## {emoji.zuros} Central ZUROS
 
 Gerencie seus serviços por aqui, sem precisar decorar comandos.
 Toque em uma opção e o painel será exibido **somente para você**.
 
-### 🤖 Gerenciar aplicações
+### {emoji.robot} Gerenciar aplicações
 -# Inicie, desligue, reinicie, atualize e configure seus bots.
 
-### 🛒 Comprar aplicações
+### {emoji.cart} Comprar aplicações
 -# Consulte os produtos, escolha um plano e gere o pagamento PIX.
 
-### ♻️ Renovar aplicações
+### {emoji.reload} Renovar aplicações
 -# Consulte seus bots e renove o plano sem sair do Discord.
 
-### 🌐 Painel ZUROS
+### {emoji.website} Painel ZUROS
 -# Acesse configurações avançadas, vendas e integrações pelo site.
 
--# ZUROS · Central de controle · Os botões possuem uma pausa curta entre cliques.
+{FOOTER.format(tagline="Central de controle · Os botões possuem uma pausa curta entre cliques")}
 """
+
+
+CENTRAL_TEXT = central_text()
 
 
 class CentralActionButton(discord.ui.Button["CentralView"]):
@@ -57,26 +64,28 @@ class CentralView(discord.ui.LayoutView):
     def __init__(self, settings: Settings):
         super().__init__(timeout=None)
         actions = discord.ui.ActionRow(
-            CentralActionButton("applications", "Aplicações", "🤖", discord.ButtonStyle.primary),
-            CentralActionButton("store", "Comprar", "🛒", discord.ButtonStyle.success),
-            CentralActionButton("renewal", "Renovar", "♻️", discord.ButtonStyle.secondary),
+            CentralActionButton(
+                "applications", "Aplicações", emoji.robot, discord.ButtonStyle.primary
+            ),
+            CentralActionButton("store", "Comprar", emoji.cart, discord.ButtonStyle.success),
+            CentralActionButton("renewal", "Renovar", emoji.reload, discord.ButtonStyle.secondary),
         )
         links = discord.ui.ActionRow(
             discord.ui.Button(
                 label="Abrir painel",
-                emoji="🌐",
+                emoji=emoji.website,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_dashboard_url),
             ),
             discord.ui.Button(
                 label="Suporte",
-                emoji="💬",
+                emoji=emoji.speech,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_support_url),
             ),
         )
-        container = discord.ui.Container(accent_colour=0x2563EB)
-        container.add_item(discord.ui.TextDisplay(CENTRAL_TEXT))
+        container = discord.ui.Container(accent_colour=Accent.BRAND)
+        container.add_item(discord.ui.TextDisplay(central_text()))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
         container.add_item(actions)
         container.add_item(links)

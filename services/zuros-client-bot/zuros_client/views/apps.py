@@ -2,9 +2,11 @@ import discord
 
 from ..api import ZurosClientApi
 from ..config import Settings
+from ..emojis import emoji
 from ..formatters import application_panel_text, error_message
 from ..guards import InteractionLimiter, owner_only
 from ..models import Application
+from ..theme import FOOTER, Accent
 
 limiter = InteractionLimiter()
 
@@ -58,7 +60,10 @@ class GuildSelect(discord.ui.Select):
             placeholder="Escolha o servidor principal",
             options=[
                 discord.SelectOption(
-                    label=name[:100], value=guild_id, default=guild_id == panel.app.server_id
+                    label=name[:100],
+                    value=guild_id,
+                    default=guild_id == panel.app.server_id,
+                    emoji=emoji.members,
                 )
                 for guild_id, name in guilds[:25]
             ],
@@ -87,7 +92,21 @@ class ApplicationButton(discord.ui.Button["ApplicationView"]):
         *,
         disabled: bool = False,
     ):
-        super().__init__(label=label, style=style, disabled=disabled)
+        action_emojis = {
+            "start": emoji.play,
+            "restart": emoji.reload,
+            "stop": emoji.power,
+            "update": emoji.sync,
+            "rename": emoji.edit,
+            "token": emoji.lock,
+            "guild": emoji.settings,
+        }
+        super().__init__(
+            label=label,
+            emoji=action_emojis.get(action),
+            style=style,
+            disabled=disabled,
+        )
         self.panel = panel
         self.action = action
 
@@ -164,20 +183,31 @@ class ApplicationView(discord.ui.LayoutView):
         )
         dashboard = f"{str(settings.zuros_dashboard_url).rstrip('/')}/{app.bot_id or app.id}"
         settings_row.add_item(
-            discord.ui.Button(label="Abrir painel", style=discord.ButtonStyle.link, url=dashboard)
+            discord.ui.Button(
+                label="Abrir painel",
+                emoji=emoji.website,
+                style=discord.ButtonStyle.link,
+                url=dashboard,
+            )
         )
         if app.bot_id:
             invite = f"https://discord.com/oauth2/authorize?client_id={app.bot_id}&scope=bot%20applications.commands&permissions=274878221312"
             settings_row.add_item(
                 discord.ui.Button(
-                    label="Adicionar ao servidor", style=discord.ButtonStyle.link, url=invite
+                    label="Adicionar ao servidor",
+                    emoji=emoji.plus,
+                    style=discord.ButtonStyle.link,
+                    url=invite,
                 )
             )
 
-        container = discord.ui.Container(accent_colour=0x22C55E if app.online else 0x64748B)
+        container = discord.ui.Container(
+            accent_colour=Accent.SUCCESS if app.online else Accent.NEUTRAL
+        )
         container.add_item(discord.ui.TextDisplay(application_panel_text(app, notice)))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
         container.add_item(controls)
+        container.add_item(discord.ui.TextDisplay("-# Configuração"))
         container.add_item(settings_row)
         self.add_item(container)
 
@@ -228,6 +258,7 @@ class ApplicationSelect(discord.ui.Select):
                     label=app.name[:100],
                     value=app.id,
                     description=f"v{app.version} • {app.status}"[:100],
+                    emoji=emoji.robot,
                 )
                 for app in apps[:25]
             ],
@@ -256,11 +287,13 @@ class ApplicationListView(discord.ui.LayoutView):
     ):
         super().__init__(timeout=600)
         self.api, self.settings, self.owner_id = api, settings, owner_id
-        container = discord.ui.Container(accent_colour=0x5865F2)
+        container = discord.ui.Container(accent_colour=Accent.BRAND)
         container.add_item(
             discord.ui.TextDisplay(
-                f"## Suas aplicações\nVocê possui **{len(apps)}** aplicações. "
-                "Escolha uma para gerenciar."
+                f"## {emoji.robot} Suas aplicações\n"
+                f"Você possui **{len(apps)}** aplicações. "
+                "Escolha uma para gerenciar.\n\n"
+                + FOOTER.format(tagline="Suas aplicações em um só lugar")
             )
         )
         container.add_item(discord.ui.Separator())

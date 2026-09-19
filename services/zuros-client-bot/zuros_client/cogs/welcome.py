@@ -3,8 +3,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from ..config import Settings
+from ..emojis import emoji
+from ..theme import FOOTER, Accent
 
-WELCOME_TEXT = """## ⚡ Seja muito bem-vindo(a) à ZUROS!
+
+def welcome_text() -> str:
+    return f"""## {emoji.zuros} Seja muito bem-vindo(a) à ZUROS!
 
 A **ZUROS** existe para simplificar a operação de empreendedores digitais com tecnologia
 confiável, atendimento próximo e ferramentas que realmente ajudam no dia a dia.
@@ -22,8 +26,11 @@ mantém tudo acessível em uma única operação.
 A ZUROS une praticidade, controle e evolução contínua para transformar processos complexos
 em experiências simples.
 
--# ZUROS · Tecnologia com propósito para o seu negócio.
+{FOOTER.format(tagline="Tecnologia com propósito para o seu negócio")}
 """
+
+
+WELCOME_TEXT = welcome_text()
 
 
 class WelcomeView(discord.ui.LayoutView):
@@ -32,25 +39,25 @@ class WelcomeView(discord.ui.LayoutView):
         links = discord.ui.ActionRow(
             discord.ui.Button(
                 label="Conhecer os planos",
-                emoji="🛍️",
+                emoji=emoji.store,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_plans_url),
             ),
             discord.ui.Button(
                 label="Abrir painel",
-                emoji="🌐",
+                emoji=emoji.website,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_dashboard_url),
             ),
             discord.ui.Button(
                 label="Comunidade e suporte",
-                emoji="💬",
+                emoji=emoji.speech,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_support_url),
             ),
         )
-        container = discord.ui.Container(accent_colour=0x2563EB)
-        container.add_item(discord.ui.TextDisplay(WELCOME_TEXT))
+        container = discord.ui.Container(accent_colour=Accent.BRAND)
+        container.add_item(discord.ui.TextDisplay(welcome_text()))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
         container.add_item(links)
         self.add_item(container)

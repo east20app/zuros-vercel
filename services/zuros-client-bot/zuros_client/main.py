@@ -8,6 +8,7 @@ from .api import ZurosClientApi
 from .cogs.acquisition import AcquisitionView
 from .cogs.central import CentralView
 from .config import Settings, get_settings
+from .emojis import emoji
 from .security import secret_fingerprint
 
 
@@ -21,6 +22,11 @@ class ZurosClientBot(commands.Bot):
 
     async def setup_hook(self) -> None:
         await self.api.start()
+        application_id = self.settings.discord_application_id or self.application_id
+        if application_id:
+            await emoji.sync_application(
+                int(application_id), self.settings.discord_token.get_secret_value()
+            )
         await self.load_extension("zuros_client.cogs.applications")
         await self.load_extension("zuros_client.cogs.commerce")
         await self.load_extension("zuros_client.cogs.central")

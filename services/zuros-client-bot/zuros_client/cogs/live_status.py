@@ -4,12 +4,13 @@ import discord
 from discord.ext import commands, tasks
 
 from ..api import ZurosClientApi
+from ..emojis import emoji
 
 log = logging.getLogger(__name__)
 
 STATUS_CATEGORY = "STATUS ZUROS"
-ONLINE_PREFIX = "🟢 Apps online:"
-PING_PREFIX = "📡 Ping:"
+ONLINE_PREFIX = f"{emoji.online} Apps online:"
+PING_PREFIX = f"{emoji.wifi} Ping:"
 
 
 def status_names(online: int, ping_ms: int) -> tuple[str, str]:

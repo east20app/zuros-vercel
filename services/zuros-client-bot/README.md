@@ -18,6 +18,10 @@ O configurador também cria canais de voz informativos para aplicações realmen
 
 O painel de uma aplicação permite iniciar, reiniciar, parar, solicitar atualização, alterar nome, atualizar token, escolher servidor principal, abrir o dashboard e adicionar o bot ao servidor.
 
+Na inicialização, o bot sincroniza os emojis de aplicação com o catálogo visual do DROX Bot
+incluído em `zuros_client/assets/emojis`. Se o Discord estiver temporariamente indisponível,
+os painéis continuam funcionando com emojis Unicode de fallback.
+
 Os pagamentos PIX são acompanhados automaticamente a cada cinco segundos. Quando uma compra é aprovada, a mensagem de cobrança é substituída pela confirmação e pelo acesso à configuração. Renovações aprovadas também atualizam o painel sem exigir um novo comando.
 
 ## Instalação

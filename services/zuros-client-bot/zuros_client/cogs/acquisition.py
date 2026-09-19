@@ -4,19 +4,21 @@ from discord.ext import commands
 
 from ..api import ZurosClientApi
 from ..config import Settings
+from ..emojis import emoji
 from ..formatters import error_message
 from ..models import Product
+from ..theme import FOOTER, Accent
 from .commerce import PlanSelect
 
 
 def acquisition_text(products: list[Product]) -> str:
     lines = [
-        "## 🛍️ Painel de Aquisição",
+        f"## {emoji.store} Painel de Aquisição",
         "",
         "Bem-vindo(a) à Central de Compras ZUROS. Escolha no menu abaixo "
         "a aplicação que deseja adquirir e siga os passos da compra.",
         "",
-        "### 🤖 Produtos disponíveis",
+        f"### {emoji.robot} Produtos disponíveis",
         "",
     ]
     if products:
@@ -25,7 +27,7 @@ def acquisition_text(products: list[Product]) -> str:
             lines.append(f"> **{product.name}:** {description[:160]}")
     else:
         lines.append("> O catálogo está sendo atualizado. Tente novamente em instantes.")
-    lines.extend(("", "-# ZUROS · Tecnologia e controle para o seu negócio."))
+    lines.extend(("", FOOTER.format(tagline="Tecnologia e controle para o seu negócio")))
     return "\n".join(lines)
 
 
@@ -37,7 +39,7 @@ class AcquisitionProductSelect(discord.ui.Select["AcquisitionView"]):
                 label=product.name[:100],
                 value=product.id,
                 description=(product.description[:100] or "Ver planos disponíveis"),
-                emoji="🤖",
+                emoji=emoji.robot,
             )
             for product in available
         ]
@@ -46,7 +48,7 @@ class AcquisitionProductSelect(discord.ui.Select["AcquisitionView"]):
                 discord.SelectOption(
                     label="Catálogo temporariamente indisponível",
                     value="unavailable",
-                    emoji="⏳",
+                    emoji=emoji.loading,
                 )
             ]
         super().__init__(
@@ -84,21 +86,21 @@ class AcquisitionView(discord.ui.LayoutView):
     def __init__(self, api: ZurosClientApi, settings: Settings, products: list[Product]):
         super().__init__(timeout=None)
         self.api = api
-        container = discord.ui.Container(accent_colour=0x2563EB)
+        container = discord.ui.Container(accent_colour=Accent.BRAND)
         container.add_item(discord.ui.TextDisplay(acquisition_text(products)))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
         container.add_item(discord.ui.ActionRow(AcquisitionProductSelect(products)))
         container.add_item(
             discord.ui.ActionRow(
                 discord.ui.Button(
-                    label="Ver planos no site",
-                    emoji="🌐",
+                    label="Conhecer os planos",
+                    emoji=emoji.website,
                     style=discord.ButtonStyle.link,
                     url=str(settings.zuros_plans_url),
                 ),
                 discord.ui.Button(
                     label="Preciso de ajuda",
-                    emoji="💬",
+                    emoji=emoji.speech,
                     style=discord.ButtonStyle.link,
                     url=str(settings.zuros_support_url),
                 ),

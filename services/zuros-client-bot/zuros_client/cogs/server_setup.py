@@ -4,16 +4,18 @@ from discord.ext import commands
 
 from ..api import ZurosClientApi
 from ..config import Settings
+from ..emojis import emoji
 from ..formatters import error_message
+from ..theme import FOOTER, Accent
 from .acquisition import AcquisitionView
 from .central import CentralView
 from .live_status import status_names
 from .welcome import WelcomeView
 
 ROLE_SPECS = (
-    ("ZUROS Admin", 0x2563EB, True),
-    ("ZUROS Suporte", 0x8B5CF6, True),
-    ("Cliente ZUROS", 0x22C55E, False),
+    ("ZUROS Admin", Accent.BRAND, True),
+    ("ZUROS Suporte", Accent.SUPPORT, True),
+    ("Cliente ZUROS", Accent.SUCCESS, False),
 )
 
 CATEGORY_SPECS = ("COMECE AQUI", "ATENDIMENTO", "STATUS ZUROS")
@@ -23,7 +25,7 @@ CHANNEL_SPECS = (
     ("adquirir", "COMECE AQUI", "Catálogo oficial de aplicações e planos ZUROS."),
     ("suporte", "ATENDIMENTO", "Tire dúvidas e fale com a equipe ZUROS."),
 )
-VOICE_CHANNEL_SPECS = ("🟢 Apps online: 0", "📡 Ping: 0ms")
+VOICE_CHANNEL_SPECS = (f"{emoji.online} Apps online: 0", f"{emoji.wifi} Ping: 0ms")
 
 
 def find_role(guild: discord.Guild, name: str) -> discord.Role | None:
@@ -54,26 +56,26 @@ async def channel_needs_panel(channel: discord.TextChannel, bot_id: int) -> bool
 
 def support_view(settings: Settings) -> discord.ui.LayoutView:
     view = discord.ui.LayoutView(timeout=None)
-    container = discord.ui.Container(accent_colour=0x8B5CF6)
+    container = discord.ui.Container(accent_colour=Accent.SUPPORT)
     container.add_item(
         discord.ui.TextDisplay(
-            "## 💬 Suporte ZUROS\n\n"
+            f"## {emoji.speech} Suporte ZUROS\n\n"
             "Precisa de ajuda com sua conta, aplicação ou pagamento? "
             "Acesse nossa comunidade para falar com a equipe.\n\n"
-            "-# ZUROS · Atendimento próximo quando você precisar."
+            + FOOTER.format(tagline="Atendimento próximo quando você precisar")
         )
     )
     container.add_item(
         discord.ui.ActionRow(
             discord.ui.Button(
                 label="Abrir suporte",
-                emoji="💬",
+                emoji=emoji.speech,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_support_url),
             ),
             discord.ui.Button(
                 label="Abrir painel",
-                emoji="🌐",
+                emoji=emoji.website,
                 style=discord.ButtonStyle.link,
                 url=str(settings.zuros_dashboard_url),
             ),

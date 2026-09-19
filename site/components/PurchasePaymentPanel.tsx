@@ -25,6 +25,14 @@ function CheckoutHeading({ eyebrow, title, subtitle }: { eyebrow: string; title:
     return <div className="mb-7 text-center"><span className="inline-flex rounded-full border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-4 py-2 text-sm font-medium text-[var(--accent)]">▣ {eyebrow}</span><h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-5xl">{title}</h1><p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">{subtitle}</p></div>;
 }
 
+function ActivationSteps() {
+    const labels = ["Pagamento", "Preparando seu bot", "Configuração"];
+    return <div className="mb-5 flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+        <span className="mr-2 text-[10px] font-semibold uppercase tracking-[.16em] text-zinc-500">Ativação</span>
+        {labels.map((label, index) => <div key={label} className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ${index === 0 ? "border border-blue-400/40 bg-blue-500/10 font-medium text-blue-200" : "text-zinc-500"}`}><span className={`grid h-4 w-4 place-items-center rounded-full text-[9px] ${index === 0 ? "bg-blue-500/25 text-blue-100" : "bg-white/[.04]"}`}>{index + 1}</span>{label}</div>)}
+    </div>;
+}
+
 export function PurchasePaymentPanel({ cartId, initialStep, productName, productType, initialPrice, planLabel }: { cartId: string; initialStep: string; productName: string; productType: "bot" | "auth" | "complete"; initialPrice: number; planLabel: string }) {
     const router = useRouter();
     const { push } = useToast();
@@ -99,6 +107,61 @@ export function PurchasePaymentPanel({ cartId, initialStep, productName, product
         <Field label="ID do servidor Discord (opcional)"><input className={inputClass} value={serverId} onChange={(e) => setServerId(e.target.value.replace(/\D/g, ""))} placeholder="123456789012345678" inputMode="numeric" /></Field>
         <Button type="submit" disabled={pending} className="w-full">{pending ? <><Spinner /> Preparando aplicação...</> : "Enviar bot e concluir"}</Button>
     </form></div>;
+
+    if (checkoutStep === 3) return <div className="mx-auto max-w-4xl">
+        <a href="/planos" className="mb-7 inline-flex items-center gap-2 text-xs text-zinc-500 transition hover:text-white">← Voltar aos planos</a>
+        <ActivationSteps />
+        <section className="overflow-hidden rounded-2xl border border-white/[.08] bg-[#08090d] shadow-[0_30px_90px_rgba(0,0,0,.35)]">
+            <header className="flex flex-col gap-5 border-b border-white/[.06] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+                <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-zinc-600">Total do pedido</p>
+                    <p className="mt-1 text-3xl font-bold tracking-tight text-white">{money.format(taxedTotal)}</p>
+                    <p className="mt-1 font-mono text-[11px] text-zinc-500">#{cartId.slice(-8).toUpperCase()} · {productName} · {planLabel}</p>
+                    <p className="mt-3 text-[11px] text-zinc-600">Esta página atualiza sozinha quando o pagamento for detectado.</p>
+                </div>
+                <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/[.07] px-3 py-2 text-xs font-semibold text-amber-200">
+                    <i className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" />
+                    {qr ? "Aguardando pagamento" : "Pagamento não iniciado"}
+                </span>
+            </header>
+
+            {!qr ? <div className="grid gap-6 px-5 py-6 sm:px-7 lg:grid-cols-[1fr_.72fr]">
+                <div>
+                    <h1 className="text-xl font-semibold text-white">Pagamento via PIX</h1>
+                    <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-500">Gere o QR Code para pagar com seu banco. O código expira em 30 minutos e a confirmação é automática.</p>
+                    {step === "select-coupons" && <div className="mt-6"><Field label="Cupom de desconto (opcional)"><div className="mt-2 flex flex-col gap-2 sm:flex-row"><input className={inputClass} value={coupon} onChange={(event) => setCoupon(event.target.value)} placeholder="Digite o código" disabled={discount !== null} /><Button variant="secondary" disabled={pending || !coupon.trim() || discount !== null} onClick={() => startTransition(async () => { const result = await applyPurchaseCoupon(cartId, coupon); if (!result.ok) return push(result.error, "error"); setDiscount(result.data.discount); push(`Cupom aplicado: ${result.data.discount}% de desconto.`, "success"); })}>{discount !== null ? "Aplicado" : "Aplicar"}</Button></div></Field></div>}
+                    <Button onClick={generate} disabled={pending} className="mt-6 w-full sm:w-auto">{pending ? <><Spinner /> Gerando PIX...</> : "Gerar pagamento PIX"}</Button>
+                </div>
+                <aside className="rounded-xl border border-white/[.06] bg-white/[.018] p-5">
+                    <p className="text-xs font-semibold text-white">Resumo do pedido</p>
+                    <dl className="mt-4 space-y-3 text-xs"><div className="flex justify-between gap-4"><dt className="text-zinc-600">Produto</dt><dd className="text-right text-zinc-300">{productName}</dd></div><div className="flex justify-between"><dt className="text-zinc-600">Período</dt><dd className="text-zinc-300">{planLabel}</dd></div>{discount !== null && <div className="flex justify-between text-emerald-300"><dt>Desconto</dt><dd>- {discount}%</dd></div>}<div className="flex justify-between border-t border-white/[.06] pt-3"><dt className="text-zinc-500">Total no PIX</dt><dd className="font-semibold text-white">{money.format(taxedTotal)}</dd></div></dl>
+                    <button type="button" onClick={() => setCheckoutStep(2)} className="mt-5 text-xs text-zinc-600 transition hover:text-white">← Revisar pedido</button>
+                </aside>
+            </div> : <div className="grid gap-7 px-5 py-7 sm:px-7 lg:grid-cols-[205px_1fr] lg:gap-8">
+                <div className="mx-auto w-full max-w-[205px]">
+                    <div className="rounded-xl bg-white p-2.5 shadow-[0_12px_35px_rgba(0,0,0,.3)]"><Image unoptimized src={qr} width={420} height={420} alt="QR Code para pagamento PIX" className="h-auto w-full rounded-md" /></div>
+                    <p className="mt-3 text-center text-[11px] font-semibold text-zinc-300">Escaneie com o app do seu banco</p>
+                </div>
+                <div className="min-w-0">
+                    <h2 className="text-sm font-semibold text-white">Como pagar</h2>
+                    <ol className="mt-4 space-y-3 text-xs text-zinc-400">
+                        <li className="flex items-center gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/[.03] text-[10px] text-zinc-300">1</span>Abra o app do seu banco ou carteira digital.</li>
+                        <li className="flex items-center gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/[.03] text-[10px] text-zinc-300">2</span>Escaneie o QR Code ou copie o código PIX.</li>
+                        <li className="flex items-center gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/[.03] text-[10px] text-zinc-300">3</span>Confirme o pagamento. A liberação é automática.</li>
+                    </ol>
+                    <p className="mb-2 mt-6 text-[10px] font-semibold uppercase tracking-[.12em] text-zinc-600">PIX copia e cola</p>
+                    <div className="overflow-hidden rounded-xl border border-white/[.06] bg-black/25">
+                        <p className="max-h-20 overflow-y-auto break-all px-4 py-3 font-mono text-[11px] leading-5 text-zinc-500">{code}</p>
+                        <button type="button" onClick={() => copy(code).catch(() => push("Não foi possível copiar.", "error"))} className="flex w-full items-center justify-center gap-2 border-t border-white/[.06] bg-blue-500 px-4 py-3 text-xs font-semibold text-white transition hover:bg-blue-400">{copied ? "✓ Código copiado" : "▣ Copiar código PIX"}</button>
+                    </div>
+                </div>
+            </div>}
+
+            <footer className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 border-t border-white/[.06] px-5 py-3 text-[10px] text-zinc-600">
+                <span>✓ Pagamento seguro</span><span>Confirmação automática</span><span>Sem fidelidade</span>
+            </footer>
+        </section>
+    </div>;
 
     return <div>
         {checkoutStep === 1 && <><CheckoutHeading eyebrow="Checkout" title="Personalize seu plano" subtitle="Revise os recursos incluídos na sua aplicação ZUROS." /><CheckoutSteps current={1} /><div className="mt-7 grid gap-5 lg:grid-cols-[1.25fr_.75fr]"><section className="rounded-2xl border border-[var(--accent)]/25 bg-[#08090b] p-6 sm:p-8"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Plano selecionado</p><h2 className="mt-3 text-3xl font-bold text-white">{productName}</h2><p className="mt-2 text-zinc-400">Bot completo com infraestrutura gerenciada e painel integrado.</p><div className="my-6 border-y border-white/[.07] py-5"><strong className="text-4xl text-white">{money.format(initialPrice)}</strong><span className="ml-2 text-sm text-zinc-500">/{planLabel}</span></div><ul className="space-y-3">{includedFeatures.map((feature) => <li key={feature} className="flex gap-3 text-sm text-zinc-300"><span className="text-[var(--accent)]">✓</span>{feature}</li>)}</ul></section><aside className="h-fit rounded-2xl border border-white/[.08] bg-[#08090b] p-6"><h3 className="text-lg font-semibold text-white">Resumo</h3><div className="mt-5 flex justify-between text-sm text-zinc-400"><span>Duração</span><span className="text-white">{planLabel}</span></div><div className="mt-3 flex justify-between border-t border-white/[.07] pt-4"><b>Total</b><b className="text-xl text-[var(--accent)]">{money.format(initialPrice)}</b></div><Button className="mt-6 w-full" onClick={() => setCheckoutStep(2)}>Continuar →</Button></aside></div></>}

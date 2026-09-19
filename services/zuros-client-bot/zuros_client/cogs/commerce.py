@@ -7,8 +7,10 @@ from discord.ext import commands
 
 from ..api import ZurosClientApi
 from ..config import Settings
+from ..emojis import emoji
 from ..formatters import error_message
 from ..models import Application, Product
+from ..theme import FOOTER, Accent
 
 
 class PlanSelect(discord.ui.Select):
@@ -18,6 +20,7 @@ class PlanSelect(discord.ui.Select):
             discord.SelectOption(
                 label=plan.label[:100],
                 value=plan.id,
+                emoji=emoji.calendar,
                 description=f"R$ {plan.price:,.2f}".replace(",", "X")
                 .replace(".", ",")
                 .replace("X", "."),
@@ -60,7 +63,10 @@ class ProductSelect(discord.ui.Select):
             placeholder="Escolha o produto",
             options=[
                 discord.SelectOption(
-                    label=item.name[:100], value=item.id, description=item.description[:100] or None
+                    label=item.name[:100],
+                    value=item.id,
+                    description=item.description[:100] or None,
+                    emoji=emoji.cardbox,
                 )
                 for item in products[:25]
             ],
@@ -93,7 +99,7 @@ class RenewalSelect(discord.ui.Select):
         super().__init__(
             placeholder="Escolha o plano de renovação",
             options=[
-                discord.SelectOption(label=label, value=value)
+                discord.SelectOption(label=label, value=value, emoji=emoji.time)
                 for value, label in self.PLANS
                 if not (app.lifetime and value != "lifetime")
             ],
@@ -130,27 +136,41 @@ async def send_payment(
     value = float(payment.get("finalPrice") or 0)
     code = str(payment.get("pixCopyPaste") or "")
     image = payment.get("pixQrCode")
-    embed = discord.Embed(
-        title=title,
-        description=(
-            f"Valor: **R$ {value:.2f}**\n"
-            "Copie o código PIX abaixo. O pagamento é confirmado automaticamente."
-        ),
-        color=0x35C46A,
-    )
     files: list[discord.File] = []
     if isinstance(image, str) and image:
         import base64
 
         try:
             files.append(discord.File(io.BytesIO(base64.b64decode(image)), filename="pix.png"))
-            embed.set_image(url="attachment://pix.png")
         except Exception:
             pass
+    view = discord.ui.LayoutView(timeout=None)
+    container = discord.ui.Container(accent_colour=Accent.SUCCESS)
+    container.add_item(
+        discord.ui.TextDisplay(
+            f"## {emoji.pix} {title}\n\n"
+            f"Valor: **R$ {value:.2f}**\n"
+            "Copie o código PIX abaixo. O pagamento é confirmado automaticamente."
+        )
+    )
+    container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
+    if files:
+        container.add_item(
+            discord.ui.MediaGallery(
+                discord.MediaGalleryItem(
+                    "attachment://pix.png", description="QR Code do pagamento PIX"
+                )
+            )
+        )
+    if code:
+        container.add_item(discord.ui.TextDisplay(f"```\n{code}\n```"))
+    container.add_item(
+        discord.ui.TextDisplay(FOOTER.format(tagline="Confirmação automática e pagamento seguro"))
+    )
+    view.add_item(container)
     message = await interaction.followup.send(
-        content=f"```\n{code}\n```" if code else None,
-        embed=embed,
         files=files,
+        view=view,
         ephemeral=True,
         wait=True,
     )
@@ -198,44 +218,59 @@ async def watch_payment(
             continue
 
         if state == "approved":
-            embed = discord.Embed(
-                title="Pagamento aprovado",
-                description=(
+            view = discord.ui.LayoutView(timeout=None)
+            container = discord.ui.Container(accent_colour=Accent.SUCCESS)
+            container.add_item(
+                discord.ui.TextDisplay(
+                    f"## {emoji.correct} Pagamento aprovado\n\n"
                     f"**{title}** foi confirmado com sucesso.\n\n"
                     "Sua compra já está sendo processada pela ZUROS."
-                ),
-                color=0x22C55E,
+                )
             )
-            embed.set_footer(text="ZUROS • Pagamento confirmado automaticamente")
             destination = (
                 f"{str(api.settings.zuros_dashboard_url).rstrip('/')}/store/cart/{cart_id}"
             )
             if title.startswith("Renovação"):
                 destination = str(api.settings.zuros_dashboard_url)
-            view = discord.ui.View(timeout=None)
-            view.add_item(
-                discord.ui.Button(
-                    label=(
-                        "Continuar configuração"
-                        if title.startswith("Compra")
-                        else "Gerenciar aplicação"
-                    ),
-                    emoji="⚡",
-                    style=discord.ButtonStyle.link,
-                    url=destination,
+            container.add_item(discord.ui.Separator())
+            container.add_item(
+                discord.ui.ActionRow(
+                    discord.ui.Button(
+                        label=(
+                            "Continuar configuração"
+                            if title.startswith("Compra")
+                            else "Gerenciar aplicação"
+                        ),
+                        emoji=emoji.settings,
+                        style=discord.ButtonStyle.link,
+                        url=destination,
+                    )
                 )
             )
-            await message.edit(content=None, embed=embed, attachments=[], view=view)
+            container.add_item(
+                discord.ui.TextDisplay(
+                    FOOTER.format(tagline="Pagamento confirmado automaticamente")
+                )
+            )
+            view.add_item(container)
+            await message.edit(content=None, embeds=[], attachments=[], view=view)
         else:
-            embed = discord.Embed(
-                title="Pagamento encerrado",
-                description=(
+            view = discord.ui.LayoutView(timeout=None)
+            container = discord.ui.Container(accent_colour=Accent.DANGER)
+            container.add_item(
+                discord.ui.TextDisplay(
+                    f"## {emoji.wrong} Pagamento encerrado\n\n"
                     f"O pagamento de **{title}** foi cancelado ou expirou. "
                     "Abra a central para gerar um novo pagamento."
-                ),
-                color=0xEF4444,
+                )
             )
-            await message.edit(content=None, embed=embed, attachments=[])
+            container.add_item(
+                discord.ui.TextDisplay(
+                    FOOTER.format(tagline="Gere um novo pagamento pela Central ZUROS")
+                )
+            )
+            view.add_item(container)
+            await message.edit(content=None, embeds=[], attachments=[], view=view)
         return
 
 

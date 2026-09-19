@@ -4,7 +4,9 @@ from discord.ext import commands
 
 from ..api import ZurosClientApi
 from ..config import Settings
+from ..emojis import emoji
 from ..formatters import error_message
+from ..theme import FOOTER, Accent
 from ..views.apps import ApplicationListView, ApplicationView
 
 
@@ -21,7 +23,8 @@ class ApplicationsCog(commands.Cog):
                 links = discord.ui.ActionRow()
                 links.add_item(
                     discord.ui.Button(
-                        label="Conhecer planos",
+                        label="Conhecer os planos",
+                        emoji=emoji.store,
                         url=str(self.settings.zuros_plans_url),
                         style=discord.ButtonStyle.link,
                     )
@@ -29,13 +32,18 @@ class ApplicationsCog(commands.Cog):
                 links.add_item(
                     discord.ui.Button(
                         label="Ajuda",
+                        emoji=emoji.speech,
                         url=str(self.settings.zuros_support_url),
                         style=discord.ButtonStyle.link,
                     )
                 )
-                container = discord.ui.Container(accent_colour=0x5865F2)
+                container = discord.ui.Container(accent_colour=Accent.BRAND)
                 container.add_item(
-                    discord.ui.TextDisplay("## Aplicações ZUROS\nVocê ainda não possui aplicações.")
+                    discord.ui.TextDisplay(
+                        f"## {emoji.robot} Aplicações ZUROS\n"
+                        "Você ainda não possui aplicações.\n\n"
+                        + FOOTER.format(tagline="Comece sua operação com a ZUROS")
+                    )
                 )
                 container.add_item(links)
                 view.add_item(container)
@@ -69,7 +77,7 @@ class ApplicationsCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         try:
             await self.api.health()
-            await interaction.followup.send("API ZUROS operacional 🟢", ephemeral=True)
+            await interaction.followup.send(f"API ZUROS operacional {emoji.online}", ephemeral=True)
         except Exception as error:
             await interaction.followup.send(error_message(error), ephemeral=True)
 
