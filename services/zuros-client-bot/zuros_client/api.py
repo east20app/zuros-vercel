@@ -83,17 +83,18 @@ class ZurosClientApi:
                         return payload.get("data", payload) if isinstance(payload, dict) else {}
                     detail = payload.get("error", {}) if isinstance(payload, dict) else {}
                     error_type = ERRORS.get(response.status, ZurosApiError)
+                    code = str(detail.get("code") or "API_ERROR")
                     message = str(detail.get("message") or "Não foi possível concluir a operação.")
-                    if message == "Identidade do bot inválida.":
+                    if code == "BOT_ID_MISMATCH" or message == "Identidade do bot inválida.":
                         message = (
-                            "O ID do bot configurado no site não corresponde ao bot conectado. "
-                            "Atualize ZUROS_CLIENT_BOT_ID no site para "
-                            f"{self.settings.zuros_client_bot_id}."
+                            "O ID de integração do bot não corresponde ao configurado no site. "
+                            "Confira ZUROS_CLIENT_BOT_ID nos dois serviços "
+                            f"(bot: {self.settings.zuros_client_bot_id})."
                         )
                     raise error_type(
                         message,
                         status=response.status,
-                        code=str(detail.get("code") or "API_ERROR"),
+                        code=code,
                         request_id=str(
                             payload.get("request_id") or payload.get("requestId") or request_id
                         ),

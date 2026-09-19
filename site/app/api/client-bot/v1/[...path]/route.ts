@@ -22,7 +22,7 @@ async function authenticate(request: Request, route: string, id: string) {
     const incomingBotId = request.headers.get("x-zuros-bot-id")?.trim() || "";
     const secrets = [process.env.ZUROS_CLIENT_BOT_SECRET, process.env.ZUROS_BRIDGE_CREDENTIAL, ...(process.env.ZUROS_CLIENT_BOT_SECRETS || "").split(",")].map((value) => value?.trim() || "").filter(Boolean);
     if (!secrets.length) return fail("CONFIGURATION_REQUIRED", "API do bot não configurada.", id, 503);
-    if (botId && !safe(incomingBotId, botId)) return fail("INVALID_CREDENTIAL", "Identidade do bot inválida.", id, 401);
+    if (botId && !safe(incomingBotId, botId)) return fail("BOT_ID_MISMATCH", "ID de integração do bot diferente do configurado no site.", id, 401);
     const bearer = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
     const timestamp = request.headers.get("x-zuros-timestamp") || "";
     const nonce = request.headers.get("x-zuros-nonce") || "";

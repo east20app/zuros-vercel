@@ -20,15 +20,6 @@ def remove_legacy_commands(tree: discord.app_commands.CommandTree) -> None:
             tree.remove_command(command.name)
 
 
-def align_authenticated_bot_id(settings: Settings, authenticated_id: int) -> bool:
-    """Use the identity verified by Discord instead of a stale local ID."""
-    actual_id = str(authenticated_id)
-    if settings.zuros_client_bot_id == actual_id:
-        return False
-    settings.zuros_client_bot_id = actual_id
-    return True
-
-
 class ZurosClientBot(commands.Bot):
     def __init__(self, settings: Settings):
         intents = discord.Intents(guilds=True, message_content=True)
@@ -38,13 +29,6 @@ class ZurosClientBot(commands.Bot):
         self.ticket_store = TicketStore(settings.ticket_database_path)
 
     async def setup_hook(self) -> None:
-        # discord.py has authenticated the token before calling setup_hook.
-        # Use that verified identity for every API signature and bot header.
-        if self.user and align_authenticated_bot_id(self.settings, self.user.id):
-            logging.getLogger(__name__).warning(
-                "ZUROS_CLIENT_BOT_ID local difere do bot autenticado; usando ID real %s",
-                self.user.id,
-            )
         await self.api.start()
         await self.ticket_store.initialize()
         application_id = self.settings.discord_application_id or self.application_id
