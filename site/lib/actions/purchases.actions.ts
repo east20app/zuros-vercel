@@ -337,7 +337,7 @@ export async function deliverPurchaseApplication(input: { cartId: string; botNam
         if (hostedId && sdk) await sdk.instance.deleteApplication({ appId: hostedId }).catch(() => undefined);
         if (input.cartId) await databases.cartsBuy.updateOne({ _id: input.cartId, status: "processing" }, { $set: { status: "opened", delivered: false, deliveryState: "retryable_error" } }).catch(() => undefined);
 
-        let msg = error instanceof Error ? error.message.replace(/CamposCloud/gi, "hospedagem") : "Não foi possível entregar a aplicação.";
+        let msg = error instanceof Error ? error.message.replace(/campos\s*cloud/gi, "hospedagem") : "Não foi possível entregar a aplicação.";
         if (axios.isAxiosError(error)) {
             const body = error.response?.data;
             const detail = typeof body === "string"

@@ -38,7 +38,7 @@ new InteractionHandler({
         const expirationDate = userDataCampos?.currentSubscription?.endAt ? new Date(userDataCampos.currentSubscription.endAt) : null;
         
         if (userDataCampos) {
-            contents.push(`> Suas informações da [Campos Cloud](<https://camposcloud.com/dashboard/applications>)`);
+            contents.push(`> Informações da sua hospedagem`);
             contents.push(`- Nome: \`${userDataCampos.name}\``);
             contents.push(`- Email: \`${userDataCampos.email}\``);
 
@@ -134,7 +134,7 @@ new InteractionHandler({
 
             const userDataCampos = await sdk.getMe().catch(() => null);
             if (!userDataCampos) {
-                return await interaction.reply({ content: `\`❌\`・Ocorreu um erro ao obter os dados do usuário CamposCloud. Verifique o token e tente novamente!`, flags: 64 });
+                return await interaction.reply({ content: `\`❌\`・Ocorreu um erro ao obter os dados da conta de hospedagem. Verifique o token e tente novamente!`, flags: 64 });
             }
            
             await databases.stores.create({

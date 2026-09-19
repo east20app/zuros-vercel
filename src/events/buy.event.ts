@@ -556,7 +556,7 @@ new InteractionHandler({
                 const qrCodePix = QrCodePix({
                     version: '01',
                     key: manual_credentials.pix_key,
-                    name: 'CamposCloud',
+                    name: 'ZUROS',
                     city: 'SAO PAULO',
                     transactionId: qrcode_id,
                     message: `Pagamento do bot ${cart._id}`,

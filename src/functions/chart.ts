@@ -86,7 +86,7 @@ export async function generateChartBuffer(data: ChartData): Promise<Buffer> {
       options: {
         plugins: {
           title: {
-            text: "@CamposCloud - All Rights Reserved",
+            text: "ZUROS",
             display: true,
             align: "end",
             color: "rgba(255,255,255,0.2)",

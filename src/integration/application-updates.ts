@@ -19,7 +19,7 @@ export interface ProductUpdateResult {
 function errorMessage(error: unknown): string {
     const responseMessage = (error as { response?: { data?: { error?: unknown; message?: unknown } } })?.response?.data;
     const value = responseMessage?.error || responseMessage?.message || (error instanceof Error ? error.message : error);
-    return String(value || "Erro desconhecido ao atualizar a aplicação.").slice(0, 1000);
+    return String(value || "Erro desconhecido ao atualizar a aplicação.").replace(/campos\s*cloud/gi, "hospedagem").slice(0, 1000);
 }
 
 /** Distribui a release atual com trava para o site e o bot não atualizarem a mesma aplicação. */
@@ -34,7 +34,7 @@ export async function processProductApplicationUpdates(productId: string): Promi
     if (!owner) throw new Error("Configuração do proprietário da hospedagem não encontrada.");
 
     const sdk = await sdkWrapper.getInstance(owner.userId_discord).catch(() => null);
-    if (!sdk?.isValid) throw new Error("Não foi possível conectar à CamposCloud. Verifique a chave da API nas configurações.");
+    if (!sdk?.isValid) throw new Error("Não foi possível conectar ao serviço de hospedagem. Verifique a chave da API nas configurações.");
 
     const version = String(product.currentReleaseVersion);
     const storedRelease = await readReleaseBuffer(productId, version, `releases/${productId}/${version}.zip`).catch(() => null);
@@ -61,9 +61,9 @@ export async function processProductApplicationUpdates(productId: string): Promi
         if (!app) break;
 
         try {
-            if (!app.appId) throw new Error("Aplicação sem ID da CamposCloud.");
+            if (!app.appId) throw new Error("Aplicação sem ID da hospedagem.");
             const camposApp = await sdk.instance.getApplication({ appId: app.appId });
-            if (!camposApp) throw new Error("Aplicação não encontrada na CamposCloud.");
+            if (!camposApp) throw new Error("Aplicação não encontrada na hospedagem.");
             if (camposApp.data?.currentResourceMetrics?.online) await camposApp.stop().catch(() => null);
 
             const zipBuffer = buildHostedBotPackageFromBuffer(releaseBuffer, {

@@ -154,7 +154,7 @@ new InteractionHandler({
                 })
             ]));
         }else{
-            contents.push(`\n> Você não possui nenhum team criado, crie um no [painel](<https://www.camposcloud.com/dashboard/teams>) da CamposCloud.`);
+            contents.push(`\n> Você não possui uma equipe de hospedagem. Crie uma equipe no serviço conectado e atualize este painel.`);
         }
 
         return (interaction as any).update({ ...V2Reply(contents.join("\n"), components), files: [], flags: 64 });

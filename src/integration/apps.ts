@@ -25,15 +25,15 @@ async function updateCamposApplication(hosted: CamposApplication, data: Applicat
         updateApplication?: (input: ApplicationUpdate) => Promise<unknown>;
     };
     const update = compatible.update ?? compatible.updateApplication;
-    if (!update) throw new Error("A versão instalada do SDK da CamposCloud não permite atualizar aplicações.");
+    if (!update) throw new Error("A versão instalada do SDK da hospedagem não permite atualizar aplicações.");
     try {
         await update.call(hosted, data);
     } catch (error) {
-        // Some CamposCloud deployments return 500 from /update even though file
+        // Some hosting deployments return 500 from /update even though file
         // deployment remains available. The generated package contains the same
         // environment values, so allow that path to finish the token rotation.
         if (axios.isAxiosError(error) && (error.response?.status ?? 0) >= 500) {
-            console.warn(`[CamposCloud] Atualização de metadados indisponível (${error.response?.status}); continuando com o envio do pacote.`);
+            console.warn(`[Hospedagem] Atualização de metadados indisponível (${error.response?.status}); continuando com o envio do pacote.`);
             return;
         }
         throw camposError("atualizar os metadados da aplicação", error);
@@ -41,7 +41,9 @@ async function updateCamposApplication(hosted: CamposApplication, data: Applicat
 }
 
 function camposError(operation: string, error: unknown): Error {
-    if (!axios.isAxiosError(error)) return error instanceof Error ? error : new Error(`Não foi possível ${operation}.`);
+    if (!axios.isAxiosError(error)) return error instanceof Error
+        ? new Error(error.message.replace(/campos\s*cloud/gi, "hospedagem"))
+        : new Error(`Não foi possível ${operation}.`);
     const body = error.response?.data;
     const detail = typeof body === "string"
         ? body
@@ -49,7 +51,7 @@ function camposError(operation: string, error: unknown): Error {
             ? body.message
             : undefined;
     const status = error.response?.status;
-    return new Error(`Não foi possível ${operation} na CamposCloud${status ? ` (HTTP ${status})` : ""}${detail ? `: ${detail}` : "."}`);
+    return new Error(`Não foi possível ${operation} na hospedagem${status ? ` (HTTP ${status})` : ""}${detail ? `: ${detail.replace(/campos\s*cloud/gi, "hospedagem")}` : "."}`);
 }
 
 export function buildApplicationEnvironment(input: {
@@ -98,19 +100,19 @@ async function storeSdk(storeId: string): Promise<StoreSdk> {
     const owner = store && await databases.userSettings.findOne({ userId_campos: store.ownerId_campos }, { userId_discord: 1 });
     if (!owner?.userId_discord) throw new Error("Dono da loja não está vinculado ao painel.");
     const sdk = await sdkWrapper.getInstance(owner.userId_discord).catch(() => null);
-    if (!sdk?.isValid) throw new Error("Erro ao conectar com o SDK da CamposCloud.");
+    if (!sdk?.isValid) throw new Error("Erro ao conectar ao serviço de hospedagem.");
     return sdk.instance;
 }
 
 async function camposApplication(application: PopulatedApplication) {
-    if (!application.appId) throw new Error("Aplicação sem ID na CamposCloud.");
+    if (!application.appId) throw new Error("Aplicação sem ID na hospedagem.");
     const sdk = await storeSdk(String(application.storeId?._id || application.storeId));
     try {
         const hosted = await sdk.getApplication({ appId: application.appId });
         return { sdk, hosted };
     } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
-            throw new Error("Aplicação não encontrada na CamposCloud.");
+            throw new Error("Aplicação não encontrada na hospedagem.");
         }
         throw camposError("consultar a aplicação", error);
     }
@@ -178,12 +180,12 @@ async function redeploy(application: PopulatedApplication, hosted: CamposApplica
     });
 
     // Alterar token ou servidor não deve depender do arquivo histórico da
-    // release. A aplicação já está implantada na CamposCloud e as variáveis
+    // release. A aplicação já está implantada na hospedagem e as variáveis
     // acima são suficientes para aplicar a configuração. Se o ZIP existir,
     // também reconstruímos o pacote para manter config.json/.env sincronizados.
     const releaseAvailable = await releaseExists(String(product._id), version).catch(() => false);
     if (!releaseAvailable) {
-        console.warn(`[CAMPOSCLOUD] Release ${version} ausente no disco; configuração aplicada somente pelas variáveis de ambiente.`);
+        console.warn(`[HOSPEDAGEM] Release ${version} ausente no disco; configuração aplicada somente pelas variáveis de ambiente.`);
         return;
     }
     try {

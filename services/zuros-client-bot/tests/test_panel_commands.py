@@ -53,8 +53,10 @@ async def test_only_apps_and_admin_panel_remain_registered() -> None:
         assert {command.name for command in bot.tree.get_commands()} == {"apps", "painel"}
         panel = bot.tree.get_command("painel")
         assert panel is not None
-        assert panel.default_permissions is not None
-        assert panel.default_permissions.administrator
+        # Discord can hide commands with default_permissions even from server
+        # admins when the integration has a command override. The handler and
+        # every panel interaction still enforce administrator permissions.
+        assert panel.default_permissions is None
         assert panel.to_dict(bot.tree)["contexts"] is None
     finally:
         await bot.close()

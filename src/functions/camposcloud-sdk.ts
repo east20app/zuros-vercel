@@ -96,11 +96,11 @@ class SDKWrapper {
      */
     async checkIsValidConfig(userId: string, sdkInstance: CamposCloudSDK): Promise<boolean> {
         try {
-            await withTimeout(sdkInstance.getMe(), VALIDATION_TIMEOUT_MS, "Tempo limite ao validar a CamposCloud.");
+            await withTimeout(sdkInstance.getMe(), VALIDATION_TIMEOUT_MS, "Tempo limite ao validar a hospedagem.");
             return true;
         } catch (error) {
             const status = (error as { response?: { status?: number } })?.response?.status;
-            console.warn(`[CamposCloud] Falha ao validar credencial do usuário ${userId}${status ? ` (HTTP ${status})` : ""}.`);
+            console.warn(`[Hospedagem] Falha ao validar credencial do usuário ${userId}${status ? ` (HTTP ${status})` : ""}.`);
             return false;
         }
     }

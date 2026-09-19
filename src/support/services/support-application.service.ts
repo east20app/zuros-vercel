@@ -6,9 +6,9 @@ import type { SafeApplication } from "../types";
 async function getSdkForStore(storeId: string) {
     const store = await databases.stores.findById(storeId, { ownerId_campos: 1 });
     const owner = store && await databases.userSettings.findOne({ userId_campos: store.ownerId_campos }, { userId_discord: 1 });
-    if (!owner?.userId_discord) throw new Error("A loja não está vinculada à CamposCloud.");
+    if (!owner?.userId_discord) throw new Error("A loja não está vinculada à hospedagem.");
     const sdk = await sdkWrapper.getInstance(owner.userId_discord).catch(() => null);
-    if (!sdk?.isValid) throw new Error("Não foi possível conectar à CamposCloud.");
+    if (!sdk?.isValid) throw new Error("Não foi possível conectar ao serviço de hospedagem.");
     return sdk.instance;
 }
 

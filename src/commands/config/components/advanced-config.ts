@@ -56,7 +56,7 @@ new InteractionHandler({
         const expirationDate = userDataCampos?.currentSubscription?.endAt ? new Date(userDataCampos.currentSubscription.endAt) : null;
         
         if (userDataCampos) {
-            contents.push(`> Informações do dono da loja na [Campos Cloud](<https://camposcloud.com/dashboard/applications>)`);
+            contents.push(`> Informações do dono da loja`);
             contents.push(`- Nome: \`${userDataCampos.name}\``);
             contents.push(`- Email: \`${userDataCampos.email}\``);
 

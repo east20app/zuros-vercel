@@ -1,6 +1,6 @@
 # ZUROS Client Bot
 
-Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Discord. Ele não acessa MongoDB, CamposCloud ou gateways diretamente; toda operação passa pela API privada do painel.
+Bot oficial e independente para clientes controlarem aplicações ZUROS pelo Discord. Ele não acessa bancos de dados, serviços de hospedagem ou gateways diretamente; toda operação passa pela API privada do painel.
 
 ## Comandos
 

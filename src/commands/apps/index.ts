@@ -89,7 +89,7 @@ new InteractionHandler({
 
         const sdk = await sdkWrapper.getInstance(ownerStoreConfig.userId_discord).catch(() => null);
         if (!sdk || !sdk.isValid) {
-            return interaction.editReply({ content: "`❌`・Erro ao conectar com o SDK da CamposCloud." });
+            return interaction.editReply({ content: "`❌`・Erro ao conectar ao serviço de hospedagem." });
         }
 
         const currentAppData = await sdk.instance.getApplication({ appId: currentApplication.appId! }).catch(() => null);
@@ -258,12 +258,12 @@ new InteractionHandler({
 
                 const sdkCampos = await sdkWrapper.getInstance(ownerStoreConfig.userId_discord).catch(() => null);
                 if (!sdkCampos || !sdkCampos.isValid) {
-                    throw new Error("Não foi possível conectar com o SDK da CamposCloud.");
+                    throw new Error("Não foi possível conectar com o SDK da hospedagem.");
                 }
                 
                 const currentApplicationCampos = await sdkCampos.instance.getApplication({ appId: application.appId! }).catch(() => null);
                 if (!currentApplicationCampos) {
-                    throw new Error("Aplicação não encontrada no SDK da CamposCloud.");
+                    throw new Error("Aplicação não encontrada no SDK da hospedagem.");
                 }
 
                 const newToken = interaction.fields.getTextInputValue("newToken");
@@ -380,12 +380,12 @@ new InteractionHandler({
 
         const sdkCampos = await sdkWrapper.getInstance(ownerStoreConfig.userId_discord).catch(() => null);
         if (!sdkCampos || !sdkCampos.isValid) {
-            return interaction.reply({ content: "`❌`・Erro ao conectar com o SDK da CamposCloud.", flags: 64 });
+            return interaction.reply({ content: "`❌`・Erro ao conectar ao serviço de hospedagem.", flags: 64 });
         }
 
         const currentApplicationCampos = await sdkCampos.instance.getApplication({ appId: application.appId! }).catch(() => null);
         if (!currentApplicationCampos) {
-            return interaction.reply({ content: "`❌`・Aplicação não encontrada no SDK da CamposCloud.", flags: 64 });
+            return interaction.reply({ content: "`❌`・Aplicação não encontrada no SDK da hospedagem.", flags: 64 });
         }
 
         try {
@@ -436,12 +436,12 @@ new InteractionHandler({
 
         const sdkCampos = await sdkWrapper.getInstance(ownerStoreConfig.userId_discord).catch(() => null);
         if (!sdkCampos || !sdkCampos.isValid) {
-            return interaction.reply({ content: "`❌`・Erro ao conectar com o SDK da CamposCloud.", flags: 64 });
+            return interaction.reply({ content: "`❌`・Erro ao conectar ao serviço de hospedagem.", flags: 64 });
         }
 
         const currentApplicationCampos = await sdkCampos.instance.getApplication({ appId: application.appId! }).catch(() => null);
         if (!currentApplicationCampos) {
-            return interaction.reply({ content: "`❌`・Aplicação não encontrada no SDK da CamposCloud.", flags: 64 });
+            return interaction.reply({ content: "`❌`・Aplicação não encontrada no SDK da hospedagem.", flags: 64 });
         }
 
         try {
@@ -493,12 +493,12 @@ new InteractionHandler({
 
         const sdkCampos = await sdkWrapper.getInstance(ownerStoreConfig.userId_discord).catch(() => null);
         if (!sdkCampos || !sdkCampos.isValid) {
-            return interaction.reply({ content: "`❌`・Erro ao conectar com o SDK da CamposCloud.", flags: 64 });
+            return interaction.reply({ content: "`❌`・Erro ao conectar ao serviço de hospedagem.", flags: 64 });
         }
 
         const currentApplicationCampos = await sdkCampos.instance.getApplication({ appId: application.appId! }).catch(() => null);
         if (!currentApplicationCampos) {
-            return interaction.reply({ content: "`❌`・Aplicação não encontrada no SDK da CamposCloud.", flags: 64 });
+            return interaction.reply({ content: "`❌`・Aplicação não encontrada no SDK da hospedagem.", flags: 64 });
         }
 
         try {
@@ -642,12 +642,12 @@ new InteractionHandler({
 
                 const sdkCampos = await sdkWrapper.getInstance(ownerStoreConfig.userId_discord).catch(() => null);
                 if (!sdkCampos || !sdkCampos.isValid) {
-                    throw new Error("Não foi possível conectar com o SDK da CamposCloud.");
+                    throw new Error("Não foi possível conectar com o SDK da hospedagem.");
                 }
 
                 const currentApplicationCampos = await sdkCampos.instance.getApplication({ appId: application.appId! }).catch(() => null);
                 if (!currentApplicationCampos) {
-                    throw new Error("Aplicação não encontrada no SDK da CamposCloud.");
+                    throw new Error("Aplicação não encontrada no SDK da hospedagem.");
                 }
 
                 const version = application.version || product.currentReleaseVersion;
@@ -917,7 +917,7 @@ new InteractionHandler({
                 const qrCodePix = QrCodePix({
                     version: '01',
                     key: manual_credentials.pix_key,
-                    name: 'CamposCloud',
+                    name: 'ZUROS',
                     city: 'SAO PAULO',
                     transactionId: qrcode_id,
                     message: `Renovação do bot ${cartRenew._id}`,

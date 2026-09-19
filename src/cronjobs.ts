@@ -212,11 +212,11 @@ asyncLoopingExec(3000, async () => {
         try {
             if (application.status === "grace_period"){
 
-                // Caso o erro for 404, significa que a aplicação já foi deletada da CamposCloud, então vamos apenas deletar a aplicação da nossa DB.
+                // Caso o erro for 404, significa que a aplicação já foi deletada da hospedagem, então vamos apenas deletar a aplicação da nossa DB.
                 // Caso o erro for diferente de 404, vamos lançar o erro para capturar no catch.
                 await sdk.instance.deleteApplication({appId: application.appId!}).catch((error) => {
                     if (error?.response?.status === 404) {
-                        console.log(`🛡️ A aplicação ${application.appId} já foi deletada da CamposCloud, deletando da nossa DB.`);
+                        console.log(`🛡️ A aplicação ${application.appId} já foi deletada da hospedagem, deletando da nossa DB.`);
                         return;
                     }
 
